@@ -1,6 +1,12 @@
 import { motion } from "framer-motion";
 
-export const HamburgerButton = ({ active, setActive }: any) => {
+export const HamburgerButton = ({
+  active,
+  setActive,
+}: {
+  active: boolean;
+  setActive: (value: boolean) => void;
+}) => {
   return (
     <>
       <motion.div
@@ -14,7 +20,7 @@ export const HamburgerButton = ({ active, setActive }: any) => {
       <motion.button
         initial={false}
         animate={active ? "open" : "closed"}
-        onClick={() => setActive((pv: any) => !pv)}
+        onClick={() => setActive(!active)}
         className={`group fixed right-6 top-6 z-50 h-10 w-10 transition-all bg-black ${
           active ? "rounded-bl-xl rounded-tr-xl" : "rounded-xl"
         }`}

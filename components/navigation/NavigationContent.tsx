@@ -1,5 +1,6 @@
 import { SiGithub, SiLinkedin } from "react-icons/si";
 import { motion } from "framer-motion";
+import { ReactNode } from "react";
 
 export const NavigationContent = () => {
   return (
@@ -45,7 +46,15 @@ const LinksContainer = () => {
   );
 };
 
-const NavLink = ({ children, href, idx }: any) => {
+const NavLink = ({
+  children,
+  href,
+  idx,
+}: {
+  children: ReactNode;
+  href: string;
+  idx: number;
+}) => {
   return (
     <motion.a
       initial={{ opacity: 0, y: -8 }}
