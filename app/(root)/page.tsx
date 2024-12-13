@@ -1,5 +1,5 @@
 import Hero from "@/components/Hero";
-import Image from "next/image";
+import { Work } from "@/components/Work";
 import React from "react";
 
 export default function Home() {
@@ -30,6 +30,7 @@ export default function Home() {
         /> */}
         <Hero />
       </div>
+      <Work />
     </div>
   );
 }
