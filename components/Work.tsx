@@ -15,10 +15,10 @@ export const Work = () => {
           heading={el.heading}
           key={el.subheading}
         >
-          <ExampleContent
+          <ProjectDescription
             additionalTitle={el.additionalTitle}
             description={el.description}
-            learnMoreLink={el.learnMoreLink}
+            slug={el.slug}
           />
         </ImageTextParallaxContent>
       ))}
@@ -26,14 +26,14 @@ export const Work = () => {
   );
 };
 
-const ExampleContent = ({
+const ProjectDescription = ({
   additionalTitle,
   description,
-  learnMoreLink,
+  slug,
 }: {
   additionalTitle: string;
   description: string[];
-  learnMoreLink: string;
+  slug: string;
 }) => (
   <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 px-4 pb-24 pt-12 md:grid-cols-12 text-white">
     <h2 className="col-span-1 text-3xl font-bold md:col-span-4">
@@ -48,7 +48,7 @@ const ExampleContent = ({
         ))}
       </div>
       <Link
-        href={learnMoreLink}
+        href={`/work/${slug}`}
         className="w-full rounded bg-neutral-900 px-9 py-4 text-xl text-white transition-colors hover:bg-neutral-700 md:w-fit"
       >
         Learn more <FiArrowUpRight className="inline" />

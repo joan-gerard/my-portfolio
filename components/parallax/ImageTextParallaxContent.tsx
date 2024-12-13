@@ -1,3 +1,4 @@
+"use client";
 import React, { ReactNode, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
@@ -30,14 +31,14 @@ export const ImageTextParallaxContent = ({
   );
 };
 
-const StickyImage = ({ imgUrl }: { imgUrl: string }) => {
+export const StickyImage = ({ imgUrl }: { imgUrl: string }) => {
   const targetRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
     offset: ["end end", "end start"],
   });
 
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.85]);
+  const scale = useTransform(scrollYProgress, [0, 1], [0.85, 0.75]);
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
 
   return (
