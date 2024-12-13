@@ -63,7 +63,13 @@ const StickyImage = ({ imgUrl }: { imgUrl: string }) => {
   );
 };
 
-const OverlayCopy = ({ subheading, heading }: any) => {
+const OverlayCopy = ({
+  subheading,
+  heading,
+}: {
+  subheading: string;
+  heading: string;
+}) => {
   const targetRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
