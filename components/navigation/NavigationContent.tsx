@@ -2,11 +2,15 @@ import { SiGithub, SiLinkedin } from "react-icons/si";
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
 
-export const NavigationContent = () => {
+export const NavigationContent = ({
+  setActive,
+}: {
+  setActive: (value: boolean) => void;
+}) => {
   return (
     <nav className="fixed right-4 top-4 z-40 h-[calc(100vh_-_32px)] w-[calc(100%_-_32px)] overflow-hidden">
       <Logo />
-      <LinksContainer />
+      <LinksContainer setActive={setActive} />
       <FooterCTAs />
     </nav>
   );
@@ -32,12 +36,16 @@ const Logo = () => {
   );
 };
 
-const LinksContainer = () => {
+const LinksContainer = ({
+  setActive,
+}: {
+  setActive: (value: boolean) => void;
+}) => {
   return (
     <motion.div className="space-y-4 p-12 pl-4 md:pl-10">
       {LINKS.map((l, idx) => {
         return (
-          <NavLink key={l.title} href={l.href} idx={idx}>
+          <NavLink key={l.title} href={l.href} idx={idx} setActive={setActive}>
             {l.title}
           </NavLink>
         );
@@ -50,10 +58,12 @@ const NavLink = ({
   children,
   href,
   idx,
+  setActive,
 }: {
   children: ReactNode;
   href: string;
   idx: number;
+  setActive: (value: boolean) => void;
 }) => {
   return (
     <motion.a
@@ -70,6 +80,7 @@ const NavLink = ({
       exit={{ opacity: 0, y: -8 }}
       href={href}
       className="block text-5xl md:text-6xl font-medium text-white transition-colors opacity-80 uppercase"
+      onClick={() => setActive(false)}
     >
       {children}
     </motion.a>

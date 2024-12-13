@@ -3,11 +3,11 @@ import React from "react";
 import { FiArrowUpRight } from "react-icons/fi";
 import { work } from "@/constants/work";
 import Link from "next/link";
-import { ImageTextParallaxContent } from "./navigation/ImageTextParallaxContent";
+import { ImageTextParallaxContent } from "./parallax/ImageTextParallaxContent";
 
 export const Work = () => {
   return (
-    <div className="bg-black">
+    <div className="bg-black z-0">
       {work.map((el) => (
         <ImageTextParallaxContent
           imgUrl={el.imgUrl}

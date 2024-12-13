@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 export const HamburgerButton = ({
   active,
@@ -7,6 +8,20 @@ export const HamburgerButton = ({
   active: boolean;
   setActive: (value: boolean) => void;
 }) => {
+  // Add useEffect to toggle body scroll
+  useEffect(() => {
+    if (active) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [active]);
+
   return (
     <>
       <motion.div
@@ -14,7 +29,7 @@ export const HamburgerButton = ({
         animate={active ? "open" : "closed"}
         variants={UNDERLAY_VARIANTS}
         style={{ top: 24, right: 24 }}
-        className="fixed z-10 rounded-xl bg-zinc-950"
+        className="fixed z-10 rounded-xl bg-zinc-950 overflow-hidden"
       />
 
       <motion.button
