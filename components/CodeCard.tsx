@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { motion } from "framer-motion";
 import { SiGithub } from "react-icons/si";
 import { FaRegEye } from "react-icons/fa";
@@ -96,7 +96,15 @@ export const CodeCard = ({
   );
 };
 
-const ToggleChip = ({ children, selected, onClick }: any) => {
+const ToggleChip = ({
+  children,
+  selected,
+  onClick,
+}: {
+  children: ReactNode;
+  selected: boolean;
+  onClick: () => void;
+}) => {
   return (
     <button
       onClick={onClick}
@@ -111,7 +119,13 @@ const ToggleChip = ({ children, selected, onClick }: any) => {
   );
 };
 
-const Card = ({ className, children }: any) => {
+const Card = ({
+  className,
+  children,
+}: {
+  className: string;
+  children: ReactNode;
+}) => {
   return (
     <motion.div
       initial={{
@@ -132,9 +146,9 @@ const Card = ({ className, children }: any) => {
   );
 };
 
-const Markup = ({ code }: any) => {
+const Markup = ({ code }: { code: string | undefined }) => {
   return (
-    <Highlight theme={prismTheme} code={code} language="javascript">
+    <Highlight theme={prismTheme} code={code!} language="javascript">
       {({ style, tokens, getLineProps, getTokenProps }) => (
         <pre style={style}>
           {tokens.map((line, i) => (
@@ -183,13 +197,13 @@ const Markup = ({ code }: any) => {
 // const app = initializeSDK({
 //     apiKey: "sk_abc123"
 // });
-  
+
 // app.doCoolThing();`;
 
 // const pythonCode = `import your_package
-    
+
 // app = your_package.init({
 //     "api_key": "sk_abc123"
 // })
-  
+
 // app.do_cool_thing()`;
