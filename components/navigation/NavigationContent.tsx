@@ -79,7 +79,7 @@ const NavLink = ({
       }}
       exit={{ opacity: 0, y: -8 }}
       href={href}
-      className="block text-5xl md:text-6xl font-medium text-white transition-colors opacity-80 uppercase"
+      className="block text-5xl md:text-6xl font-medium text-gray-400 hover:text-white transition-colors opacity-80 uppercase"
       onClick={() => setActive(false)}
     >
       {children}

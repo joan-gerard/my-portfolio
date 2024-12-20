@@ -29,9 +29,9 @@ export const HamburgerButton = ({
         animate={active ? "open" : "closed"}
         variants={UNDERLAY_VARIANTS}
         style={{ top: 24, right: 24 }}
-        className="fixed z-10 rounded-xl bg-zinc-950 overflow-hidden"
+        className="fixed z-10 rounded-xl bg-red-400 overflow-hidden"
       />
-
+{/* bg-zinc-950 */}
       <motion.button
         initial={false}
         animate={active ? "open" : "closed"}
