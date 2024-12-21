@@ -7,7 +7,7 @@ import { ImageTextParallaxContent } from "./parallax/ImageTextParallaxContent";
 
 export const Work = () => {
   return (
-    <div className="bg-black z-0">
+    <div className="bg-black z-0" id="work">
       {work.map((el) => (
         <ImageTextParallaxContent
           imgUrl={el.imgUrl}
