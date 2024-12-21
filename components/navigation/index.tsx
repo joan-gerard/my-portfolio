@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 import { motion } from "framer-motion";
 
-const LiquidSideNav = () => {
+const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -19,12 +19,12 @@ const LiquidSideNav = () => {
           <FiMenu />
         </motion.button>
       </div>
-      <Nav isOpen={isOpen} setIsOpen={setIsOpen} />
+      <NavigationPanel isOpen={isOpen} setIsOpen={setIsOpen} />
     </div>
   );
 };
 
-const Nav = ({
+const NavigationPanel = ({
   isOpen,
   setIsOpen,
 }: {
@@ -104,7 +104,7 @@ const NavLink = ({
   );
 };
 
-export default LiquidSideNav;
+export default Navigation;
 
 const navVariants = {
   open: {

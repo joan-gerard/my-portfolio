@@ -1,12 +1,12 @@
 import Footer from "@/components/Footer";
-import LiquidSideNav from "@/components/navigationNew";
+import Navigation from "@/components/navigation";
 
 export default function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <main className="font-work-sans">
-      <LiquidSideNav />
+      <Navigation />
       {children}
       <Footer />
     </main>
