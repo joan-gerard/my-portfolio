@@ -1,6 +1,7 @@
 "use client";
 import React, { ReactNode, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 const IMG_PADDING = 12;
 
@@ -15,6 +16,9 @@ export const ImageTextParallaxContent = ({
   heading: string;
   children: ReactNode;
 }) => {
+  const windowSize = useWindowSize();
+  const { width: windowWidth } = windowSize;
+
   return (
     <div
       style={{
@@ -22,16 +26,26 @@ export const ImageTextParallaxContent = ({
         paddingRight: IMG_PADDING,
       }}
     >
-      <div className="relative h-[150vh] z-0">
-        <StickyImage imgUrl={imgUrl} />
-        <OverlayCopy heading={heading} subheading={subheading} />
+      <div className="relative h-[50vh] md:h-[150vh] z-0">
+        <StickyImage imgUrl={imgUrl} windowWidth={windowWidth} />
+        <OverlayCopy
+          heading={heading}
+          subheading={subheading}
+          windowWidth={windowWidth}
+        />
       </div>
       {children}
     </div>
   );
 };
 
-export const StickyImage = ({ imgUrl }: { imgUrl: string }) => {
+export const StickyImage = ({
+  imgUrl,
+  windowWidth,
+}: {
+  imgUrl: string;
+  windowWidth: number;
+}) => {
   const targetRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
@@ -40,14 +54,13 @@ export const StickyImage = ({ imgUrl }: { imgUrl: string }) => {
 
   const scale = useTransform(scrollYProgress, [0, 1], [0.85, 0.75]);
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-
   return (
     <motion.div
       style={{
         backgroundImage: `url(${imgUrl})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        height: `calc(100vh - ${IMG_PADDING * 2}px)`,
+        height: `calc(100vh - ${(windowWidth < 768 ? 32 : 2) * IMG_PADDING}px)`,
         top: IMG_PADDING,
         scale,
       }}
@@ -67,9 +80,11 @@ export const StickyImage = ({ imgUrl }: { imgUrl: string }) => {
 const OverlayCopy = ({
   subheading,
   heading,
+  windowWidth,
 }: {
   subheading: string;
   heading: string;
+  windowWidth: number;
 }) => {
   const targetRef = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -77,7 +92,9 @@ const OverlayCopy = ({
     offset: ["start end", "end start"],
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], [250, -250]);
+  let yTransformRange = windowWidth < 768 ? [-50, -450] : [250, -250];
+
+  const y = useTransform(scrollYProgress, [0, 1], yTransformRange);
   const opacity = useTransform(scrollYProgress, [0.25, 0.5, 0.75], [0, 1, 0]);
 
   return (
