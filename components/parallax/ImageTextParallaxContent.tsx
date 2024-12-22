@@ -26,7 +26,7 @@ export const ImageTextParallaxContent = ({
         paddingRight: IMG_PADDING,
       }}
     >
-      <div className="relative h-[50vh] md:h-[150vh] z-0">
+      <div className="relative h-[50vh] lg:h-[150vh] z-0">
         <StickyImage imgUrl={imgUrl} windowWidth={windowWidth} />
         <OverlayCopy
           heading={heading}
@@ -51,8 +51,9 @@ export const StickyImage = ({
     target: targetRef,
     offset: ["end end", "end start"],
   });
+  const scaleTransformRange = windowWidth < 1024 ? [1, 0.85] : [0.85, 0.75];
 
-  const scale = useTransform(scrollYProgress, [0, 1], [0.85, 0.75]);
+  const scale = useTransform(scrollYProgress, [0, 1], scaleTransformRange);
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
   return (
     <motion.div
@@ -60,7 +61,7 @@ export const StickyImage = ({
         backgroundImage: `url(${imgUrl})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        height: `calc(100vh - ${(windowWidth < 768 ? 32 : 2) * IMG_PADDING}px)`,
+        height: `calc(100vh - ${(windowWidth < 1024 ? 32 : 2) * IMG_PADDING}px)`,
         top: IMG_PADDING,
         scale,
       }}
@@ -92,7 +93,7 @@ const OverlayCopy = ({
     offset: ["start end", "end start"],
   });
 
-  const yTransformRange = windowWidth < 768 ? [-50, -450] : [250, -250];
+  const yTransformRange = windowWidth < 1024 ? [-50, -450] : [250, -250];
 
   const y = useTransform(scrollYProgress, [0, 1], yTransformRange);
   const opacity = useTransform(scrollYProgress, [0.25, 0.5, 0.75], [0, 1, 0]);
@@ -106,10 +107,10 @@ const OverlayCopy = ({
       ref={targetRef}
       className="absolute left-0 top-0 flex h-screen w-full flex-col items-center justify-center text-white"
     >
-      <p className="mb-2 text-center text-xl md:mb-4 md:text-3xl">
+      <p className="mb-2 text-center text-xl md:text-2xllg:text-3xl lg:mb-4">
         {subheading}
       </p>
-      <p className="text-center text-4xl font-bold md:text-7xl">{heading}</p>
+      <p className="text-center font-bold text-3xl md:text-5xl lg:text-7xl">{heading}</p>
     </motion.div>
   );
 };
