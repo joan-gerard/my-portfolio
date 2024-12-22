@@ -1,30 +1,5 @@
-"use client";
-import React from "react";
-import { FiArrowUpRight } from "react-icons/fi";
-import { work } from "@/constants/work";
 import Link from "next/link";
-import { ImageTextParallaxContent } from "./parallax/ImageTextParallaxContent";
-
-export const Work = () => {
-  return (
-    <div className="bg-black z-0" id="work">
-      {work.map((el) => (
-        <ImageTextParallaxContent
-          imgUrl={el.imgUrl}
-          subheading={el.subheading}
-          heading={el.heading}
-          key={el.subheading}
-        >
-          <ProjectDescription
-            additionalTitle={el.additionalTitle}
-            description={el.description}
-            slug={el.slug}
-          />
-        </ImageTextParallaxContent>
-      ))}
-    </div>
-  );
-};
+import { FiArrowUpRight } from "react-icons/fi";
 
 const ProjectDescription = ({
   additionalTitle,
@@ -56,3 +31,5 @@ const ProjectDescription = ({
     </div>
   </div>
 );
+
+export default ProjectDescription;

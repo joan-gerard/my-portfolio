@@ -1,5 +1,5 @@
 import Hero from "@/components/Hero";
-import { Work } from "@/components/Work";
+import { Work } from "@/components/work";
 import React from "react";
 
 export default function Home() {

@@ -64,7 +64,7 @@ const NavLink = ({
   return (
     // <Link href={`#${text}`}>
     <motion.p
-      className="inline-block text-white opacity-80 w-fit font-extrabold text-4xl sm:text-6xl md:text-7xl hover:opacity-100 transition-colors uppercase"
+      className="inline-block text-white opacity-80 w-fit font-extrabold text-4xl sm:text-6xl md:text-7xl hover:opacity-100 transition-colors uppercase hover:cursor-pointer"
       variants={navLinkVariants}
       transition={{
         type: "spring",

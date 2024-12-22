@@ -1,18 +1,17 @@
 import { CodeCard } from "@/components/CodeCard";
 import Hero from "@/components/Hero";
-import { StickyImage } from "@/components/parallax/ImageTextParallaxContent";
+import { StickyImageNew } from "@/components/parallax/StickyImageNew";
 import { work } from "@/constants/work";
-import React from "react";
 
 const page = async ({ params }: { params: Promise<{ _slug: string }> }) => {
   const slug = (await params)._slug;
   const project = work.find((el) => el.slug === slug);
 
   return (
-    <div className="bg-black h-screen z-0 relative">
+    <div className="bg-black h-full z-0 relative">
       <Hero />
-      <StickyImage imgUrl={project!.imgUrl} />
-      <div className="mx-auto max-w-5xl gap-8 flex px-4 pb-24 pt-12 text-white">
+      <StickyImageNew imgUrl={project!.imgUrl} />
+      <div className="mx-auto max-w-5xl gap-8 flex px-4 pb-24 pt-12 text-white z-0">
         <p>
           Lorem ipsum odor amet, consectetuer adipiscing elit. Id bibendum dis
           imperdiet pulvinar blandit pulvinar; sollicitudin justo. Sit
@@ -34,7 +33,7 @@ const page = async ({ params }: { params: Promise<{ _slug: string }> }) => {
           senectus iaculis in suscipit mi leo.
         </p>
       </div>
-      <div>
+      <div className="pb-24">
         <CodeCard
           githubUrl={project?.githubUrl}
           liveUrl={project?.liveUrl}

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { FiMenu } from "react-icons/fi";
 import { motion } from "framer-motion";
 import NavigationPanel from "./NavigationPanel";
+import Link from "next/link";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,7 +11,9 @@ const Navigation = () => {
   return (
     <div className="grid place-content-center relative z-10">
       <div className="flex items-center text-white fixed justify-between w-full p-4 bg-white/5 backdrop-blur">
-        <p className="text-white text-2xl font-medium">JOAN GERARD</p>
+        <Link href="/" className="text-white text-2xl font-medium uppercase">
+          Joan Gerard
+        </Link>
         <motion.button
           whileHover={{ rotate: "180deg" }}
           whileTap={{ scale: 0.9 }}
