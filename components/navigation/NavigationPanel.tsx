@@ -62,7 +62,7 @@ const NavLink = ({
     const element = document.getElementById(id);
     if (element) {
       const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - 80; // 80px offset
+      const offsetPosition = elementPosition + window.scrollY - 120; // 80px offset
 
       window.scrollTo({
         top: offsetPosition,

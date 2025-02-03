@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { FiArrowUpRight } from "react-icons/fi";
 import { Chip } from "../utils/Chip";
+import { AiOutlineArrowRight } from "react-icons/ai";
 
 const ProjectDescription = ({
   additionalTitle,
@@ -18,9 +18,7 @@ const ProjectDescription = ({
       <h2 className="text-2xl font-bold">{additionalTitle}</h2>
       <div className="flex flex-wrap mt-8 gap-4">
         {stack.map((el) => (
-          <Chip key={el}>
-            {el}
-          </Chip>
+          <Chip key={el}>{el}</Chip>
         ))}
       </div>
     </div>
@@ -34,9 +32,10 @@ const ProjectDescription = ({
       </div>
       <Link
         href={`/work/${slug}`}
-        className="w-full rounded bg-neutral-900 px-9 py-4 text-lg text-white transition-colors hover:bg-neutral-700 md:w-fit"
+        className="flex items-center gap-4 text-xl text-indigo-300"
       >
-        Learn more <FiArrowUpRight className="inline" />
+        <span>Learn more</span>
+        <AiOutlineArrowRight />
       </Link>
     </div>
   </div>
