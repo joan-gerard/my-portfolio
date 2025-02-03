@@ -1,5 +1,5 @@
+import About from "@/components/about";
 import Hero from "@/components/Hero";
-import About from "@/components/About";
 import { Work } from "@/components/work";
 import React from "react";
 

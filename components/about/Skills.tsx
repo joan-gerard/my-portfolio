@@ -1,6 +1,6 @@
 import { AiFillCode, AiFillSmile } from "react-icons/ai";
-import { Chip } from "./Chip";
-import Reveal from "./Reveal";
+import { Chip } from "../utils/Chip";
+import Reveal from "../utils/Reveal";
 
 export const Skills = () => {
   const workSkills = [

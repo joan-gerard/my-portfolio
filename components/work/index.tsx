@@ -3,7 +3,7 @@ import React from "react";
 import { work } from "@/constants/work";
 import { ImageTextParallaxContent } from "../parallax/ImageTextParallaxContent";
 import ProjectDescription from "./ProjectDescription";
-import { SectionHeader } from "../SectionHeader";
+import { SectionHeader } from "../utils/SectionHeader";
 
 export const Work = () => {
   const topFeaturedWork = work.filter((el) => el.isFeatured == true);

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FiArrowUpRight } from "react-icons/fi";
-import { Chip } from "../Chip";
+import { Chip } from "../utils/Chip";
 
 const ProjectDescription = ({
   additionalTitle,
