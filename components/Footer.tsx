@@ -33,7 +33,7 @@ const Footer = () => {
                   />
                 </svg>
                 <span className="ml-5 text-lg font-normal text-white font-pj">
-                  8502 Preston Rd. Inglewood, Maine 98380, USA{" "}
+                  Stockholm
                 </span>
               </li>
 
@@ -53,8 +53,7 @@ const Footer = () => {
                   />
                 </svg>
                 <span className="ml-5 text-lg font-normal text-white font-pj">
-                  {" "}
-                  support@rareblocks.xyz{" "}
+                  joan.gerard@outlook.com
                 </span>
               </li>
             </ul>
@@ -107,7 +106,7 @@ const Footer = () => {
           </ul>
 
           <p className="mt-8 text-lg font-normal text-white lg:mt-0 font-pj">
-            © Copyright 2021, All Rights Reserved
+            © Copyright 2025, All Rights Reserved
           </p>
         </div>
       </div>

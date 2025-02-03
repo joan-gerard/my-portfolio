@@ -1,4 +1,5 @@
 import Hero from "@/components/Hero";
+import About from "@/components/About";
 import { Work } from "@/components/work";
 import React from "react";
 
@@ -30,6 +31,7 @@ export default function Home() {
         /> */}
         <Hero />
       </div>
+      <About />
       <Work />
     </div>
   );

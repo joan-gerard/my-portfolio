@@ -1,19 +1,29 @@
 import Link from "next/link";
 import { FiArrowUpRight } from "react-icons/fi";
+import { Chip } from "../Chip";
 
 const ProjectDescription = ({
   additionalTitle,
   description,
   slug,
+  stack,
 }: {
   additionalTitle: string;
   description: string[];
   slug: string;
+  stack: string[];
 }) => (
   <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 px-4 pb-24 pt-12 md:grid-cols-12 text-white">
-    <h2 className="col-span-1 text-3xl font-bold md:col-span-4">
-      {additionalTitle}
-    </h2>
+    <div className="col-span-1  md:col-span-4">
+      <h2 className="text-3xl font-bold">{additionalTitle}</h2>
+      <div className="flex flex-wrap mt-8 gap-4">
+        {stack.map((el) => (
+          <Chip key={el}>
+            {el}
+          </Chip>
+        ))}
+      </div>
+    </div>
     <div className="col-span-1 md:col-span-8">
       <div className="mb-8">
         {description.map((el) => (
