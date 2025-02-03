@@ -41,8 +41,8 @@ const NavigationPanel = ({
         variants={linkWrapperVariants}
         className="flex flex-col gap-4 absolute bottom-8 left-8"
       >
+        <NavLink setIsOpen={setIsOpen} text="about" />
         <NavLink setIsOpen={setIsOpen} text="work" />
-        <NavLink setIsOpen={setIsOpen} text="skills" />
         <NavLink setIsOpen={setIsOpen} text="experience" />
         <NavLink setIsOpen={setIsOpen} text="contact" />
       </motion.div>
@@ -59,7 +59,16 @@ const NavLink = ({
 }) => {
   const handleScroll = (id: string) => {
     setIsOpen(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    const element = document.getElementById(id);
+    if (element) {
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - 80; // 80px offset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
   };
   return (
     // <Link href={`#${text}`}>
