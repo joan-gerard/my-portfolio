@@ -1,11 +1,126 @@
-import React from 'react'
+"use client";
+import React, { useEffect, useRef, useState } from "react";
+import { work } from "@/constants/work";
+import { useAnimation, useInView, motion } from "framer-motion";
+import Reveal from "@/components/utils/Reveal";
+import Link from "next/link";
+import { AiFillGithub, AiOutlineExport } from "react-icons/ai";
+
+interface Props {
+  description: string[];
+  liveUrl: string | null;
+  imgUrl: string;
+  stack: string[];
+  subheading: string;
+  githubUrl: string;
+}
 
 const page = () => {
   return (
-    <div className='bg-black h-screen flex justify-center items-center'>
-        <h1 className='text-5xl text-white'>MAIN WORK PAGE</h1>
-    </div>
-  )
-}
+    <section className="px-6 my-8 md:px-24 mx-auto" id="projects">
+      {/* <SectionHeader title="Projects" dir="r" /> */}
 
-export default page
+      <div className="grid gap-12 grid-cols-1 md:grid-cols-2">
+        {work.map((project) => {
+          return <Project key={project.subheading} {...project} />;
+        })}
+      </div>
+    </section>
+  );
+};
+
+export default page;
+
+function Project({
+  liveUrl,
+  description,
+  imgUrl,
+  subheading,
+  githubUrl,
+  stack,
+}: Props) {
+  const [hovered, setHovered] = useState(false);
+
+  // const [isOpen, setIsOpen] = useState(false);
+
+  const controls = useAnimation();
+
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (isInView) {
+      controls.start("visible");
+    } else {
+      controls.start("hidden");
+    }
+  }, [isInView, controls]);
+
+  return (
+    <>
+      <motion.div
+        ref={ref}
+        variants={{
+          hidden: { opacity: 0, y: 100 },
+          visible: { opacity: 1, y: 0 },
+        }}
+        initial="hidden"
+        animate={controls}
+        transition={{ duration: 0.75 }}
+      >
+        <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          // onClick={() => setIsOpen(true)}
+          className="w-full aspect-video bg-zinc-700 cursor-pointer relative rounded-lg overflow-hidden"
+        >
+          <img
+            src={imgUrl}
+            alt={`An image of the ${subheading} project.`}
+            style={{
+              width: hovered ? "90%" : "85%",
+              rotate: hovered ? "2deg" : "0deg",
+            }}
+            className="w-[85%] absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/4 transition-all rounded"
+          />
+        </div>
+        <div className="mt-6">
+          <Reveal width="w-full">
+            <div className="flex items-center gap-2 w-full">
+              <h4 className="font-bold text-lg shrink-0 max-w-[calc(100%_-_150px)]">
+                {subheading}
+              </h4>
+              <div className="w-full h-[1px] bg-zinc-600" />
+              {githubUrl && (
+                <Link href={githubUrl} target="_blank" rel="nofollow">
+                  <AiFillGithub className="text-xl text-zinc-300 hover:text-indigo-300 transition-colors" />
+                </Link>
+              )}
+              {liveUrl && (
+                <Link href={liveUrl} target="_blank" rel="nofollow">
+                  <AiOutlineExport className="text-xl text-zinc-300 hover:text-indigo-300 transition-colors" />
+                </Link>
+              )}
+            </div>
+          </Reveal>
+          <Reveal>
+            <div className="flex flex-wrap gap-4 text-sm text-indigo-300 my-2">
+              {stack.join(" - ")}
+            </div>
+          </Reveal>
+          <Reveal>
+            <p className="text-zinc-300 leading-relaxed">
+              {description[0]}
+              <span
+                className="inline-block text-sm text-indigo-300 cursor-pointer"
+                // onClick={() => setIsOpen(true)}
+              >
+                Learn more {">"}
+              </span>
+            </p>
+          </Reveal>
+        </div>
+      </motion.div>
+    </>
+  );
+}
