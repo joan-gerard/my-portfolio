@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SiCodepen, SiGithub, SiLinkedin, SiX } from "react-icons/si";
+import { SiGithub, SiLinkedin } from "react-icons/si";
 import { AiOutlineArrowRight } from "react-icons/ai";
 
 const MyLinks = () => (
