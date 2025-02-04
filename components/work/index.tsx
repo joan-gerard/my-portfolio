@@ -12,7 +12,7 @@ export const Work = () => {
 
   return (
     <div className="bg-black z-0" id="work">
-      <div className="px-6 md:px-24">
+      <div className="px-6 lg:px-24 xl:px-36">
         <SectionHeader title="Work" dir="l" />
       </div>
 

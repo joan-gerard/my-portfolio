@@ -8,7 +8,7 @@ import { SectionHeader } from "../utils/SectionHeader";
 const About = () => {
   return (
     <Reveal>
-      <section id="about" className="px-6 my-8 md:px-24 mx-auto">
+      <section id="about" className="px-6 my-8 lg:px-24 xl:px-36 mx-auto">
         <SectionHeader title="About" dir="l" className="mb-12" />
         <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8">
           <Reveal>

@@ -20,7 +20,7 @@ interface Props {
 
 const page = () => {
   return (
-    <section className="px-6 my-8 md:px-24 mx-auto" id="projects">
+    <section className="px-6 my-8 lg:px-24 xl:px-36 mx-auto" id="projects">
       <SectionHeader title="Projects" dir="l" className="mb-12 mt-32" />
 
       <div className="grid gap-12 grid-cols-1 md:grid-cols-2">

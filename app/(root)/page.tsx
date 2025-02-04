@@ -1,11 +1,12 @@
 import About from "@/components/about";
+import Experience from "@/components/experience";
 import Hero from "@/components/Hero";
 import { Work } from "@/components/work";
 import React from "react";
 
 export default function Home() {
   return (
-    <div className="">
+    <div>
       <div
         className="h-screen"
         style={{
@@ -33,6 +34,7 @@ export default function Home() {
       </div>
       <About />
       <Work />
+      <Experience />
     </div>
   );
 }
