@@ -1,5 +1,4 @@
 import { CodeCard } from "@/components/CodeCard";
-import Hero from "@/components/Hero";
 import { StickyImageNew } from "@/components/parallax/StickyImageNew";
 import { SectionHeader } from "@/components/utils/SectionHeader";
 import { work } from "@/constants/work";
