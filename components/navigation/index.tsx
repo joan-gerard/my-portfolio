@@ -10,7 +10,7 @@ const Navigation = () => {
 
   return (
     <div className="grid place-content-center relative z-10">
-      <div className="flex items-center text-white fixed justify-between w-full p-4 bg-white/5 backdrop-blur">
+      <div className="flex items-center text-white fixed justify-between w-full p-4 bg-black bg-opacity-90">
         <Link href="/" className="text-white text-2xl font-medium uppercase">
           Joan Gerard
         </Link>
