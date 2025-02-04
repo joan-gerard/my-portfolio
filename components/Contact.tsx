@@ -7,7 +7,7 @@ const Contact = () => {
   return (
     <Reveal width="w-full">
       <section className="text-white my-16 px-6 -rotate-1 md:-rotate-2" id="contact">
-        <div className="max-w-xl mx-auto bg-zinc-800 px-8 py-12 rounded-xl">
+        <div className="max-w-xl mx-auto bg-zinc-900 px-8 py-12 rounded-xl">
           <h4 className="text-4xl md:text-5xl text-center font-black">
             Contact
           </h4>

@@ -1,6 +1,7 @@
 import { CodeCard } from "@/components/CodeCard";
 import Hero from "@/components/Hero";
 import { StickyImageNew } from "@/components/parallax/StickyImageNew";
+import { SectionHeader } from "@/components/utils/SectionHeader";
 import { work } from "@/constants/work";
 
 const page = async ({ params }: { params: Promise<{ _slug: string }> }) => {
@@ -9,7 +10,9 @@ const page = async ({ params }: { params: Promise<{ _slug: string }> }) => {
 
   return (
     <div className="bg-black h-full z-0 relative">
-      <Hero />
+      {/* <Hero /> */}
+      <SectionHeader title={project!.subheading} dir="l" className="mb-10 mt-32 px-6 my-8 lg:px-24 xl:px-36 mx-auto" />
+
       <StickyImageNew imgUrl={project!.imgUrl} />
       <div className="mx-auto max-w-5xl gap-8 flex px-4 pb-24 pt-12 text-white z-0">
         <p>
