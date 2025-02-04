@@ -15,8 +15,8 @@ const Navigation = () => {
           Joan Gerard
         </Link>
         <motion.button
-          whileHover={{ rotate: "180deg" }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ color: "#6366f1" }}
+          whileTap={{ scale: 0.9, rotate: "180deg" }}
           onClick={() => setIsOpen(true)}
           className="text-3xl text-white transition-colors rounded-full"
         >
