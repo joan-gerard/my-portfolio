@@ -15,6 +15,7 @@ interface Props {
   stack: string[];
   subheading: string;
   githubUrl: string;
+  slug: string;
 }
 
 const page = () => {
@@ -40,6 +41,7 @@ function Project({
   subheading,
   githubUrl,
   stack,
+  slug,
 }: Props) {
   const controls = useAnimation();
 
@@ -102,8 +104,8 @@ function Project({
           <Reveal>
             <p className="text-zinc-300 leading-relaxed">
               {description[0]}
-              <span className="inline-block text-sm text-indigo-300 cursor-pointer">
-                Learn more {">"}
+              <span className="inline-block text-sm text-indigo-300 cursor-pointer ml-2">
+                <Link href={`/work/${slug}`}>Learn more {">"}</Link>
               </span>
             </p>
           </Reveal>
