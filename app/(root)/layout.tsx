@@ -1,3 +1,4 @@
+import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import Navigation from "@/components/navigation";
 
@@ -8,6 +9,7 @@ export default function Layout({
     <main className="font-work-sans">
       <Navigation />
       {children}
+      <Contact />
       <Footer />
     </main>
   );

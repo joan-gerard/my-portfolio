@@ -31,10 +31,10 @@ export const Work = () => {
           />
         </ImageTextParallaxContent>
       ))}
-      <div className="flex justify-center">
+      <div className="flex justify-center mb-12">
         <Link
           href={`/work`}
-          className="w-full rounded bg-neutral-900 px-9 py-4 text-lg text-white transition-colors hover:bg-neutral-700 md:w-fit"
+          className="w-full rounded bg-[#6366f1] px-9 py-4 text-lg text-white transition-colors bg-opacity-80 hover:bg-opacity-100 md:w-fit"
         >
           See more projects <FiArrowUpRight className="inline" />
         </Link>
