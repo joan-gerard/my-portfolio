@@ -19,7 +19,7 @@ const page = async ({ params }: { params: Promise<{ _slug: string }> }) => {
         />
 
         <StickyImageNew imgUrl={project!.imgUrl} />
-        <div className="mx-auto gap-8 flex px-4 pb-24 pt-12 text-white z-0">
+        <div className="mx-auto gap-8 flex pb-24 pt-12 text-white z-0 leading-relaxed">
           <p>
             Lorem ipsum odor amet, consectetuer adipiscing elit. Id bibendum dis
             imperdiet pulvinar blandit pulvinar; sollicitudin justo. Sit
