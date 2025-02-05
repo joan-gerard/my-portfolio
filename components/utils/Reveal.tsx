@@ -22,7 +22,7 @@ export const Reveal = ({ children, width = "w-fit" }: RevealProps) => {
   }, [isInView]);
 
   return (
-    <div ref={ref} className={`relative overflow-hidden ${width}`}>
+    <div ref={ref} className={`relative overflow-hidden ${width} w-full`}>
       <motion.div
         variants={{
           hidden: { opacity: 0, y: 75 },
