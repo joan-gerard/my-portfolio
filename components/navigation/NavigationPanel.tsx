@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { FiX } from "react-icons/fi";
+import { useRouter, usePathname } from "next/navigation";
 
 const NavigationPanel = ({
   isOpen,
@@ -57,12 +58,40 @@ const NavLink = ({
   text: string;
   setIsOpen: (arg: boolean) => void;
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // console.log("pathname", pathname);
+
   const handleScroll = (id: string) => {
     setIsOpen(false);
+
+    // Check if we're not on the homepage
+    if (pathname !== "/") {
+      router.push('/');
+      
+      // Wait for navigation and page render to complete
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY - 120;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      }, 100); // Small delay to ensure the new page has rendered
+      
+      return;
+    }
     const element = document.getElementById(id);
+
+    // Existing scroll logic for homepage
     if (element) {
       const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - 120; // 80px offset
+      const offsetPosition = elementPosition + window.scrollY - 120;
 
       window.scrollTo({
         top: offsetPosition,
