@@ -66,38 +66,28 @@ const NavLink = ({
   const handleScroll = (id: string) => {
     setIsOpen(false);
 
-    // Check if we're not on the homepage
-    if (pathname !== "/") {
-      router.push('/');
-      
-      // Wait for navigation and page render to complete
-      setTimeout(() => {
-        const element = document.getElementById(id);
-        if (element) {
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.scrollY - 120;
+    const scrollToElement = () => {
+      const element = document.getElementById(id);
+      if (element) {
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.scrollY - 120;
 
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: "smooth",
-          });
-        }
-      }, 100); // Small delay to ensure the new page has rendered
-      
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+      }
+    };
+
+    // If not on homepage, navigate first then scroll
+    if (pathname !== "/") {
+      router.push("/");
+      setTimeout(scrollToElement, 100);
       return;
     }
-    const element = document.getElementById(id);
 
-    // Existing scroll logic for homepage
-    if (element) {
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - 120;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
+    // Already on homepage, just scroll
+    scrollToElement();
   };
   return (
     // <Link href={`#${text}`}>
