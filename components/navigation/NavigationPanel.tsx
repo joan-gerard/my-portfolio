@@ -1,8 +1,9 @@
 "use client";
-import { useEffect } from "react";
+import clsx from "clsx";
 import { motion } from "framer-motion";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { FiX } from "react-icons/fi";
-import { useRouter, usePathname } from "next/navigation";
 
 const NavigationPanel = ({
   isOpen,
@@ -11,6 +12,8 @@ const NavigationPanel = ({
   isOpen: boolean;
   setIsOpen: (arg: boolean) => void;
 }) => {
+  const pathname = usePathname();
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -45,7 +48,12 @@ const NavigationPanel = ({
         <NavLink setIsOpen={setIsOpen} text="about" />
         <NavLink setIsOpen={setIsOpen} text="work" />
         <NavLink setIsOpen={setIsOpen} text="experience" />
-        <NavLink setIsOpen={setIsOpen} text="blog" href="/blog" />
+        <NavLink
+          setIsOpen={setIsOpen}
+          text="blog"
+          href="/blog"
+          isActive={pathname === "/blog"}
+        />
         <NavLink setIsOpen={setIsOpen} text="contact" />
       </motion.div>
     </motion.nav>
@@ -56,10 +64,12 @@ const NavLink = ({
   text,
   setIsOpen,
   href,
+  isActive = false,
 }: {
   text: string;
   setIsOpen: (arg: boolean) => void;
   href?: string;
+  isActive?: boolean;
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -97,7 +107,12 @@ const NavLink = ({
   return (
     // <Link href={`#${text}`}>
     <motion.p
-      className="inline-block text-white opacity-80 w-fit font-extrabold text-4xl sm:text-6xl md:text-7xl hover:opacity-100 transition-colors uppercase hover:cursor-pointer"
+      className={clsx(
+        "inline-block w-fit font-extrabold text-4xl uppercase transition-colors hover:cursor-pointer sm:text-6xl md:text-7xl",
+        isActive
+          ? "text-indigo-400 opacity-100"
+          : "text-white opacity-80 hover:opacity-100",
+      )}
       variants={navLinkVariants}
       transition={{
         type: "spring",

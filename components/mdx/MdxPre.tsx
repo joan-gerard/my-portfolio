@@ -1,5 +1,6 @@
 "use client";
 
+import { prismTheme } from "@/constants/prismTheme";
 import { Highlight } from "prism-react-renderer";
 import {
   Children,
@@ -8,7 +9,6 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-import { prismTheme } from "@/constants/prismTheme";
 import { MdxInlineCode } from "./MdxInlineCode";
 
 function getTextFromNode(node: ReactNode): string {
@@ -56,7 +56,6 @@ function normalizeLanguage(raw: string): string {
     "json",
     "css",
     "markup",
-    "html",
     "bash",
     "markdown",
     "yaml",
@@ -70,7 +69,7 @@ function normalizeLanguage(raw: string): string {
   if (supported.has(lang)) return lang;
   if (lang === "js") return "javascript";
   if (lang === "html") return "markup";
-  return "javascript";
+  return "plaintext";
 }
 
 function isCodeChild(el: ReactNode): el is ReactElement<{
@@ -98,11 +97,7 @@ function CodeBlock({
         </span>
       </div>
       <div className="overflow-x-auto p-4 pt-3">
-        <Highlight
-          theme={prismTheme}
-          code={code.trimEnd()}
-          language={language}
-        >
+        <Highlight theme={prismTheme} code={code.trimEnd()} language={language}>
           {({ className, style, tokens, getLineProps, getTokenProps }) => (
             <pre
               className={`${className} m-0 overflow-visible p-0 font-mono text-[13px] leading-relaxed`}
@@ -123,20 +118,24 @@ function CodeBlock({
   );
 }
 
-export function MdxPre({ children, className, ...rest }: ComponentPropsWithoutRef<"pre">) {
+export function MdxPre({
+  children,
+  className,
+  ...rest
+}: ComponentPropsWithoutRef<"pre">) {
   const childArray = Children.toArray(children);
   const only = childArray.length === 1 ? childArray[0] : null;
 
   if (only && isCodeChild(only)) {
     const cls = String(only.props.className ?? "");
     const code = getTextFromNode(only.props.children);
-    const rawLang = cls.includes("language-") ? parseLanguage(cls) : "plaintext";
+    const rawLang = cls.includes("language-")
+      ? parseLanguage(cls)
+      : "plaintext";
     const language = normalizeLanguage(rawLang);
     const label = rawLang === "plaintext" ? "text" : rawLang;
 
-    return (
-      <CodeBlock code={code} language={language} label={label} />
-    );
+    return <CodeBlock code={code} language={language} label={label} />;
   }
 
   return (

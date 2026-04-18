@@ -1,6 +1,7 @@
 import fs from "fs";
 import matter from "gray-matter";
 import path from "path";
+import { cache } from "react";
 
 const BLOG_DIR = path.join(process.cwd(), "content/blog");
 
@@ -26,15 +27,38 @@ export type BlogPostListItem = BlogPostFrontmatter & {
   slug: string;
 };
 
-function isBlogPostFrontmatter(data: unknown): data is BlogPostFrontmatter {
+export function isBlogPostFrontmatter(
+  data: unknown,
+): data is BlogPostFrontmatter {
   if (!data || typeof data !== "object") return false;
   const o = data as Record<string, unknown>;
   if (o.draft !== undefined && typeof o.draft !== "boolean") return false;
+  if (o.tags !== undefined) {
+    if (!Array.isArray(o.tags)) return false;
+    if (!(o.tags as unknown[]).every((t) => typeof t === "string")) {
+      return false;
+    }
+  }
   return (
     typeof o.title === "string" &&
     typeof o.date === "string" &&
     typeof o.description === "string"
   );
+}
+
+function isSafeBlogSlug(slug: string): boolean {
+  if (!slug || slug.includes("..")) return false;
+  if (path.basename(slug) !== slug) return false;
+  return true;
+}
+
+function resolveBlogPostFilePath(slug: string): string | null {
+  if (!isSafeBlogSlug(slug)) return null;
+  const resolved = path.resolve(BLOG_DIR, `${slug}.mdx`);
+  const blogRoot = path.resolve(BLOG_DIR);
+  const relative = path.relative(blogRoot, resolved);
+  if (relative.startsWith("..") || path.isAbsolute(relative)) return null;
+  return resolved;
 }
 
 export function getPostSlugs(): string[] {
@@ -65,14 +89,32 @@ export function getAllPosts(): BlogPostListItem[] {
 }
 
 export function getPostSourceBySlug(slug: string): string | null {
-  const filePath = path.join(BLOG_DIR, `${slug}.mdx`);
-  if (!fs.existsSync(filePath)) return null;
+  const filePath = resolveBlogPostFilePath(slug);
+  if (!filePath || !fs.existsSync(filePath)) return null;
   const raw = fs.readFileSync(filePath, "utf8");
   const { data } = matter(raw);
   if (!isBlogPostFrontmatter(data)) return null;
   if (data.draft === true && !shouldIncludeDraftPosts()) return null;
   return raw;
 }
+
+/**
+ * Single parse + validation per slug per request (React.cache).
+ * Returns MDX body without frontmatter for compileMDX with parseFrontmatter: false.
+ */
+export const loadPost = cache(
+  (
+    slug: string,
+  ): { content: string; frontmatter: BlogPostFrontmatter } | null => {
+    const filePath = resolveBlogPostFilePath(slug);
+    if (!filePath || !fs.existsSync(filePath)) return null;
+    const raw = fs.readFileSync(filePath, "utf8");
+    const { data, content } = matter(raw);
+    if (!isBlogPostFrontmatter(data)) return null;
+    if (data.draft === true && !shouldIncludeDraftPosts()) return null;
+    return { content, frontmatter: data };
+  },
+);
 
 export function formatBlogDate(isoDate: string): string {
   return new Date(isoDate).toLocaleDateString(undefined, {

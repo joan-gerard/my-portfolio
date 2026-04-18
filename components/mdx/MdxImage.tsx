@@ -3,7 +3,13 @@ import type { ImgHTMLAttributes } from "react";
 
 export type MdxImageProps = ImgHTMLAttributes<HTMLImageElement>;
 
-export function MdxImage({ src, alt, width, height, className }: MdxImageProps) {
+export function MdxImage({
+  src,
+  alt,
+  width,
+  height,
+  className,
+}: MdxImageProps) {
   if (!src || typeof src !== "string") return null;
 
   const w =
@@ -19,7 +25,9 @@ export function MdxImage({ src, alt, width, height, className }: MdxImageProps) 
         ? Number.parseInt(height, 10) || 540
         : 540;
 
-  const unoptimized = src.endsWith(".svg");
+  const trimmed = src.trim();
+  const isRemote = /^(\/\/|https?:\/\/)/i.test(trimmed);
+  const unoptimized = src.endsWith(".svg") || isRemote;
 
   return (
     <span className="my-8 block w-full max-w-3xl">

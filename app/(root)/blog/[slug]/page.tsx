@@ -1,19 +1,18 @@
-import { compileMDX } from "next-mdx-remote/rsc";
-import remarkGfm from "remark-gfm";
-import matter from "gray-matter";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-import { FiArrowLeft } from "react-icons/fi";
-import {
-  getPostSlugs,
-  getPostSourceBySlug,
-  getReadingMinutesFromMdxSource,
-  type BlogPostFrontmatter,
-} from "@/lib/blog";
+import { BlogArticleHeader } from "@/components/blog/BlogArticleHeader";
 import { blogMdxComponents } from "@/components/mdx/blog-mdx-components";
 import Reveal from "@/components/utils/Reveal";
-import { BlogArticleHeader } from "@/components/blog/BlogArticleHeader";
+import {
+  getPostSlugs,
+  getReadingMinutesFromMdxSource,
+  loadPost,
+  type BlogPostFrontmatter,
+} from "@/lib/blog";
+import type { Metadata } from "next";
+import { compileMDX } from "next-mdx-remote/rsc";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { FiArrowLeft } from "react-icons/fi";
+import remarkGfm from "remark-gfm";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -25,12 +24,11 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const source = getPostSourceBySlug(slug);
-  if (!source) {
+  const post = loadPost(slug);
+  if (!post) {
     return { title: "Post not found" };
   }
-  const { data } = matter(source);
-  const fm = data as BlogPostFrontmatter;
+  const fm = post.frontmatter;
   return {
     title: `${fm.title} | Blog`,
     description: fm.description,
@@ -51,17 +49,17 @@ const articleBodyClassName =
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const source = getPostSourceBySlug(slug);
-  if (!source) {
+  const post = loadPost(slug);
+  if (!post) {
     notFound();
   }
 
-  const readingMinutes = getReadingMinutesFromMdxSource(source);
+  const readingMinutes = getReadingMinutesFromMdxSource(post.content);
 
-  const { content, frontmatter } = await compileMDX<BlogPostFrontmatter>({
-    source,
+  const { content } = await compileMDX<BlogPostFrontmatter>({
+    source: post.content,
     options: {
-      parseFrontmatter: true,
+      parseFrontmatter: false,
       mdxOptions: {
         remarkPlugins: [remarkGfm],
       },
@@ -73,7 +71,7 @@ export default async function BlogPostPage({ params }: Props) {
     <Reveal>
       <article className="mx-auto w-full max-w-3xl px-6 pb-24 pt-28 sm:pt-32 lg:px-8">
         <BlogArticleHeader
-          frontmatter={frontmatter}
+          frontmatter={post.frontmatter}
           readingMinutes={readingMinutes}
         />
 
