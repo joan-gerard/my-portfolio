@@ -4,10 +4,21 @@ import path from "path";
 
 const BLOG_DIR = path.join(process.cwd(), "content/blog");
 
+/** In production, posts with `draft: true` are hidden unless this env var is set. */
+export function shouldIncludeDraftPosts(): boolean {
+  return (
+    process.env.NODE_ENV === "development" ||
+    process.env.SHOW_BLOG_DRAFTS === "1" ||
+    process.env.SHOW_BLOG_DRAFTS === "true"
+  );
+}
+
 export type BlogPostFrontmatter = {
   title: string;
   date: string;
   description: string;
+  /** When true, the post is omitted from /blog and /blog/[slug] in production. */
+  draft?: boolean;
   tags?: string[];
 };
 
@@ -18,6 +29,7 @@ export type BlogPostListItem = BlogPostFrontmatter & {
 function isBlogPostFrontmatter(data: unknown): data is BlogPostFrontmatter {
   if (!data || typeof data !== "object") return false;
   const o = data as Record<string, unknown>;
+  if (o.draft !== undefined && typeof o.draft !== "boolean") return false;
   return (
     typeof o.title === "string" &&
     typeof o.date === "string" &&
@@ -30,7 +42,8 @@ export function getPostSlugs(): string[] {
   return fs
     .readdirSync(BLOG_DIR)
     .filter((file) => file.endsWith(".mdx"))
-    .map((file) => file.replace(/\.mdx$/, ""));
+    .map((file) => file.replace(/\.mdx$/, ""))
+    .filter((slug) => getPostSourceBySlug(slug) !== null);
 }
 
 export function getAllPosts(): BlogPostListItem[] {
@@ -42,6 +55,7 @@ export function getAllPosts(): BlogPostListItem[] {
     const raw = fs.readFileSync(filePath, "utf8");
     const { data } = matter(raw);
     if (!isBlogPostFrontmatter(data)) continue;
+    if (data.draft === true && !shouldIncludeDraftPosts()) continue;
     posts.push({ slug, ...data });
   }
 
@@ -53,7 +67,11 @@ export function getAllPosts(): BlogPostListItem[] {
 export function getPostSourceBySlug(slug: string): string | null {
   const filePath = path.join(BLOG_DIR, `${slug}.mdx`);
   if (!fs.existsSync(filePath)) return null;
-  return fs.readFileSync(filePath, "utf8");
+  const raw = fs.readFileSync(filePath, "utf8");
+  const { data } = matter(raw);
+  if (!isBlogPostFrontmatter(data)) return null;
+  if (data.draft === true && !shouldIncludeDraftPosts()) return null;
+  return raw;
 }
 
 export function formatBlogDate(isoDate: string): string {
