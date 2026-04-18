@@ -46,9 +46,6 @@ const articleBodyClassName =
   "[&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6 [&_li]:my-2 [&_ul_li]:marker:text-indigo-400 " +
   "[&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol_li]:marker:text-zinc-500 " +
   "[&_blockquote]:border-l-4 [&_blockquote]:border-indigo-500/40 [&_blockquote]:bg-zinc-900/40 [&_blockquote]:py-2 [&_blockquote]:pl-4 [&_blockquote]:pr-2 [&_blockquote]:text-zinc-200 [&_blockquote]:italic " +
-  "[&_code]:rounded-md [&_code]:bg-zinc-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_code]:text-indigo-200 " +
-  "[&_pre]:my-6 [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:border [&_pre]:border-zinc-800 [&_pre]:bg-zinc-950 [&_pre]:p-4 [&_pre]:text-sm " +
-  "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-zinc-300 " +
   "[&_hr]:my-12 [&_hr]:border-zinc-800 " +
   "[&_strong]:font-semibold [&_strong]:text-white";
 

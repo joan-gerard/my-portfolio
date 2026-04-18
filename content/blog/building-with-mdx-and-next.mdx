@@ -11,6 +11,113 @@ When you want a developer blog that stays in Git and still lets you drop in Reac
 
 This post is placeholder copy while the blog section is being set up. The important part is that the pipeline works: frontmatter for the index, MDX for the body, and a predictable URL for each slug.
 
+## Example code block
+
+Use fenced blocks with a language tag for syntax highlighting:
+
+```tsx
+import { compileMDX } from "next-mdx-remote/rsc";
+
+export default async function Post({ source }: { source: string }) {
+  const { content } = await compileMDX({ source });
+  return <article className="prose">{content}</article>;
+}
+```
+
+Inline code like `compileMDX` still uses the inline style.
+
+### Bash
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+pnpm install
+pnpm run build
+```
+
+### Docker
+
+Use `docker` or `dockerfile` as the fence language (both map to Prism’s Docker grammar):
+
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM node:22-alpine AS deps
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable pnpm && pnpm install --frozen-lockfile
+
+FROM deps AS build
+COPY . .
+RUN pnpm run build
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app/.next/standalone ./
+EXPOSE 3000
+CMD ["node", "server.js"]
+```
+
+### Python
+
+```python
+def greet(name: str) -> str:
+    return f"Hello, {name}"
+
+if __name__ == "__main__":
+    print(greet("world"))
+```
+
+### Java
+
+```java
+public final class Main {
+  public static void main(String[] args) {
+    System.out.println("Hello, world");
+  }
+}
+```
+
+### SQL
+
+```sql
+SELECT id, title, created_at
+FROM posts
+WHERE published = true
+ORDER BY created_at DESC
+LIMIT 10;
+```
+
+### XML
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Learning log</title>
+  <entry><title>MDX on Next.js</title></entry>
+</feed>
+```
+
+### Markdown
+
+```markdown
+# Heading
+
+**Bold** and _italic_, [a link](https://example.com).
+
+- List item
+```
+
+### Plaintext
+
+No language tag — useful for logs or output where highlighting does not help:
+
+```
+GET /blog/building-with-mdx-and-next 200
+cache-control: public, max-age=0
+content-type: text/html; charset=utf-8
+```
+
 ## What comes next
 
 - Real drafts about things I actually built
