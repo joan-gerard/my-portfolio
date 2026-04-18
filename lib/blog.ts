@@ -55,3 +55,18 @@ export function getPostSourceBySlug(slug: string): string | null {
   if (!fs.existsSync(filePath)) return null;
   return fs.readFileSync(filePath, "utf8");
 }
+
+export function formatBlogDate(isoDate: string): string {
+  return new Date(isoDate).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+/** Rough reading time from MDX/Markdown body (words ÷ 200 wpm, min 1). */
+export function getReadingMinutesFromMdxSource(source: string): number {
+  const { content } = matter(source);
+  const words = content.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
