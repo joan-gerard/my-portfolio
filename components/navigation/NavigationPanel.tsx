@@ -45,6 +45,7 @@ const NavigationPanel = ({
         <NavLink setIsOpen={setIsOpen} text="about" />
         <NavLink setIsOpen={setIsOpen} text="work" />
         <NavLink setIsOpen={setIsOpen} text="experience" />
+        <NavLink setIsOpen={setIsOpen} text="blog" href="/blog" />
         <NavLink setIsOpen={setIsOpen} text="contact" />
       </motion.div>
     </motion.nav>
@@ -54,20 +55,26 @@ const NavigationPanel = ({
 const NavLink = ({
   text,
   setIsOpen,
+  href,
 }: {
   text: string;
   setIsOpen: (arg: boolean) => void;
+  href?: string;
 }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // console.log("pathname", pathname);
+  const handleClick = () => {
+    if (href) {
+      setIsOpen(false);
+      router.push(href);
+      return;
+    }
 
-  const handleScroll = (id: string) => {
     setIsOpen(false);
 
     const scrollToElement = () => {
-      const element = document.getElementById(id);
+      const element = document.getElementById(text);
       if (element) {
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - 120;
@@ -79,14 +86,12 @@ const NavLink = ({
       }
     };
 
-    // If not on homepage, navigate first then scroll
     if (pathname !== "/") {
       router.push("/");
       setTimeout(scrollToElement, 100);
       return;
     }
 
-    // Already on homepage, just scroll
     scrollToElement();
   };
   return (
@@ -98,7 +103,7 @@ const NavLink = ({
         type: "spring",
         damping: 5,
       }}
-      onClick={() => handleScroll(text)}
+      onClick={handleClick}
       // whileHover={{
       //   y: -15,
       //   rotate: "-7.5deg",
