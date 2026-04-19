@@ -8,8 +8,12 @@ export function scrollToElementById(elementId: string): void {
   const elementPosition = element.getBoundingClientRect().top;
   const offsetPosition = elementPosition + window.scrollY - NAV_SCROLL_OFFSET_PX;
 
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
   window.scrollTo({
     top: offsetPosition,
-    behavior: "smooth",
+    behavior: prefersReducedMotion ? "auto" : "smooth",
   });
 }
