@@ -16,7 +16,7 @@ export const work = [
       "Tailwind",
       "GitHub Actions",
     ],
-    githubUrl: "https://github.com/joan-gerard/my-portfolio",
+    githubUrl: "https://github.com/joan-gerard/my-hire-view",
     liveUrl: "https://hireview-two.vercel.app/",
     javascriptCode: null,
     isFeatured: true,
