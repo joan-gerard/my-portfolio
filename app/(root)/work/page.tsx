@@ -1,12 +1,12 @@
 "use client";
-import React, { useEffect, useRef } from "react";
-import { work } from "@/constants/work";
-import { useAnimation, useInView, motion } from "framer-motion";
-import Reveal from "@/components/utils/Reveal";
-import Link from "next/link";
-import { AiFillGithub, AiOutlineExport } from "react-icons/ai";
 import { Chip } from "@/components/utils/Chip";
+import Reveal from "@/components/utils/Reveal";
 import { SectionHeader } from "@/components/utils/SectionHeader";
+import { work } from "@/constants/work";
+import { motion, useAnimation, useInView } from "framer-motion";
+import Link from "next/link";
+import { useEffect, useRef } from "react";
+import { AiFillGithub, AiOutlineExport } from "react-icons/ai";
 
 interface Props {
   description: string[];

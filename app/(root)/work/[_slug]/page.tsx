@@ -7,6 +7,9 @@ import { work } from "@/constants/work";
 const page = async ({ params }: { params: Promise<{ _slug: string }> }) => {
   const slug = (await params)._slug;
   const project = work.find((el) => el.slug === slug);
+  const javascriptCode = project?.javascriptCode;
+  const showCodeCard =
+    typeof javascriptCode === "string" && javascriptCode.trim() !== "";
 
   return (
     <Reveal>
@@ -41,14 +44,16 @@ const page = async ({ params }: { params: Promise<{ _slug: string }> }) => {
           senectus iaculis in suscipit mi leo.
         </p> */}
         </div>
-        <div className="pb-24">
-          <CodeCard
-            githubUrl={project?.githubUrl}
-            liveUrl={project?.liveUrl}
-            javascriptCode={project?.javascriptCode}
-            pythonCode={project?.pythonCode}
-          />
-        </div>
+        {showCodeCard && (
+          <div className="pb-24">
+            <CodeCard
+              githubUrl={project?.githubUrl}
+              liveUrl={project?.liveUrl}
+              javascriptCode={javascriptCode}
+              pythonCode={project?.pythonCode}
+            />
+          </div>
+        )}
       </div>
     </Reveal>
   );

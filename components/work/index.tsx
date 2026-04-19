@@ -1,11 +1,10 @@
 "use client";
-import React from "react";
 import { work } from "@/constants/work";
-import { ImageTextParallaxContent } from "../parallax/ImageTextParallaxContent";
-import ProjectDescription from "./ProjectDescription";
-import { SectionHeader } from "../utils/SectionHeader";
 import Link from "next/link";
 import { FiArrowUpRight } from "react-icons/fi";
+import { ImageTextParallaxContent } from "../parallax/ImageTextParallaxContent";
+import { SectionHeader } from "../utils/SectionHeader";
+import ProjectDescription from "./ProjectDescription";
 
 export const Work = () => {
   const topFeaturedWork = work.filter((el) => el.isFeatured == true);
