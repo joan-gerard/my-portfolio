@@ -2,7 +2,7 @@
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef, type MutableRefObject } from "react";
 import { FiX } from "react-icons/fi";
 import { scrollToElementById } from "@/lib/scrollToSection";
 
@@ -14,6 +14,15 @@ const NavigationPanel = ({
   setIsOpen: (arg: boolean) => void;
 }) => {
   const pathname = usePathname();
+  const pendingSectionRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (pathname === "/" && pendingSectionRef.current) {
+      const id = pendingSectionRef.current;
+      pendingSectionRef.current = null;
+      scrollToElementById(id);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (isOpen) {
@@ -46,16 +55,32 @@ const NavigationPanel = ({
         variants={linkWrapperVariants}
         className="flex flex-col gap-4 absolute bottom-8 left-8"
       >
-        <NavLink setIsOpen={setIsOpen} text="about" />
-        <NavLink setIsOpen={setIsOpen} text="work" />
-        <NavLink setIsOpen={setIsOpen} text="experience" />
+        <NavLink
+          setIsOpen={setIsOpen}
+          text="about"
+          pendingSectionRef={pendingSectionRef}
+        />
+        <NavLink
+          setIsOpen={setIsOpen}
+          text="work"
+          pendingSectionRef={pendingSectionRef}
+        />
+        <NavLink
+          setIsOpen={setIsOpen}
+          text="experience"
+          pendingSectionRef={pendingSectionRef}
+        />
         <NavLink
           setIsOpen={setIsOpen}
           text="blog"
           href="/blog"
           isActive={pathname === "/blog"}
         />
-        <NavLink setIsOpen={setIsOpen} text="contact" />
+        <NavLink
+          setIsOpen={setIsOpen}
+          text="contact"
+          pendingSectionRef={pendingSectionRef}
+        />
       </motion.div>
     </motion.nav>
   );
@@ -66,11 +91,13 @@ const NavLink = ({
   setIsOpen,
   href,
   isActive = false,
+  pendingSectionRef,
 }: {
   text: string;
   setIsOpen: (arg: boolean) => void;
   href?: string;
   isActive?: boolean;
+  pendingSectionRef?: MutableRefObject<string | null>;
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -85,8 +112,10 @@ const NavLink = ({
     setIsOpen(false);
 
     if (pathname !== "/") {
+      if (pendingSectionRef) {
+        pendingSectionRef.current = text;
+      }
       router.push("/");
-      setTimeout(() => scrollToElementById(text), 100);
       return;
     }
 

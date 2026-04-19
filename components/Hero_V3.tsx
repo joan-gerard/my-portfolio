@@ -35,7 +35,7 @@ const Hero_V3 = () => {
 
           <nav
             className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-base text-white/80 md:text-lg"
-            aria-label="Section links"
+            aria-label="Hero navigation"
           >
             <a
               href="#about"
