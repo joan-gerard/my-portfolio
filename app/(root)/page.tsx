@@ -7,9 +7,10 @@ export default function Home() {
   return (
     <div>
       <div
-        className="h-screen"
+        className="h-screen bg-zinc-950"
         style={{
           backgroundImage: `url('/home-hero-2.jpg')`,
+          backgroundColor: "#09090b",
           backgroundSize: "cover",
           backgroundPosition: "center",
           height: "100vh",

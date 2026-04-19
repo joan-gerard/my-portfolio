@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { FiX } from "react-icons/fi";
+import { scrollToElementById } from "@/lib/scrollToSection";
 
 const NavigationPanel = ({
   isOpen,
@@ -83,26 +84,13 @@ const NavLink = ({
 
     setIsOpen(false);
 
-    const scrollToElement = () => {
-      const element = document.getElementById(text);
-      if (element) {
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.scrollY - 120;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth",
-        });
-      }
-    };
-
     if (pathname !== "/") {
       router.push("/");
-      setTimeout(scrollToElement, 100);
+      setTimeout(() => scrollToElementById(text), 100);
       return;
     }
 
-    scrollToElement();
+    scrollToElementById(text);
   };
   return (
     // <Link href={`#${text}`}>
