@@ -1,12 +1,10 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import { Chip, PageHeader, Reveal } from "@/components/utils";
 import { work } from "@/constants/work";
-import { useAnimation, useInView, motion } from "framer-motion";
-import Reveal from "@/components/utils/Reveal";
+import { motion, useAnimation, useInView } from "framer-motion";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { AiFillGithub, AiOutlineExport } from "react-icons/ai";
-import { Chip } from "@/components/utils/Chip";
-import { SectionHeader } from "@/components/utils/SectionHeader";
 
 interface Props {
   description: string[];
@@ -22,7 +20,7 @@ const page = () => {
   return (
     <Reveal>
       <section className="px-6 my-8 lg:px-24 xl:px-36 mx-auto" id="projects">
-        <SectionHeader title="Projects" dir="l" className="mb-12 mt-32" />
+        <PageHeader title="Projects" dir="l" className="mb-12 mt-32" />
 
         <div className="grid gap-12 grid-cols-1 md:grid-cols-2">
           {work.map((project) => {
@@ -80,10 +78,10 @@ function Project({
         <div className="mt-6">
           <Reveal width="w-full">
             <div className="flex items-center gap-2 w-full">
-              <h4 className="font-bold text-lg shrink-0 max-w-[calc(100%_-_150px)] text-white">
+              <h4 className="font-bold text-lg shrink-0 max-w-[calc(100%-150px)] text-white">
                 {subheading}
               </h4>
-              <div className="w-full h-[1px] bg-zinc-600" />
+              <div className="w-full h-px bg-zinc-600" />
               {githubUrl && (
                 <Link href={githubUrl} target="_blank" rel="nofollow">
                   <AiFillGithub className="text-xl text-zinc-300 hover:text-indigo-300 transition-colors" />

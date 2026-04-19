@@ -2,8 +2,9 @@
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef, type MutableRefObject } from "react";
 import { FiX } from "react-icons/fi";
+import { scrollToElementById } from "@/lib/scrollToSection";
 
 const NavigationPanel = ({
   isOpen,
@@ -13,6 +14,15 @@ const NavigationPanel = ({
   setIsOpen: (arg: boolean) => void;
 }) => {
   const pathname = usePathname();
+  const pendingSectionRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (pathname === "/" && pendingSectionRef.current) {
+      const id = pendingSectionRef.current;
+      pendingSectionRef.current = null;
+      scrollToElementById(id);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (isOpen) {
@@ -28,13 +38,13 @@ const NavigationPanel = ({
 
   return (
     <motion.nav
-      className="fixed top-0 bottom-0 w-screen bg-black"
+      className="fixed top-0 bottom-0 z-50 w-screen bg-black"
       animate={isOpen ? "open" : "closed"}
       variants={navVariants}
       initial="closed"
     >
       <motion.button
-        className="text-3xl text-white border-[1px] border-transparent transition-colors rounded-full absolute top-4 right-4"
+        className="text-3xl text-white border border-transparent transition-colors rounded-full absolute top-4 right-4"
         whileHover={{ color: "#6366f1" }}
         onClick={() => setIsOpen(false)}
         whileTap={{ scale: 0.9, rotate: "180deg" }}
@@ -45,16 +55,32 @@ const NavigationPanel = ({
         variants={linkWrapperVariants}
         className="flex flex-col gap-4 absolute bottom-8 left-8"
       >
-        <NavLink setIsOpen={setIsOpen} text="about" />
-        <NavLink setIsOpen={setIsOpen} text="work" />
-        <NavLink setIsOpen={setIsOpen} text="experience" />
+        <NavLink
+          setIsOpen={setIsOpen}
+          text="about"
+          pendingSectionRef={pendingSectionRef}
+        />
+        <NavLink
+          setIsOpen={setIsOpen}
+          text="work"
+          pendingSectionRef={pendingSectionRef}
+        />
+        <NavLink
+          setIsOpen={setIsOpen}
+          text="experience"
+          pendingSectionRef={pendingSectionRef}
+        />
         <NavLink
           setIsOpen={setIsOpen}
           text="blog"
           href="/blog"
           isActive={pathname === "/blog"}
         />
-        <NavLink setIsOpen={setIsOpen} text="contact" />
+        <NavLink
+          setIsOpen={setIsOpen}
+          text="contact"
+          pendingSectionRef={pendingSectionRef}
+        />
       </motion.div>
     </motion.nav>
   );
@@ -65,11 +91,13 @@ const NavLink = ({
   setIsOpen,
   href,
   isActive = false,
+  pendingSectionRef,
 }: {
   text: string;
   setIsOpen: (arg: boolean) => void;
   href?: string;
   isActive?: boolean;
+  pendingSectionRef?: MutableRefObject<string | null>;
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -83,26 +111,15 @@ const NavLink = ({
 
     setIsOpen(false);
 
-    const scrollToElement = () => {
-      const element = document.getElementById(text);
-      if (element) {
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.scrollY - 120;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth",
-        });
-      }
-    };
-
     if (pathname !== "/") {
+      if (pendingSectionRef) {
+        pendingSectionRef.current = text;
+      }
       router.push("/");
-      setTimeout(scrollToElement, 100);
       return;
     }
 
-    scrollToElement();
+    scrollToElementById(text);
   };
   return (
     // <Link href={`#${text}`}>

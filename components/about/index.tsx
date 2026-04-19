@@ -1,9 +1,7 @@
 "use client";
-import React from "react";
-import { Skills } from "./Skills";
+import { Reveal, SectionHeader } from "../utils";
 import MyLinks from "./MyLinks";
-import Reveal from "../utils/Reveal";
-import { SectionHeader } from "../utils/SectionHeader";
+import { Skills } from "./Skills";
 
 const About = () => {
   return (
@@ -14,27 +12,36 @@ const About = () => {
           <Reveal>
             <div className="space-y-4">
               <p className="leading-relaxed text-zinc-200">
-                Hey! I&apos;m Bob, if you haven&apos;t already gathered that by
-                now. I&apos;m a painter turned software engineer from Daytona,
-                Florida. I specialize in the backend, primarily Node and Rust,
-                but love building with whatever tools are right for the job.
+                Hey! I&apos;m Joan.
               </p>
               <p className="leading-relaxed text-zinc-200">
-                I currently work for Google on Google Photos. I also toss in my
-                ¢2 with the design systems teams from time to time (once an
-                artist, always an artist, amirite?).
+                I&apos;m a full stack engineer with around 4 years of hands-on
+                development experience and 9 years in technical roles overall.
+                I&apos;ve worked across the stack, from architecting backend
+                APIs to building the interfaces people actually use.
               </p>
               <p className="leading-relaxed text-zinc-200">
-                Outside of work, I still love to paint. Any given Sunday
-                you&apos;ll find me scribbling some happy clouds with my son ☁️
-                I even teach courses online if you&apos;re looking to learn!
+                Right now I&apos;m expanding into DevOps. I&apos;m going through
+                a structured course and documenting everything as I go,
+                including the labs, the wins, the things that broke and why. You
+                can follow along on the blog.
               </p>
               <p className="leading-relaxed text-zinc-200">
-                I&apos;m passively looking for new positions where I can merge
-                my love for code with my love for the canvas. If you think
-                you&apos;ve got an opening that I might like, let&apos;s connect
-                🔗
+                I&apos;m also building MyHireView, a job application platform
+                that lets candidates present themselves through CV uploads,
+                video pitches, and shareable application pages, with analytics
+                built in. It&apos;s a project I care about, and one I&apos;m
+                using to put my growing DevOps knowledge into practice.
               </p>
+              <p className="leading-relaxed text-zinc-200">
+                When I&apos;m not building, I&apos;m probably troubleshooting
+                something I definitely broke on purpose.
+              </p>
+              <p className="leading-relaxed text-zinc-200">
+                I&apos;m currently open to full stack engineering roles. If what
+                you&apos;re working on sounds interesting, reach out.
+              </p>
+
               <MyLinks />
             </div>
           </Reveal>

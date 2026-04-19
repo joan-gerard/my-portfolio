@@ -7,7 +7,7 @@ interface Props {
   className?: string;
 }
 
-export const SectionHeader = ({ title, dir = "r", className }: Props) => {
+export const PageHeader = ({ title, dir = "r", className }: Props) => {
   return (
     <div
       className={clsx("flex items-center gap-8", className)}
@@ -17,13 +17,13 @@ export const SectionHeader = ({ title, dir = "r", className }: Props) => {
         <div className="w-full h-px bg-zinc-700" />
       </Reveal>
 
-      <h2>
+      <h1>
         <Reveal>
           <span className="text-3xl md:text-5xl text-white font-black text-end uppercase whitespace-nowrap">
             {title}
           </span>
         </Reveal>
-      </h2>
+      </h1>
     </div>
   );
 };

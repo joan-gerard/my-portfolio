@@ -1,33 +1,24 @@
 export const work = [
   {
-    imgUrl:
-      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    subheading: "Portfolio",
-    slug: "portfolio",
-    heading: "Built for all of us.",
+    imgUrl: "/my-hire-view-1.webp",
+    subheading: "MyHireView",
+    slug: "my-hire-view",
+    heading: "Stand out. Get seen.",
     additionalTitle: "Additional content explaining the above card here",
     description: [
-      "1 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, blanditiis soluta eius quam modi aliquam quaerat odit deleniti minima maiores voluptate est ut saepe accusantium maxime doloremque nulla consectetur possimus.",
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium reiciendis blanditiis aliquam aut fugit sint",
+      "MyHireView is a modern application platform that transforms how job seekers present themselves to recruiters.",
+      "By combining CV uploads, video pitches, and shareable application pages with built-in analytics, MyHireView empowers candidates to stand out in competitive job markets while providing recruiters with a streamlined, friction-free viewing experience.",
     ],
-    stack: ["Next.js 15", "Appwrite", "CMS", "Auth", "Express"],
-    githubUrl: "https://github.com/joan-gerard/my-portfolio",
-    liveUrl: "https://my-portfolio-opal-seven-60.vercel.app/",
-    javascriptCode: `import { initializeSDK } from "your-package";
-
-// Portfolio
-const app = initializeSDK({
-    apiKey: "sk_abc123"
-});
-  
-app.doCoolThing();`,
-    pythonCode: `import your_package
-    
-app = your_package.init({
-    "api_key": "sk_abc123"
-})
-  
-app.do_cool_thing()`,
+    stack: [
+      "Next.js 16",
+      "PostgreSQL",
+      "Supabase",
+      "Tailwind",
+      "GitHub Actions",
+    ],
+    githubUrl: "https://github.com/joan-gerard/my-hire-view",
+    liveUrl: "https://hireview-two.vercel.app/",
+    javascriptCode: null,
     isFeatured: true,
   },
   {
@@ -59,7 +50,7 @@ app.do_cool_thing()`,
     })
       
     app.do_cool_thing()`,
-    isFeatured: true,
+    isFeatured: false,
   },
   {
     imgUrl:
@@ -89,7 +80,7 @@ app.do_cool_thing()`,
     })
       
     app.do_cool_thing()`,
-    isFeatured: true,
+    isFeatured: false,
   },
   {
     imgUrl:

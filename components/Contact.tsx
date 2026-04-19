@@ -1,12 +1,14 @@
-import React from "react";
-import Reveal from "./utils/Reveal";
 import Link from "next/link";
 import { AiFillMail } from "react-icons/ai";
+import { Reveal } from "./utils";
 
 const Contact = () => {
   return (
     <Reveal width="w-full">
-      <section className="text-white my-16 px-6 -rotate-1 md:-rotate-2" id="contact">
+      <section
+        className="text-white my-16 px-6 -rotate-1 md:-rotate-2"
+        id="contact"
+      >
         <div className="max-w-xl mx-auto bg-zinc-900 px-8 py-12 rounded-xl">
           <h4 className="text-4xl md:text-5xl text-center font-black">
             Contact
@@ -14,7 +16,7 @@ const Contact = () => {
           <p className="text-center my-8 text-zinc-300 leading-relaxed">
             Shoot me an email if you want to connect! You can also find me on
             <Link
-              href="https://www.linkedin.com"
+              href="https://www.linkedin.com/in/joangerard/"
               target="_blank"
               className="text-indigo-300 hover:underline mx-2"
             >
@@ -22,7 +24,7 @@ const Contact = () => {
             </Link>
             or
             <Link
-              href="https://www.twitter.com"
+              href="https://www.github.com"
               target="_blank"
               className="text-indigo-300 hover:underline mx-2"
             >

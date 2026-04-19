@@ -1,6 +1,6 @@
-import { Chip } from "@/components/utils/Chip";
 import type { BlogPostFrontmatter } from "@/lib/blog";
 import { formatBlogDate } from "@/lib/blog";
+import { Chip } from "../utils";
 
 type Props = {
   frontmatter: BlogPostFrontmatter;

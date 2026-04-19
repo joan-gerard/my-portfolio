@@ -1,7 +1,6 @@
-import { getAllPosts } from "@/lib/blog";
-import Reveal from "@/components/utils/Reveal";
-import { SectionHeader } from "@/components/utils/SectionHeader";
 import { BlogPostCard } from "@/components/blog/BlogPostCard";
+import { PageHeader, Reveal } from "@/components/utils";
+import { getAllPosts } from "@/lib/blog";
 
 export const metadata = {
   title: "Blog | Joan Gerard",
@@ -14,11 +13,11 @@ export default function BlogPage() {
   return (
     <Reveal>
       <section className="mx-auto my-8 w-full max-w-5xl px-6 lg:px-12 xl:px-8">
-        <SectionHeader title="Blog" dir="l" className="mb-8 mt-32" />
-
+        <PageHeader title="Blog" dir="l" className="mb-8 mt-32" />
         <p className="mb-14 max-w-2xl text-lg leading-relaxed text-zinc-400">
-          Notes from building things, digging into TypeScript and the web stack,
-          and keeping track of what actually stuck.
+          I&apos;m going through a DevOps course and writing about it as I go.
+          What I&apos;m learning, what I&apos;m building, what broke, and how I
+          fixed it. No polish — just honest progress.
         </p>
 
         {posts.length === 0 ? (

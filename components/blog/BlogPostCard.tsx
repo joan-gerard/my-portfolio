@@ -1,7 +1,7 @@
+import { formatBlogDate, type BlogPostListItem } from "@/lib/blog";
 import Link from "next/link";
 import { FiArrowUpRight } from "react-icons/fi";
-import { formatBlogDate, type BlogPostListItem } from "@/lib/blog";
-import { Chip } from "@/components/utils/Chip";
+import { Chip } from "../utils";
 
 type Props = {
   post: BlogPostListItem;

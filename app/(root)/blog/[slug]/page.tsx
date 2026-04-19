@@ -1,6 +1,6 @@
 import { BlogArticleHeader } from "@/components/blog/BlogArticleHeader";
 import { blogMdxComponents } from "@/components/mdx/blog-mdx-components";
-import Reveal from "@/components/utils/Reveal";
+import { Reveal } from "@/components/utils";
 import {
   getPostSlugs,
   getReadingMinutesFromMdxSource,

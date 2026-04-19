@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Chip } from "../utils/Chip";
 import { AiOutlineArrowRight } from "react-icons/ai";
+import { Chip } from "../utils";
 
 const ProjectDescription = ({
   additionalTitle,
