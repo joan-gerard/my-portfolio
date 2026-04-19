@@ -34,7 +34,7 @@ const NavigationPanel = ({
       initial="closed"
     >
       <motion.button
-        className="text-3xl text-white border-[1px] border-transparent transition-colors rounded-full absolute top-4 right-4"
+        className="text-3xl text-white border border-transparent transition-colors rounded-full absolute top-4 right-4"
         whileHover={{ color: "#6366f1" }}
         onClick={() => setIsOpen(false)}
         whileTap={{ scale: 0.9, rotate: "180deg" }}

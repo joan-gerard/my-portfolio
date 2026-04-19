@@ -1,11 +1,11 @@
 "use client";
-import React, { ReactNode, useState } from "react";
-import { motion } from "framer-motion";
-import { SiGithub } from "react-icons/si";
-import { FaRegEye } from "react-icons/fa";
-import { Highlight } from "prism-react-renderer";
-import Link from "next/link";
 import { prismTheme } from "@/constants/prismTheme";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { Highlight } from "prism-react-renderer";
+import { ReactNode, useState } from "react";
+import { FaRegEye } from "react-icons/fa";
+import { SiGithub } from "react-icons/si";
 
 export const CodeCard = ({
   githubUrl,
@@ -43,7 +43,7 @@ export const CodeCard = ({
               href={githubUrl}
               className={`
               relative z-0 flex items-center gap-2 overflow-hidden whitespace-nowrap rounded-md 
-              bg-gradient-to-br from-slate-800 to-slate-950 px-3 py-1.5
+              bg-linear-to-br from-slate-800 to-slate-950 px-3 py-1.5
              text-xs font-medium text-slate-50
              transition-all duration-300
               
@@ -67,7 +67,7 @@ export const CodeCard = ({
               href={liveUrl}
               className={`
               relative z-0 flex items-center gap-2 overflow-hidden whitespace-nowrap rounded-md 
-              bg-gradient-to-br from-slate-800 to-slate-950 px-3 py-1.5
+              bg-linear-to-br from-slate-800 to-slate-950 px-3 py-1.5
              text-xs font-medium text-slate-50
              transition-all duration-300
               
@@ -91,7 +91,7 @@ export const CodeCard = ({
       <div className="-mx-6 overflow-x-auto px-6">
         <Markup code={selected === "js" ? javascriptCode : pythonCode} />
       </div>
-      <span className="absolute left-0 top-1/2 h-48 w-[1px] -translate-y-1/2 animate-pulse bg-gradient-to-b from-indigo-500/0 via-indigo-800 to-indigo-500/0" />
+      <span className="absolute left-0 top-1/2 h-48 w-px -translate-y-1/2 animate-pulse bg-linear-to-b from-indigo-500/0 via-indigo-800 to-indigo-500/0" />
     </Card>
   );
 };
@@ -139,7 +139,7 @@ const Card = ({
         ease: "easeInOut",
         delay: 0.25,
       }}
-      className={`relative h-full w-full overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-950/50 to-slate-900/80 p-6 ${className}`}
+      className={`relative h-full w-full overflow-hidden rounded-2xl border border-slate-800 bg-linear-to-br from-slate-950/50 to-slate-900/80 p-6 ${className}`}
     >
       {children}
     </motion.div>

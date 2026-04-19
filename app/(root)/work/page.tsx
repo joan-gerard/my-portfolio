@@ -78,10 +78,10 @@ function Project({
         <div className="mt-6">
           <Reveal width="w-full">
             <div className="flex items-center gap-2 w-full">
-              <h4 className="font-bold text-lg shrink-0 max-w-[calc(100%_-_150px)] text-white">
+              <h4 className="font-bold text-lg shrink-0 max-w-[calc(100%-150px)] text-white">
                 {subheading}
               </h4>
-              <div className="w-full h-[1px] bg-zinc-600" />
+              <div className="w-full h-px bg-zinc-600" />
               {githubUrl && (
                 <Link href={githubUrl} target="_blank" rel="nofollow">
                   <AiFillGithub className="text-xl text-zinc-300 hover:text-indigo-300 transition-colors" />
