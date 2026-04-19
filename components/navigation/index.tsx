@@ -9,7 +9,7 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="grid place-content-center relative z-10">
+    <div className="grid place-content-center relative z-50">
       <div className="flex items-center text-white fixed justify-between w-full p-4 bg-white/5 backdrop-blur">
         <Link href="/" className="text-white text-2xl font-medium uppercase">
           Joan Gerard

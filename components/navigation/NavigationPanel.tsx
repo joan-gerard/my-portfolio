@@ -28,7 +28,7 @@ const NavigationPanel = ({
 
   return (
     <motion.nav
-      className="fixed top-0 bottom-0 w-screen bg-black"
+      className="fixed top-0 bottom-0 z-50 w-screen bg-black"
       animate={isOpen ? "open" : "closed"}
       variants={navVariants}
       initial="closed"

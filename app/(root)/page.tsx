@@ -1,8 +1,7 @@
 import About from "@/components/about";
 import Experience from "@/components/experience";
-import Hero from "@/components/Hero";
+import Hero_V3 from "@/components/Hero_V3";
 import { Work } from "@/components/work";
-import React from "react";
 
 export default function Home() {
   return (
@@ -30,7 +29,7 @@ export default function Home() {
             objectFit: "cover",
           }}
         /> */}
-        <Hero />
+        <Hero_V3 />
       </div>
       <About />
       <Work />
