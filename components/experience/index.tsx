@@ -1,9 +1,6 @@
 "use client";
-import React from "react";
-import Reveal from "../utils/Reveal";
-import { SectionHeader } from "../utils/SectionHeader";
 import { experience } from "@/constants/experience";
-import { Chip } from "../utils/Chip";
+import { Chip, Reveal, SectionHeader } from "../utils";
 
 const Experience = () => {
   return (

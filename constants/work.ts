@@ -6,8 +6,8 @@ export const work = [
     heading: "Stand out. Get seen.",
     additionalTitle: "Additional content explaining the above card here",
     description: [
-      "1 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, blanditiis soluta eius quam modi aliquam quaerat odit deleniti minima maiores voluptate est ut saepe accusantium maxime doloremque nulla consectetur possimus.",
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium reiciendis blanditiis aliquam aut fugit sint",
+      "MyHireView is a modern application platform that transforms how job seekers present themselves to recruiters.",
+      "By combining CV uploads, video pitches, and shareable application pages with built-in analytics, MyHireView empowers candidates to stand out in competitive job markets while providing recruiters with a streamlined, friction-free viewing experience.",
     ],
     stack: [
       "Next.js 16",

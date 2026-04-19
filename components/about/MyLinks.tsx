@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { SiGithub } from "react-icons/si";
 import { AiOutlineArrowRight } from "react-icons/ai";
+import { SiGithub } from "react-icons/si";
 
 /** Simple Icons removed the LinkedIn glyph from `react-icons/si`; inline SVG keeps the same look. */
 function LinkedInIcon({ className }: { className?: string }) {
@@ -25,7 +25,7 @@ const MyLinks = () => (
     <div className="flex items-center text-lg gap-4">
       <Link
         className="text-zinc-300 hover:text-indigo-300 transition-colors"
-        href="https://www.linkedin.com"
+        href="https://www.linkedin.com/in/joangerard/"
         target="_blank"
         rel="nofollow"
       >

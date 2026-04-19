@@ -3,7 +3,7 @@ import { work } from "@/constants/work";
 import Link from "next/link";
 import { FiArrowUpRight } from "react-icons/fi";
 import { ImageTextParallaxContent } from "../parallax/ImageTextParallaxContent";
-import { SectionHeader } from "../utils/SectionHeader";
+import { SectionHeader } from "../utils";
 import ProjectDescription from "./ProjectDescription";
 
 export const Work = () => {

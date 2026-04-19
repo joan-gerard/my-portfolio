@@ -1,6 +1,5 @@
 "use client";
-import Reveal from "../utils/Reveal";
-import { SectionHeader } from "../utils/SectionHeader";
+import { Reveal, SectionHeader } from "../utils";
 import MyLinks from "./MyLinks";
 import { Skills } from "./Skills";
 

@@ -1,7 +1,5 @@
 "use client";
-import { Chip } from "@/components/utils/Chip";
-import Reveal from "@/components/utils/Reveal";
-import { SectionHeader } from "@/components/utils/SectionHeader";
+import { Chip, PageHeader, Reveal } from "@/components/utils";
 import { work } from "@/constants/work";
 import { motion, useAnimation, useInView } from "framer-motion";
 import Link from "next/link";
@@ -22,7 +20,7 @@ const page = () => {
   return (
     <Reveal>
       <section className="px-6 my-8 lg:px-24 xl:px-36 mx-auto" id="projects">
-        <SectionHeader title="Projects" dir="l" className="mb-12 mt-32" />
+        <PageHeader title="Projects" dir="l" className="mb-12 mt-32" />
 
         <div className="grid gap-12 grid-cols-1 md:grid-cols-2">
           {work.map((project) => {

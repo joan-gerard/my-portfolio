@@ -1,7 +1,6 @@
 import { CodeCard } from "@/components/CodeCard";
 import { StickyImageNew } from "@/components/parallax/StickyImageNew";
-import Reveal from "@/components/utils/Reveal";
-import { SectionHeader } from "@/components/utils/SectionHeader";
+import { PageHeader, Reveal } from "@/components/utils";
 import { work } from "@/constants/work";
 
 const page = async ({ params }: { params: Promise<{ _slug: string }> }) => {
@@ -15,7 +14,7 @@ const page = async ({ params }: { params: Promise<{ _slug: string }> }) => {
     <Reveal>
       <div className="px-6 my-8 lg:px-24 xl:px-36 mx-auto w-full">
         {/* <Hero /> */}
-        <SectionHeader
+        <PageHeader
           title={project!.subheading}
           dir="l"
           className="mb-10 mt-32 "
