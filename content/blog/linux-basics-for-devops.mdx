@@ -1,0 +1,244 @@
+---
+title: "Linux Basics for DevOps: The Foundations I Could Not Skip"
+date: "2026-04-10"
+description: A practical intro to Linux fundamentals for DevOps, covering shell navigation, core commands, file editing, package management, and service operations through hands-on examples.
+tags:
+  - Linux
+draft: false
+---
+
+When people talk about DevOps, the conversation usually jumps straight to Kubernetes, CI/CD pipelines, cloud networking, and infrastructure as code. I was tempted to do the same.
+
+But the more I learned, the more obvious it became: if Linux feels uncomfortable, everything in DevOps feels harder than it should.
+
+This chapter became my "slow down to speed up" moment. Instead of chasing advanced tools, I focused on core Linux operations: shell navigation, file editing, package management, and services. These are the exact skills you use when debugging real systems at 2 a.m.
+
+## Why Linux Basics Matter in DevOps
+
+Most production workloads run on Linux. Even if your application code is not Linux-specific, your runtime environment probably is.
+
+That means day-to-day DevOps work often includes:
+
+- Setting up lab environments and test VMs
+- Navigating servers only through a terminal (no UI)
+- Troubleshooting DNS, IP, and connectivity issues
+- Installing dependencies and validating versions
+- Reading and editing configuration files (JSON/YAML and others)
+
+The Linux command line is not a side skill in DevOps. It is the working surface.
+
+## Starting with the Shell
+
+A Linux shell is the text interface that takes your commands and asks the operating system to execute them. Common shell types include `sh`, `bash`, `zsh`, and `csh`.
+
+To check your current login shell:
+
+```bash
+echo $SHELL
+```
+
+Knowing your shell matters because behavior, startup files, and scripting quirks can differ.
+
+## First Commands That Build Confidence
+
+My first practical wins came from mastering simple commands:
+
+- `pwd` to confirm where I am
+- `ls` to inspect files and folders
+- `cd` to move through directories
+- `mkdir -p` to create nested paths in one step
+- `cp -r` and `rm -r` to copy or remove directory trees
+
+Example:
+
+```bash
+mkdir -p /tmp/asia/india/bangalore
+```
+
+And if I want to run multiple commands in sequence:
+
+```bash
+cd my_dir; mkdir test; pwd
+```
+
+Small commands, repeated often, quickly become operational muscle memory.
+
+## Working with Files from the Terminal
+
+Before editing complex configs, it helps to get comfortable creating and moving files:
+
+- `touch notes.txt` creates a file
+- `cat notes.txt` reads a file
+- `cat > notes.txt` overwrites a file with new input
+- `cat >> notes.txt` appends content to the end
+- `cp` duplicates files
+- `mv` moves or renames files
+- `rm` deletes files
+
+These are basic, but they are everywhere in scripts, incident runbooks, and setup tasks.
+
+## Getting Productive with `vi`
+
+`vi` (and `vim`) can feel intimidating at first because it is modal:
+
+- **Command mode** for navigation and actions
+- **Insert mode** for typing text (press `i`)
+- `Esc` to return to command mode
+
+Essential commands I keep using:
+
+- `dd` delete line
+- `yy` yank (copy) line
+- `p` paste
+- `x` delete character
+- `:w` save
+- `:q` quit
+- `:wq` save and quit
+- `/text` search
+- `n` jump to next match
+
+When production config files need quick edits over SSH, this skill pays off immediately.
+
+## Users, Privileges, and Safer Admin Work
+
+Linux has a superuser (`root`) with unrestricted privileges, but direct root usage is usually restricted in professional environments.
+
+Typical workflow:
+
+- Use a normal user account
+- Escalate only when needed with `sudo`
+
+Commands I use often:
+
+```bash
+whoami  #get current username
+id  #get user account info
+su  #switch user - su bob
+sudo ls /root
+```
+
+Without `sudo`, privileged paths fail with "Permission denied". This is a feature, not a problem.
+
+## Downloading Artifacts During Setup
+
+In real environments, you frequently download installers, binaries, scripts, or packages.
+
+With `curl`:
+
+```bash
+curl http://www.some-site.com/some-file.txt -O
+```
+
+- `-O` keeps the original filename.
+- `-o` lets you set a custom output path and filename.
+
+Example:
+
+```bash
+curl -o /home/thor/dummy.pdf https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf
+```
+
+## Knowing What OS You Are On
+
+Before installing packages or following docs, I verify the distribution and version:
+
+```bash
+ls /etc/*release*
+cat /etc/*release*
+```
+
+That one check avoids a lot of "why does this command not exist?" moments.
+
+## Package Management: RPM and Yum
+
+On CentOS, RHEL, and Fedora, packages are built around RPM.
+
+Core `rpm` operations:
+
+```bash
+rpm -i telnet.rpm #Install the package
+rpm -e telnet #Uninstall the package
+rpm -q telnet #Query package details
+rpm -qa #List all packages
+```
+
+The catch: raw RPM installation does not automatically resolve dependencies.
+
+That is where `yum` helps. It sits on top of RPM and resolves dependencies from configured repositories:
+
+```bash
+yum install ansible
+yum repolist
+yum --showduplicates list ansible
+yum remove ansible
+```
+
+If default repositories are outdated, you can add newer ones (for example, EPEL) and then install the versions you need.
+
+## Services: From Manual Command to Managed Process
+
+DevOps systems rely on long-running background processes (daemons): web servers, databases, schedulers, containers, and more.
+
+With `systemctl`, I can manage services consistently:
+
+```bash
+systemctl start httpd
+systemctl stop httpd
+systemctl status httpd
+systemctl enable httpd
+systemctl disable httpd
+```
+
+The difference between "it works when I run it manually" and "it survives reboot and failures" is service management.
+
+## Turning a Python App into a Systemd Service
+
+Suppose a Python app runs with:
+
+```bash
+/usr/bin/python3 /opt/code/my_app.py
+```
+
+It might work in a terminal, but that is fragile. A `systemd` unit makes it reliable and restartable.
+
+Example unit file (`/etc/systemd/system/my_app.service`):
+
+```ini
+[Unit]
+Description=My Python Web Application
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/code/my_app.py
+ExecStartPre=/opt/code/configure_db.sh
+ExecStartPost=/opt/code/email_status.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Then:
+
+```bash
+systemctl daemon-reload
+systemctl start my_app
+```
+
+This pattern is one of the most practical Linux-to-DevOps bridges: move from manual commands to repeatable operations.
+
+## Terms I Wanted to Remember
+
+- **Daemon**: a background service process
+- **httpd**: Apache HTTP server daemon
+- **`/opt`**: optional third-party software
+- **`/bin`**: essential system binaries
+- **`/usr`**: userland system software
+- **`/etc`**: system-wide configuration files
+
+## Final Reflection
+
+This chapter was not flashy, but it was foundational.
+
+Linux basics changed how I approach learning DevOps: I now optimize for repeatability, observability, and operational safety. The commands are simple; the mindset is the real upgrade.
+
+If you are early in your DevOps journey, this is worth mastering before diving deeper into orchestration and cloud platforms.

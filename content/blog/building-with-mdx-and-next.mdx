@@ -5,7 +5,7 @@ description: Notes from wiring MDX into an App Router project and why it fits a 
 tags:
   - Next.js
   - MDX
-draft: false
+draft: true
 ---
 
 When you want a developer blog that stays in Git and still lets you drop in React when you need it, MDX is a comfortable middle ground. You write most of the post in Markdown, then reach for components when you want a callout, a diagram, or an optimized image.
@@ -26,6 +26,17 @@ export default async function Post({ source }: { source: string }) {
 ```
 
 Inline code like `compileMDX` still uses the inline style.
+
+## Quote and callout examples
+
+A regular Markdown quote:
+
+> MDX lets me keep writing in Markdown while still reaching for React components when I need richer UI.
+
+A callout-style blockquote using an emoji label:
+
+> [!NOTE]
+> Start simple with Markdown-first posts, then add components only where they improve clarity.
 
 ### Bash
 
@@ -118,6 +129,18 @@ GET /blog/building-with-mdx-and-next 200
 cache-control: public, max-age=0
 content-type: text/html; charset=utf-8
 ```
+
+## Tables
+
+Yes. With **GitHub Flavored Markdown** enabled in the MDX pipeline (`remark-gfm`), you can use pipe tables in the usual way: a header row, a separator row with dashes, then body rows.
+
+| Piece        | Role                                      | Where it lives                            |
+| ------------ | ----------------------------------------- | ----------------------------------------- |
+| Frontmatter  | Title, date, tags for the index           | YAML between `---` at the top of the file |
+| MDX body     | Markdown + components where you need them | The rest of the `.mdx` after frontmatter  |
+| `compileMDX` | Turns source into React on the server     | `app/(root)/blog/[slug]/page.tsx`         |
+
+Alignment hints work too (`:---`, `:---:`, `---:`) if you want columns left-, center-, or right-aligned.
 
 ## What comes next
 

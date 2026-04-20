@@ -36,16 +36,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const articleBodyClassName =
-  "mt-12 max-w-none text-zinc-300 " +
+  "max-w-none overflow-x-auto text-zinc-300 " +
   "[&_a]:font-medium [&_a]:text-indigo-300 [&_a]:underline [&_a]:underline-offset-4 [&_a]:transition-colors hover:[&_a]:text-indigo-200 " +
-  "[&_h2]:mt-14 [&_h2]:mb-4 [&_h2]:scroll-mt-28 [&_h2]:border-b [&_h2]:border-zinc-800 [&_h2]:pb-3 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white " +
-  "[&_h3]:mt-10 [&_h3]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-white " +
+  "[&_h2]:my-8 [&_h2]:scroll-mt-28 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white " +
+  "[&_h3]:mt-8 [&_h3]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-white " +
   "[&_p]:leading-relaxed [&_p]:text-zinc-300 " +
   "[&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6 [&_li]:my-2 [&_ul_li]:marker:text-indigo-400 " +
   "[&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol_li]:marker:text-zinc-500 " +
   "[&_blockquote]:border-l-4 [&_blockquote]:border-indigo-500/40 [&_blockquote]:bg-zinc-900/40 [&_blockquote]:py-2 [&_blockquote]:pl-4 [&_blockquote]:pr-2 [&_blockquote]:text-zinc-200 [&_blockquote]:italic " +
   "[&_hr]:my-12 [&_hr]:border-zinc-800 " +
-  "[&_strong]:font-semibold [&_strong]:text-white";
+  "[&_strong]:font-semibold [&_strong]:text-white " +
+  "[&_table]:my-8 [&_table]:w-full [&_table]:min-w-[20rem] [&_table]:border-collapse [&_table]:text-left [&_table]:text-sm sm:[&_table]:text-base " +
+  "[&_th]:border-b [&_th]:border-zinc-600 [&_th]:bg-zinc-900/70 [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th]:font-semibold [&_th]:text-white " +
+  "[&_td]:border-b [&_td]:border-zinc-800 [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-top [&_td]:text-zinc-300 " +
+  "[&_tbody_tr:last-child_td]:border-b-0";
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
