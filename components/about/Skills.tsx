@@ -28,7 +28,7 @@ export const Skills = () => {
   ];
 
   return (
-    <aside className="relative rounded-3xl border border-[var(--hairline-light)] bg-white p-6 md:p-8 shadow-sm">
+    <aside className="relative rounded-3xl border border-[var(--hairline-light)] bg-white p-6 md:p-8 shadow-sm h-fit">
       <Reveal width="w-full">
         <div className="mb-8">
           <h4 className="flex items-center gap-2 mb-4">

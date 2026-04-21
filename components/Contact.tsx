@@ -5,6 +5,7 @@ import {
   Reveal,
   SectionHeader,
 } from "@/components/utils";
+import { MAILTO_HREF, SITE_EMAIL, SOCIAL_LINKS } from "@/constants/site";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { AiFillMail } from "react-icons/ai";
@@ -43,16 +44,16 @@ const Contact = () => {
             <ul className="flex flex-col gap-4 text-[var(--ink)]">
               <li>
                 <Link
-                  href="mailto:joan.gerard@outlook.com"
+                  href={MAILTO_HREF}
                   className="inline-flex items-center gap-3 text-base md:text-lg font-medium underline underline-offset-4 hover:text-[var(--accent-mid)] transition-colors"
                 >
                   <AiFillMail className="text-xl text-[var(--accent-mid)]" />
-                  joan.gerard@outlook.com
+                  {SITE_EMAIL}
                 </Link>
               </li>
               <li>
                 <Link
-                  href="https://www.linkedin.com/in/joangerard/"
+                  href={SOCIAL_LINKS.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-3 text-base md:text-lg font-medium underline underline-offset-4 hover:text-[var(--accent-mid)] transition-colors"

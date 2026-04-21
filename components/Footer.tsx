@@ -1,4 +1,11 @@
 import { CtaButton, GradientText, Reveal } from "@/components/utils";
+import {
+  CV_DOWNLOAD_FILENAME,
+  CV_URL,
+  MAILTO_HREF,
+  SITE_EMAIL,
+  SOCIAL_LINKS,
+} from "@/constants/site";
 import Link from "next/link";
 
 const Footer = () => {
@@ -19,13 +26,13 @@ const Footer = () => {
           <Reveal width="w-full">
             <div className="mt-10 flex flex-wrap items-center gap-x-10 gap-y-6 text-[var(--ink-dark-muted)]">
               <Link
-                href="mailto:joan.gerard@outlook.com"
+                href={MAILTO_HREF}
                 className="text-base md:text-lg font-medium underline underline-offset-4 hover:text-white transition-colors"
               >
-                joan.gerard@outlook.com
+                {SITE_EMAIL}
               </Link>
               <Link
-                href="https://www.linkedin.com/in/joangerard/"
+                href={SOCIAL_LINKS.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-base md:text-lg font-medium underline underline-offset-4 hover:text-white transition-colors"
@@ -33,8 +40,8 @@ const Footer = () => {
                 LinkedIn
               </Link>
               <CtaButton
-                href="https://www.linkedin.com/in/joangerard/"
-                external
+                href={CV_URL}
+                download={CV_DOWNLOAD_FILENAME}
                 surface="dark"
                 variant="outline"
               >

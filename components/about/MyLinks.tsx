@@ -1,3 +1,4 @@
+import { SOCIAL_LINKS } from "@/constants/site";
 import Link from "next/link";
 import { SiGithub } from "react-icons/si";
 
@@ -19,7 +20,7 @@ const MyLinks = () => (
   <div className="flex items-center text-xl gap-4">
     <Link
       className="text-[var(--ink)] hover:text-[var(--accent-mid)] transition-colors"
-      href="https://www.linkedin.com/in/joangerard/"
+      href={SOCIAL_LINKS.linkedin}
       target="_blank"
       rel="nofollow"
       aria-label="LinkedIn"
@@ -28,7 +29,7 @@ const MyLinks = () => (
     </Link>
     <Link
       className="text-[var(--ink)] hover:text-[var(--accent-mid)] transition-colors"
-      href="https://github.com/joan-gerard"
+      href={SOCIAL_LINKS.github}
       target="_blank"
       rel="nofollow"
       aria-label="GitHub"

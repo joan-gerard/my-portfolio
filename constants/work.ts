@@ -1,3 +1,5 @@
+import { githubRepoUrl } from "./site";
+
 /**
  * `Build` is the generic unit shown on the Work surfaces (home-page section,
  * `/work` index, `/work/[_slug]` detail). The term is intentionally broad so
@@ -73,7 +75,7 @@ export const work: Build[] = [
       "Tailwind",
       "GitHub Actions",
     ],
-    githubUrl: "https://github.com/joan-gerard/my-hire-view",
+    githubUrl: githubRepoUrl("my-hire-view"),
     liveUrl: "https://hireview-two.vercel.app/",
     javascriptCode: null,
     isFeatured: true,
@@ -92,7 +94,7 @@ export const work: Build[] = [
       "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium reiciendis blanditiis aliquam aut fugit sint",
     ],
     stack: ["Next.js 15", "Appwrite"],
-    githubUrl: "https://github.com/joan-gerard/pitch-portal",
+    githubUrl: githubRepoUrl("pitch-portal"),
     liveUrl: "https://pitch-portal.vercel.app/",
     javascriptCode: `import { initializeSDK } from "your-package";
 
@@ -125,7 +127,7 @@ export const work: Build[] = [
       "3 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, blanditiis soluta eius quam modi aliquam quaerat odit deleniti minima maiores voluptate est ut saepe accusantium maxime doloremque nulla consectetur possimus.",
       "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium reiciendis blanditiis aliquam aut fugit sint",
     ],
-    githubUrl: "https://github.com/joan-gerard/react-native-practice",
+    githubUrl: githubRepoUrl("react-native-practice"),
     liveUrl: null,
     javascriptCode: `import { initializeSDK } from "your-package";
     
@@ -157,7 +159,7 @@ export const work: Build[] = [
       "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium reiciendis blanditiis aliquam aut fugit sint",
     ],
     stack: ["Next.js 15", "Appwrite", "CMS", "Auth", "Express"],
-    githubUrl: "https://github.com/joan-gerard/my-portfolio",
+    githubUrl: githubRepoUrl("my-portfolio"),
     liveUrl: "https://my-portfolio-opal-seven-60.vercel.app/",
     javascriptCode: `import { initializeSDK } from "your-package";
 
@@ -190,7 +192,7 @@ app.do_cool_thing()`,
       "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium reiciendis blanditiis aliquam aut fugit sint",
     ],
     stack: ["Next.js 15", "Appwrite"],
-    githubUrl: "https://github.com/joan-gerard/pitch-portal",
+    githubUrl: githubRepoUrl("pitch-portal"),
     liveUrl: "https://pitch-portal.vercel.app/",
     javascriptCode: `import { initializeSDK } from "your-package";
 
@@ -223,7 +225,7 @@ app.do_cool_thing()`,
       "3 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, blanditiis soluta eius quam modi aliquam quaerat odit deleniti minima maiores voluptate est ut saepe accusantium maxime doloremque nulla consectetur possimus.",
       "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium reiciendis blanditiis aliquam aut fugit sint",
     ],
-    githubUrl: "https://github.com/joan-gerard/react-native-practice",
+    githubUrl: githubRepoUrl("react-native-practice"),
     liveUrl: null,
     javascriptCode: `import { initializeSDK } from "your-package";
     

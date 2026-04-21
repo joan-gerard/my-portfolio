@@ -38,7 +38,9 @@ export const SectionHeader = ({
     align === "center" ? "items-center text-center" : "items-start text-left";
 
   return (
-    <div className={clsx("flex flex-col gap-5 md:gap-6", alignClass, className)}>
+    <div
+      className={clsx("flex flex-col gap-5 md:gap-6", alignClass, className)}
+    >
       {eyebrow ? (
         <Reveal>
           <SectionBadge tone={tone}>{eyebrow}</SectionBadge>
@@ -47,7 +49,7 @@ export const SectionHeader = ({
       <Reveal>
         <h2
           className={clsx(
-            "text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight",
+            "text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight text-balance",
             headingColor,
           )}
         >

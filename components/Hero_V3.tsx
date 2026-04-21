@@ -1,6 +1,11 @@
 "use client";
 
 import { CtaButton, GradientText, Reveal, SectionBadge } from "@/components/utils";
+import {
+  CV_DOWNLOAD_FILENAME,
+  CV_URL,
+  SOCIAL_LINKS,
+} from "@/constants/site";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -47,15 +52,15 @@ const Hero_V3 = () => {
         <Reveal width="w-full">
           <div className="flex flex-wrap items-center justify-center gap-6">
             <CtaButton
-              href="https://www.linkedin.com/in/joangerard/"
-              external
+              href={CV_URL}
+              download={CV_DOWNLOAD_FILENAME}
               surface="light"
               variant="outline"
             >
               Download CV
             </CtaButton>
             <Link
-              href="https://github.com/joan-gerard"
+              href={SOCIAL_LINKS.github}
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs md:text-sm font-semibold uppercase tracking-[0.15em] text-[var(--ink)] underline underline-offset-4 hover:text-[var(--ink-muted)] transition-colors"
@@ -63,7 +68,7 @@ const Hero_V3 = () => {
               GitHub
             </Link>
             <Link
-              href="https://www.linkedin.com/in/joangerard/"
+              href={SOCIAL_LINKS.linkedin}
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs md:text-sm font-semibold uppercase tracking-[0.15em] text-[var(--ink)] underline underline-offset-4 hover:text-[var(--ink-muted)] transition-colors"
