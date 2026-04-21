@@ -7,7 +7,12 @@ import clsx from "clsx";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { MouseEvent as ReactMouseEvent, useEffect, useRef, useState } from "react";
+import {
+  MouseEvent as ReactMouseEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { FiMenu } from "react-icons/fi";
 import { useActiveSectionTheme, type NavTheme } from "./useActiveSectionTheme";
 
@@ -79,11 +84,19 @@ const NavigationV2 = () => {
             </nav>
 
             <div className="flex items-center gap-2 md:gap-3">
-              <ContactCta
-                theme={theme}
-                pathname={pathname}
-                className="hidden sm:inline-flex"
-              />
+              {/*
+                Responsive visibility lives on this wrapper, NOT on the
+                CtaButton itself. `CtaButton`'s baseClasses hard-code
+                `inline-flex`, and Tailwind's generated CSS emits `inline-flex`
+                after `hidden`, so any `hidden` class we pass into the button
+                is silently overridden by the cascade. Wrapping sidesteps that
+                fight entirely: the wrapper's `display: none` hides the whole
+                subtree below `lg`, the button's own display rules only kick
+                in once the wrapper itself is visible.
+              */}
+              <div className="hidden lg:inline-flex">
+                <ContactCta theme={theme} pathname={pathname} />
+              </div>
               <MobileMenuButton
                 theme={theme}
                 onOpen={() => setIsDrawerOpen(true)}
