@@ -1,7 +1,7 @@
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import { NotFoundView } from "@/components/NotFoundView";
-import Navigation from "@/components/navigation";
+import Navigation from "@/components/navigation-v2";
 import { Reveal } from "@/components/utils";
 
 export const metadata = {
