@@ -70,7 +70,8 @@ export default async function ProjectDetailPage({ params }: Props) {
             </h1>
           </Reveal>
 
-          {project.heading ? (
+          {/* KEEP COMMENTED OUT FOR NOW */}
+          {/* {project.heading ? (
             <Reveal>
               <p className="text-base leading-relaxed text-[var(--ink-dark-muted)] md:text-lg">
                 {project.heading}
@@ -82,7 +83,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             <h2 className="mt-4 text-lg font-semibold text-white md:text-xl">
               Project details
             </h2>
-          </Reveal>
+          </Reveal> */}
 
           <Reveal>
             <dl className="grid grid-cols-1 gap-y-6 border-y border-[var(--hairline-dark)] py-8 sm:grid-cols-2">
