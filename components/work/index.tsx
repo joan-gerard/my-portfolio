@@ -10,10 +10,8 @@ export const Work = () => {
   const topFeaturedWork = work.filter((el) => el.isFeatured == true);
 
   return (
-    <div className="bg-black z-0" id="work">
-      <div className="px-6 lg:px-24 xl:px-36 mb-10">
-        <SectionHeader title="Work" dir="l" />
-      </div>
+    <section className="z-0 px-6 my-8 lg:px-24 xl:px-36 mx-auto" id="work">
+      <SectionHeader title="Work" dir="l" />
 
       {topFeaturedWork.map((el) => (
         <ImageTextParallaxContent
@@ -38,6 +36,6 @@ export const Work = () => {
           See more projects <FiArrowUpRight className="inline" />
         </Link>
       </div>
-    </div>
+    </section>
   );
 };

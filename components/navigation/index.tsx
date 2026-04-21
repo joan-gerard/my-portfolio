@@ -1,16 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
-import { FiMenu } from "react-icons/fi";
+import { Reveal } from "@/components/utils";
 import { motion } from "framer-motion";
-import NavigationPanel from "./NavigationPanel";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Reveal } from "@/components/utils";
+import { useEffect, useState } from "react";
+import { FiMenu } from "react-icons/fi";
+import NavigationPanel from "./NavigationPanel";
 
 const HOME_HERO_TITLE_ID = "home-hero-title";
 
-const brandLinkClass =
-  "text-white text-2xl font-medium uppercase";
+const brandLinkClass = "text-white text-2xl font-medium uppercase";
 
 function NavBrandLink() {
   return (
@@ -37,7 +36,7 @@ function HomeNavBrandLink() {
       ([entry]) => {
         setTitleInView(entry.isIntersecting);
       },
-      { threshold: 0, root: null }
+      { threshold: 0, root: null },
     );
 
     observer.observe(el);
@@ -55,13 +54,9 @@ const Navigation = () => {
 
   return (
     <div className="grid place-content-center relative z-50">
-      <div className="flex items-center text-white fixed w-full p-4 bg-white/5 backdrop-blur">
+      <div className="flex items-center text-white fixed w-full py-4 px-6 lg:px-24 xl:px-36 bg-white/5 backdrop-blur">
         <div className="min-w-0 flex-1">
-          {pathname === "/" ? (
-            <HomeNavBrandLink />
-          ) : (
-            <NavBrandLink />
-          )}
+          {pathname === "/" ? <HomeNavBrandLink /> : <NavBrandLink />}
         </div>
         <motion.button
           whileHover={{ color: "#6366f1" }}
