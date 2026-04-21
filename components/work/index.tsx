@@ -1,11 +1,15 @@
 import { CtaButton, SectionHeader } from "@/components/utils";
 import { work } from "@/constants/work";
+import clsx from "clsx";
 import { WorkCaseStudy } from "./WorkCaseStudy";
 
 export const Work = () => {
   const featured = work.filter((el) => el.isFeatured);
   const recent = work.filter((el) => !el.isFeatured).slice(0, 3);
   const items = featured.concat(recent);
+  // Only switch to a 2-col grid when we have ≥ 2 items; otherwise a single
+  // card in a 2-col grid would leave an orphan empty column.
+  const useGrid = items.length >= 2;
 
   return (
     <section
@@ -23,7 +27,13 @@ export const Work = () => {
           className="mb-16 mx-auto"
         />
 
-        <div className="space-y-4">
+        <div
+          className={clsx(
+            useGrid
+              ? "grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8"
+              : "space-y-4",
+          )}
+        >
           {items.map((item) => (
             <WorkCaseStudy
               key={item.slug}

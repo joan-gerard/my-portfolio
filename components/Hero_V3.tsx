@@ -16,34 +16,33 @@ const Hero_V3 = () => {
           <SectionBadge tone="light">Hello! I am Joan Gerard</SectionBadge>
         </Reveal>
 
-        <Reveal width="w-full">
-          <h1
-            id="home-hero-title"
-            className="text-balance pb-2 md:pb-3 lg:pb-4 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.1] tracking-tight text-[var(--ink)]"
-          >
-            Full Stack <GradientText>&amp;</GradientText> DevOps engineer
-          </h1>
-        </Reveal>
+        <div className="relative z-10 w-full">
+          <Reveal width="w-full">
+            <h1
+              id="home-hero-title"
+              className="text-balance pb-2 md:pb-3 lg:pb-4 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.1] tracking-tight text-[var(--ink)]"
+            >
+              Full Stack <GradientText>&amp;</GradientText> DevOps engineer
+            </h1>
+          </Reveal>
+        </div>
 
-        <Reveal width="w-full">
-          <p className="mx-auto max-w-2xl text-base md:text-lg leading-relaxed text-[var(--ink-muted)]">
-            I build thoughtful web applications and am currently expanding into
-            DevOps, documenting everything as I go.
-          </p>
-        </Reveal>
-
-        <Reveal width="w-full">
-          <div className="relative mx-auto w-full max-w-2xl overflow-hidden rounded-3xl bg-black/5 aspect-[16/10]">
-            <Image
-              src="/home-hero-2.jpg"
-              alt="Joan Gerard"
-              fill
-              priority
-              sizes="(min-width: 768px) 672px, 100vw"
-              className="object-cover"
-            />
-          </div>
-        </Reveal>
+        {/* Negative margin-top pulls the portrait up so its top edge overlaps the heading; z-0 keeps it behind the h1 (which is z-10). */}
+        <div className="relative z-0 w-full -mt-16 md:-mt-28 lg:-mt-40">
+          <Reveal width="w-full">
+            <div className="relative mx-auto w-full max-w-xl overflow-hidden rounded-3xl bg-black/5 aspect-[4/5]">
+              {/* TODO: replace with real portrait of Joan; placeholder-portrait.avif is temporary. */}
+              <Image
+                src="/placeholder-portrait.avif"
+                alt="Professional portrait placeholder"
+                fill
+                priority
+                sizes="(min-width: 768px) 576px, 100vw"
+                className="object-cover"
+              />
+            </div>
+          </Reveal>
+        </div>
 
         <Reveal width="w-full">
           <div className="flex flex-wrap items-center justify-center gap-6">

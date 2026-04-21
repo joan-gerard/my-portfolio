@@ -25,7 +25,9 @@ const SHOW_THRESHOLD_PX = 400;
  *   we pass through to the browser's own smooth-scroll implementation.
  */
 const BackToTop = () => {
-  const theme = useActiveSectionTheme();
+  // The button floats near the bottom of the viewport, so it needs to reflect
+  // the section *there*, not the one currently under the nav pill at the top.
+  const theme = useActiveSectionTheme("bottom");
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {

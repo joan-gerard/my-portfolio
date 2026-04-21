@@ -59,6 +59,10 @@ export const SectionHeader = ({
           <p
             className={clsx(
               "max-w-xl text-base md:text-lg leading-relaxed",
+              // Reveal forces its wrapper to w-full, so a block <p> with
+              // max-w-xl won't auto-centre. Force mx-auto when the header is
+              // center-aligned so the kicker tracks the heading above it.
+              align === "center" && "mx-auto",
               kickerColor,
             )}
           >

@@ -9,7 +9,7 @@ const Footer = () => {
       className="bg-[var(--surface-dark)] text-white"
     >
       <div className="border-b border-[var(--hairline-dark)] px-6 py-20 lg:px-24 xl:px-36">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <Reveal width="w-full">
             <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight">
               Let&apos;s create something{" "}
@@ -44,11 +44,13 @@ const Footer = () => {
           </Reveal>
         </div>
       </div>
-      <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 py-8 text-sm text-[var(--ink-dark-subtle)] md:flex-row md:items-center lg:px-24 xl:px-36">
-        <p className="text-xl font-extrabold text-white uppercase tracking-tight">
-          Joan Gerard
-        </p>
-        <p>© {year} Joan Gerard. All rights reserved.</p>
+      <div className="px-6 py-8 lg:px-24 xl:px-36">
+        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 text-sm text-[var(--ink-dark-subtle)] md:flex-row md:items-center">
+          <p className="text-xl font-extrabold text-white uppercase tracking-tight">
+            Joan Gerard
+          </p>
+          <p>© {year} Joan Gerard. All rights reserved.</p>
+        </div>
       </div>
     </footer>
   );
