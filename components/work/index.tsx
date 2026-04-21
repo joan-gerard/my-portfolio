@@ -16,9 +16,9 @@ export const Work = () => {
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           tone="dark"
-          eyebrow="Case Study"
+          eyebrow="Builds"
           title="Meet with creative things"
-          kicker="A selection of projects I've built and shipped."
+          kicker="A selection of things I've built, shipped and tinkered with."
           align="center"
           className="mb-16 mx-auto"
         />
@@ -30,7 +30,7 @@ export const Work = () => {
               imgUrl={item.imgUrl}
               title={item.subheading}
               tagline={item.heading}
-              category={item.stack[0] ?? "Project"}
+              category={item.category}
               slug={item.slug}
             />
           ))}

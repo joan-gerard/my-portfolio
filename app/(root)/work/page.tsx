@@ -23,9 +23,9 @@ export default function WorkPage() {
       <section className="mx-auto w-full max-w-6xl px-6 pt-32 pb-24 md:pt-40 lg:px-12">
         <SectionHeader
           tone="dark"
-          eyebrow="Case Study"
+          eyebrow="Builds"
           title="Meet with creative things"
-          kicker="A full archive of the products, prototypes and side projects I've built and shipped."
+          kicker="A full archive of the apps, prototypes and DevOps labs I've built and tinkered with."
           align="center"
           className="mx-auto mb-16 items-center text-center"
         />
@@ -37,7 +37,7 @@ export default function WorkPage() {
               imgUrl={item.imgUrl}
               title={item.subheading}
               tagline={item.heading}
-              category={item.stack[0] ?? "Project"}
+              category={item.category}
               slug={item.slug}
             />
           ))}
