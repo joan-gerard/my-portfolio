@@ -1,5 +1,5 @@
 import { BlogPostCard } from "@/components/blog/BlogPostCard";
-import { PageHeader, Reveal } from "@/components/utils";
+import { SectionHeader } from "@/components/utils";
 import { getAllPosts } from "@/lib/blog";
 import Link from "next/link";
 
@@ -26,30 +26,31 @@ export default async function BlogPage({ searchParams }: Props) {
   const posts = getAllPosts({ includeDrafts: showDrafts });
 
   return (
-    <div
+    <main
       data-section-theme="dark"
-      className="bg-[var(--surface-dark)] text-white"
+      className="min-h-screen bg-[var(--surface-dark)] text-white"
     >
-      <Reveal>
-        <section className="mx-auto my-8 w-full max-w-5xl px-6 lg:px-12 xl:px-8">
-          <PageHeader title="Blog" dir="l" className="mb-8 mt-32" />
-        <p className="mb-14 max-w-2xl text-lg leading-relaxed text-zinc-400">
-          I&apos;m going through a DevOps course and writing about it as I go.
-          What I&apos;m learning, what I&apos;m building, what broke, and how I
-          fixed it. No polish — just honest progress.
-        </p>
+      <section className="mx-auto w-full max-w-6xl px-6 pt-32 pb-24 md:pt-40 lg:px-12">
+        <SectionHeader
+          tone="dark"
+          eyebrow="Blog"
+          title="Notes from the workshop"
+          kicker="I'm going through a DevOps course and writing about it as I go — what I'm learning, what I'm building, what broke, and how I fixed it. No polish, just honest progress."
+          align="center"
+          className="mx-auto mb-16 items-center text-center"
+        />
 
         {isDevelopment ? (
-          <div className="mb-8 flex items-center gap-3">
-            <span className="text-sm font-medium text-zinc-300">
+          <div className="mb-10 flex items-center justify-center gap-3">
+            <span className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--ink-dark-muted)]">
               Show drafts?
             </span>
             <Link
               href={showDrafts ? "/blog?showDrafts=0" : "/blog?showDrafts=1"}
               className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition ${
                 showDrafts
-                  ? "border border-indigo-400/40 bg-indigo-500/15 text-indigo-200 hover:bg-indigo-500/25"
-                  : "border border-zinc-700 bg-zinc-900/50 text-zinc-300 hover:border-zinc-500 hover:text-zinc-100"
+                  ? "border border-white/40 bg-white/10 text-white hover:bg-white/20"
+                  : "border border-[var(--hairline-dark)] bg-black/30 text-[var(--ink-dark-muted)] hover:border-white/40 hover:text-white"
               }`}
             >
               {showDrafts ? "Yes" : "No"}
@@ -58,22 +59,25 @@ export default async function BlogPage({ searchParams }: Props) {
         ) : null}
 
         {posts.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-zinc-700 bg-zinc-900/20 px-6 py-16 text-center text-zinc-500">
+          <p className="rounded-3xl border border-dashed border-[var(--hairline-dark)] bg-black/20 px-6 py-16 text-center text-[var(--ink-dark-muted)]">
             No posts yet. Add an MDX file under{" "}
-            <code className="rounded bg-zinc-800 px-1.5 py-0.5 text-sm text-zinc-300">
+            <code className="rounded bg-white/10 px-1.5 py-0.5 text-sm text-white">
               content/blog
             </code>{" "}
             to get started.
           </p>
         ) : (
-          <ul className="flex flex-col gap-8 pb-24 md:gap-10">
-            {posts.map((post) => (
-              <BlogPostCard key={post.slug} post={post} />
+          <ul className="flex flex-col">
+            {posts.map((post, i) => (
+              <BlogPostCard
+                key={post.slug}
+                post={post}
+                isLast={i === posts.length - 1}
+              />
             ))}
           </ul>
         )}
-        </section>
-      </Reveal>
-    </div>
+      </section>
+    </main>
   );
 }

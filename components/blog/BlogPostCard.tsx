@@ -1,47 +1,63 @@
 import { formatBlogDate, type BlogPostListItem } from "@/lib/blog";
 import Link from "next/link";
 import { FiArrowUpRight } from "react-icons/fi";
-import { Chip } from "../utils";
 
 type Props = {
   post: BlogPostListItem;
+  /**
+   * When true, this row shows its bottom divider (use on the last item so the
+   * list closes with a hairline, matching Portoz's case-study layout).
+   */
+  isLast?: boolean;
 };
 
-export function BlogPostCard({ post }: Props) {
+/**
+ * Portoz-style case-study row for blog posts.
+ *
+ * Layout mirrors the Work section: meta row (category + date) above a large
+ * title, with an arrow affordance on the right. A top hairline separates each
+ * row; the last row also renders a bottom hairline so the list is closed.
+ */
+export function BlogPostCard({ post, isLast = false }: Props) {
+  const category = post.tags?.[0] ?? "Article";
+
   return (
-    <li>
+    <li
+      className={`border-t border-[var(--hairline-dark)] ${
+        isLast ? "border-b" : ""
+      }`}
+    >
       <Link
         href={`/blog/${post.slug}`}
-        className="group relative flex flex-col rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-6 transition-all duration-300 hover:border-indigo-500/35 hover:bg-zinc-900/55 md:p-8"
+        className="group grid grid-cols-[1fr_auto] items-end gap-6 py-10 md:py-14"
       >
-        <time
-          dateTime={post.date}
-          className="mb-4 block text-xs font-medium tracking-wide text-zinc-500"
-        >
-          {formatBlogDate(post.date)}
-        </time>
-
-        <h2 className="text-xl font-bold leading-snug text-white transition-colors group-hover:text-indigo-200 md:text-2xl">
-          {post.title}
-        </h2>
-
-        <p className="mt-3 line-clamp-3 flex-1 leading-relaxed text-zinc-400">
-          {post.description}
-        </p>
-
-        {post.tags && post.tags.length > 0 ? (
-          <div className="mt-5 flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
-              <Chip key={tag} tone="dark">
-                {tag}
-              </Chip>
-            ))}
+        <div className="flex flex-col gap-4 md:gap-6">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs md:text-sm font-semibold uppercase tracking-[0.15em]">
+            <span className="text-[var(--ink-dark-muted)]">{category}</span>
+            <time
+              dateTime={post.date}
+              className="text-[var(--ink-dark-subtle)]"
+            >
+              {formatBlogDate(post.date)}
+            </time>
           </div>
-        ) : null}
 
-        <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-indigo-400 transition group-hover:gap-3 group-hover:text-indigo-300">
-          Read article
-          <FiArrowUpRight className="text-lg transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white transition-colors group-hover:text-[var(--ink-dark-muted)]">
+            {post.title}
+          </h2>
+
+          {post.description ? (
+            <p className="max-w-2xl text-sm md:text-base leading-relaxed text-[var(--ink-dark-muted)]">
+              {post.description}
+            </p>
+          ) : null}
+        </div>
+
+        <span
+          className="inline-flex h-12 w-12 flex-none items-center justify-center rounded-full border border-[var(--hairline-dark)] text-white transition-colors group-hover:border-white group-hover:bg-white group-hover:text-[var(--ink)]"
+          aria-hidden
+        >
+          <FiArrowUpRight className="text-xl" />
         </span>
       </Link>
     </li>
