@@ -18,17 +18,22 @@ interface Props {
 
 const page = () => {
   return (
-    <Reveal>
-      <section className="px-6 my-8 lg:px-24 xl:px-36 mx-auto" id="projects">
-        <PageHeader title="Projects" dir="l" className="mb-12 mt-32" />
+    <div
+      data-section-theme="dark"
+      className="bg-[var(--surface-dark)] text-white"
+    >
+      <Reveal>
+        <section className="px-6 my-8 lg:px-24 xl:px-36 mx-auto" id="projects">
+          <PageHeader title="Projects" dir="l" className="mb-12 mt-32" />
 
-        <div className="grid gap-12 grid-cols-1 md:grid-cols-2">
-          {work.map((project) => {
-            return <Project key={project.subheading} {...project} />;
-          })}
-        </div>
-      </section>
-    </Reveal>
+          <div className="grid gap-12 grid-cols-1 md:grid-cols-2">
+            {work.map((project) => {
+              return <Project key={project.subheading} {...project} />;
+            })}
+          </div>
+        </section>
+      </Reveal>
+    </div>
   );
 };
 
@@ -97,7 +102,9 @@ function Project({
           <Reveal>
             <div className="flex flex-wrap gap-4 my-2">
               {stack.map((el) => (
-                <Chip key={el}>{el}</Chip>
+                <Chip key={el} tone="dark">
+                  {el}
+                </Chip>
               ))}
             </div>
           </Reveal>

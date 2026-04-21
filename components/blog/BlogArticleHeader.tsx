@@ -30,7 +30,9 @@ export function BlogArticleHeader({ frontmatter, readingMinutes }: Props) {
       {frontmatter.tags && frontmatter.tags.length > 0 ? (
         <div className="mt-6 flex flex-wrap gap-2">
           {frontmatter.tags.map((tag) => (
-            <Chip key={tag}>{tag}</Chip>
+            <Chip key={tag} tone="dark">
+              {tag}
+            </Chip>
           ))}
         </div>
       ) : null}

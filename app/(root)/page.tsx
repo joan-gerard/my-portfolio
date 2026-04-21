@@ -1,38 +1,15 @@
 import About from "@/components/about";
 import Experience from "@/components/experience";
 import Hero_V3 from "@/components/Hero_V3";
+import SpecialtyStrip from "@/components/SpecialtyStrip";
 import { Work } from "@/components/work";
 
 export default function Home() {
   return (
-    <div className="bg-black">
-      <div
-        className="h-screen"
-        style={{
-          backgroundImage: `url('/home-hero-2.jpg')`,
-          backgroundColor: "#09090b",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          height: "100vh",
-          color: "white",
-          margin: 0,
-          padding: 0,
-          display: "flex",
-          flexDirection: "column" as const,
-          alignItems: "center",
-        }}
-      >
-        {/* <Image
-          src="/home-hero-2.jpg"
-          alt=""
-          fill
-          style={{
-            objectFit: "cover",
-          }}
-        /> */}
-        <Hero_V3 />
-      </div>
+    <div>
+      <Hero_V3 />
       <About />
+      <SpecialtyStrip />
       <Work />
       <Experience />
     </div>

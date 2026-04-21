@@ -26,9 +26,13 @@ export default async function BlogPage({ searchParams }: Props) {
   const posts = getAllPosts({ includeDrafts: showDrafts });
 
   return (
-    <Reveal>
-      <section className="mx-auto my-8 w-full max-w-5xl px-6 lg:px-12 xl:px-8">
-        <PageHeader title="Blog" dir="l" className="mb-8 mt-32" />
+    <div
+      data-section-theme="dark"
+      className="bg-[var(--surface-dark)] text-white"
+    >
+      <Reveal>
+        <section className="mx-auto my-8 w-full max-w-5xl px-6 lg:px-12 xl:px-8">
+          <PageHeader title="Blog" dir="l" className="mb-8 mt-32" />
         <p className="mb-14 max-w-2xl text-lg leading-relaxed text-zinc-400">
           I&apos;m going through a DevOps course and writing about it as I go.
           What I&apos;m learning, what I&apos;m building, what broke, and how I
@@ -68,7 +72,8 @@ export default async function BlogPage({ searchParams }: Props) {
             ))}
           </ul>
         )}
-      </section>
-    </Reveal>
+        </section>
+      </Reveal>
+    </div>
   );
 }

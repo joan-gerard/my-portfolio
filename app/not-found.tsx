@@ -13,11 +13,16 @@ export default function GlobalNotFound() {
   return (
     <main className="font-work-sans">
       <Navigation />
-      <Reveal>
-        <div className="pt-28 sm:pt-32">
-          <NotFoundView />
-        </div>
-      </Reveal>
+      <div
+        data-section-theme="dark"
+        className="bg-[var(--surface-dark)] text-white"
+      >
+        <Reveal>
+          <div className="pt-28 sm:pt-32">
+            <NotFoundView />
+          </div>
+        </Reveal>
+      </div>
       <Contact />
       <Footer />
     </main>

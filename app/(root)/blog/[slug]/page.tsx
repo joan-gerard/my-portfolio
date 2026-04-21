@@ -72,8 +72,12 @@ export default async function BlogPostPage({ params }: Props) {
   });
 
   return (
-    <Reveal>
-      <article className="mx-auto w-full max-w-3xl px-6 pb-24 pt-28 sm:pt-32 lg:px-8">
+    <div
+      data-section-theme="dark"
+      className="bg-[var(--surface-dark)] text-white"
+    >
+      <Reveal>
+        <article className="mx-auto w-full max-w-3xl px-6 pb-24 pt-28 sm:pt-32 lg:px-8">
         <BlogArticleHeader
           frontmatter={post.frontmatter}
           readingMinutes={readingMinutes}
@@ -90,7 +94,8 @@ export default async function BlogPostPage({ params }: Props) {
             Back to blog
           </Link>
         </footer>
-      </article>
-    </Reveal>
+        </article>
+      </Reveal>
+    </div>
   );
 }

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { AiOutlineArrowRight } from "react-icons/ai";
 import { SiGithub } from "react-icons/si";
 
 /** Simple Icons removed the LinkedIn glyph from `react-icons/si`; inline SVG keeps the same look. */
@@ -17,29 +16,25 @@ function LinkedInIcon({ className }: { className?: string }) {
 }
 
 const MyLinks = () => (
-  <div className="flex items-center gap-6">
-    <div className="flex items-center gap-4 text-sm text-indigo-300">
-      <span>My links</span>
-      <AiOutlineArrowRight />
-    </div>
-    <div className="flex items-center text-lg gap-4">
-      <Link
-        className="text-zinc-300 hover:text-indigo-300 transition-colors"
-        href="https://www.linkedin.com/in/joangerard/"
-        target="_blank"
-        rel="nofollow"
-      >
-        <LinkedInIcon className="w-[1em] h-[1em]" />
-      </Link>
-      <Link
-        className="text-zinc-300 hover:text-indigo-300 transition-colors"
-        href="https://www.github.com"
-        target="_blank"
-        rel="nofollow"
-      >
-        <SiGithub />
-      </Link>
-    </div>
+  <div className="flex items-center text-xl gap-4">
+    <Link
+      className="text-[var(--ink)] hover:text-[var(--accent-mid)] transition-colors"
+      href="https://www.linkedin.com/in/joangerard/"
+      target="_blank"
+      rel="nofollow"
+      aria-label="LinkedIn"
+    >
+      <LinkedInIcon className="w-[1em] h-[1em]" />
+    </Link>
+    <Link
+      className="text-[var(--ink)] hover:text-[var(--accent-mid)] transition-colors"
+      href="https://github.com/joan-gerard"
+      target="_blank"
+      rel="nofollow"
+      aria-label="GitHub"
+    >
+      <SiGithub />
+    </Link>
   </div>
 );
 

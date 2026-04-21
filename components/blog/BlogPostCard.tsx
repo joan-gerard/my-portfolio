@@ -32,7 +32,9 @@ export function BlogPostCard({ post }: Props) {
         {post.tags && post.tags.length > 0 ? (
           <div className="mt-5 flex flex-wrap gap-2">
             {post.tags.map((tag) => (
-              <Chip key={tag}>{tag}</Chip>
+              <Chip key={tag} tone="dark">
+                {tag}
+              </Chip>
             ))}
           </div>
         ) : null}

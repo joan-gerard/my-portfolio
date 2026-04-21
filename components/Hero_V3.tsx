@@ -1,75 +1,81 @@
 "use client";
 
-import { scrollToElementById } from "@/lib/scrollToSection";
+import { CtaButton, GradientText, Reveal, SectionBadge } from "@/components/utils";
+import Image from "next/image";
 import Link from "next/link";
 
 const Hero_V3 = () => {
   return (
-    <div className="relative flex min-h-full w-full flex-1 flex-col justify-center">
-      <div
-        className="pointer-events-none absolute inset-0 z-0 bg-linear-to-b from-black/55 via-black/45 to-black/60"
-        aria-hidden
-      />
-      <div className="relative z-10 w-full px-6 py-16 text-center md:px-16 md:py-20">
-        <div className="mx-auto flex max-w-4xl flex-col items-center gap-10 md:gap-12">
-          <div className="flex flex-col items-center gap-5">
-            <div className="h-px w-20 bg-white/40" aria-hidden />
-            <p className="font-mono text-xs uppercase tracking-[0.45em] text-white/60 md:text-sm">
-              Full-stack · DevOps
-            </p>
-          </div>
+    <section
+      id="hero"
+      data-section-theme="light"
+      className="relative bg-[var(--surface-light)] pt-32 pb-20 md:pt-40 md:pb-28"
+    >
+      <div className="mx-auto max-w-5xl px-6 lg:px-8 flex flex-col items-center gap-10 md:gap-14 text-center">
+        <Reveal width="w-fit">
+          <SectionBadge tone="light">Hello! I am Joan Gerard</SectionBadge>
+        </Reveal>
 
-          <div className="flex flex-col gap-5 md:gap-6">
-            <h1
-              id="home-hero-title"
-              className="text-6xl font-extralight leading-[1.05] tracking-tight text-white sm:text-7xl md:text-8xl lg:text-9xl"
-            >
-              Joan Gerard
-            </h1>
-            <p className="text-pretty text-base leading-relaxed text-white/85 md:text-lg lg:text-xl">
-              Full Stack Engineer with a growing DevOps skill set. I build
-              thoughtful web applications and I am currently learning how to
-              ship and run them better.
-            </p>
-          </div>
-
-          <nav
-            className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-base text-white/80 md:text-lg"
-            aria-label="Hero navigation"
+        <Reveal width="w-full">
+          <h1
+            id="home-hero-title"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.02] tracking-tight text-[var(--ink)]"
           >
-            <a
-              href="#about"
-              className="transition-colors hover:text-white"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToElementById("about");
-              }}
+            Full Stack engineer <GradientText>&amp;</GradientText> DevOps
+            learner
+          </h1>
+        </Reveal>
+
+        <Reveal width="w-full">
+          <p className="mx-auto max-w-2xl text-base md:text-lg leading-relaxed text-[var(--ink-muted)]">
+            I build thoughtful web applications and am currently expanding into
+            DevOps, documenting everything as I go.
+          </p>
+        </Reveal>
+
+        <Reveal width="w-full">
+          <div className="relative mx-auto w-full max-w-2xl overflow-hidden rounded-3xl bg-black/5 aspect-[16/10]">
+            <Image
+              src="/home-hero-2.jpg"
+              alt="Joan Gerard"
+              fill
+              priority
+              sizes="(min-width: 768px) 672px, 100vw"
+              className="object-cover"
+            />
+          </div>
+        </Reveal>
+
+        <Reveal width="w-full">
+          <div className="flex flex-wrap items-center justify-center gap-6">
+            <CtaButton
+              href="https://www.linkedin.com/in/joangerard/"
+              external
+              surface="light"
+              variant="outline"
             >
-              About
-            </a>
-            <span className="text-white/35" aria-hidden>
-              /
-            </span>
-            <a
-              href="#work"
-              className="transition-colors hover:text-white"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToElementById("work");
-              }}
+              Download CV
+            </CtaButton>
+            <Link
+              href="https://github.com/joan-gerard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs md:text-sm font-semibold uppercase tracking-[0.15em] text-[var(--ink)] underline underline-offset-4 hover:text-[var(--ink-muted)] transition-colors"
             >
-              Work
-            </a>
-            <span className="text-white/35" aria-hidden>
-              /
-            </span>
-            <Link href="/blog" className="transition-colors hover:text-white">
-              Blog
+              GitHub
             </Link>
-          </nav>
-        </div>
+            <Link
+              href="https://www.linkedin.com/in/joangerard/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs md:text-sm font-semibold uppercase tracking-[0.15em] text-[var(--ink)] underline underline-offset-4 hover:text-[var(--ink-muted)] transition-colors"
+            >
+              LinkedIn
+            </Link>
+          </div>
+        </Reveal>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -1,17 +1,46 @@
 "use client";
+import {
+  CtaButton,
+  GradientText,
+  Reveal,
+  SectionHeader,
+} from "@/components/utils";
 import { experience } from "@/constants/experience";
-import { Chip, Reveal, SectionHeader } from "../utils";
 
 const Experience = () => {
   return (
-    <Reveal>
-      <section className="px-6 my-8 lg:px-24 xl:px-36 mx-auto" id="experience">
-        <SectionHeader title="Experience" dir="l" className="mb-12" />
-        {experience.map((item) => (
-          <ExperienceItem key={item.title} {...item} />
-        ))}
-      </section>
-    </Reveal>
+    <section
+      id="experience"
+      data-section-theme="light"
+      className="bg-[var(--surface-light)] px-6 py-24 lg:px-24 xl:px-36"
+    >
+      <div className="mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
+        <div className="flex flex-col gap-8">
+          <SectionHeader
+            tone="light"
+            eyebrow="Experience"
+            title={
+              <>
+                I blend creativity with{" "}
+                <span className="whitespace-nowrap">technical expertise</span>
+              </>
+            }
+            kicker="Nine years in technical roles, four of them shipping web applications end-to-end. Here is where I have spent that time."
+          />
+          <Reveal width="w-fit">
+            <CtaButton href="#contact" surface="light">
+              Book a call
+            </CtaButton>
+          </Reveal>
+        </div>
+
+        <ol className="flex flex-col">
+          {experience.map((item) => (
+            <ExperienceItem key={`${item.title}-${item.time}`} {...item} />
+          ))}
+        </ol>
+      </div>
+    </section>
   );
 };
 
@@ -32,27 +61,28 @@ function ExperienceItem({
   time,
   location,
   description,
-  tech,
 }: ExperienceItemProps) {
   return (
-    <Reveal>
-      <div className="mb-6 border-b pb-6 border-zinc-700">
-        <div className="flex items-center justify-between mb-2">
-          <span className="font-bold text-xl text-white">{title}</span>
-          <span className="text-white">{time}</span>
+    <Reveal width="w-full">
+      <li className="border-b border-[var(--hairline-light)] py-6 first:pt-0 last:border-b-0">
+        <p className="text-xs md:text-sm font-bold uppercase tracking-[0.18em]">
+          <GradientText>{title}</GradientText>
+        </p>
+        <div className="mt-2 flex items-start justify-between gap-4">
+          <h3 className="text-xl md:text-2xl font-extrabold tracking-tight text-[var(--ink)]">
+            {position}
+          </h3>
+          <span className="pt-1 text-sm text-[var(--ink-subtle)] whitespace-nowrap">
+            {time}
+          </span>
         </div>
-
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-indigo-300 font-bold">{position}</span>
-          <span className="text-white">{location}</span>
+        <div className="mt-1 flex items-center justify-between gap-4 text-sm text-[var(--ink-muted)]">
+          <span>{location}</span>
         </div>
-        <p className="mb-6 text-zinc-300 leading-relaxed">{description}</p>
-        <div className="flex flex-wrap gap-2">
-          {tech.map((item) => (
-            <Chip key={item}>{item}</Chip>
-          ))}
-        </div>
-      </div>
+        <p className="mt-3 text-sm md:text-base leading-relaxed text-[var(--ink-muted)]">
+          {description}
+        </p>
+      </li>
     </Reveal>
   );
 }

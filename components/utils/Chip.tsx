@@ -1,7 +1,30 @@
-import React from "react";
+import clsx from "clsx";
 
-export const Chip = ({ children }: { children: string }) => {
+type Tone = "light" | "dark";
+
+interface ChipProps {
+  children: string;
+  tone?: Tone;
+  className?: string;
+}
+
+export const Chip = ({ children, tone = "light", className }: ChipProps) => {
+  const toneClasses =
+    tone === "light"
+      ? "bg-black/5 text-[var(--ink)] border border-[var(--hairline-light)]"
+      : "bg-white/5 text-white border border-[var(--hairline-dark)]";
+
   return (
-    <span className="text-xs px-2 py-1 rounded bg-zinc-800 text-white">{children}</span>
+    <span
+      className={clsx(
+        "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium",
+        toneClasses,
+        className,
+      )}
+    >
+      {children}
+    </span>
   );
 };
+
+export default Chip;

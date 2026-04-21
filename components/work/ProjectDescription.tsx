@@ -18,7 +18,9 @@ const ProjectDescription = ({
       <h2 className="text-2xl font-bold">{additionalTitle}</h2>
       <div className="flex flex-wrap mt-8 gap-2">
         {stack.map((el) => (
-          <Chip key={el}>{el}</Chip>
+          <Chip key={el} tone="dark">
+            {el}
+          </Chip>
         ))}
       </div>
     </div>

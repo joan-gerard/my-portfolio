@@ -67,7 +67,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${workSans.variable} antialiased bg-black`}
+        className={`${workSans.variable} antialiased bg-[var(--surface-light)] text-[var(--ink)]`}
       >
         {children}
       </body>
