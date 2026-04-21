@@ -27,6 +27,10 @@ export type BlogPostListItem = BlogPostFrontmatter & {
   slug: string;
 };
 
+export type GetAllPostsOptions = {
+  includeDrafts?: boolean;
+};
+
 export function isBlogPostFrontmatter(
   data: unknown,
 ): data is BlogPostFrontmatter {
@@ -70,16 +74,17 @@ export function getPostSlugs(): string[] {
     .filter((slug) => getPostSourceBySlug(slug) !== null);
 }
 
-export function getAllPosts(): BlogPostListItem[] {
+export function getAllPosts(options?: GetAllPostsOptions): BlogPostListItem[] {
   const slugs = getPostSlugs();
   const posts: BlogPostListItem[] = [];
+  const includeDrafts = options?.includeDrafts ?? shouldIncludeDraftPosts();
 
   for (const slug of slugs) {
     const filePath = path.join(BLOG_DIR, `${slug}.mdx`);
     const raw = fs.readFileSync(filePath, "utf8");
     const { data } = matter(raw);
     if (!isBlogPostFrontmatter(data)) continue;
-    if (data.draft === true && !shouldIncludeDraftPosts()) continue;
+    if (data.draft === true && !includeDrafts) continue;
     posts.push({ slug, ...data });
   }
 

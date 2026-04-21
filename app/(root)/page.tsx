@@ -5,9 +5,9 @@ import { Work } from "@/components/work";
 
 export default function Home() {
   return (
-    <div>
+    <div className="bg-black">
       <div
-        className="h-screen bg-zinc-950"
+        className="h-screen"
         style={{
           backgroundImage: `url('/home-hero-2.jpg')`,
           backgroundColor: "#09090b",

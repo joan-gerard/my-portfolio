@@ -1,0 +1,253 @@
+---
+title: "Networking Basics for DevOps: Making the Mental Model Click"
+date: "2026-04-12"
+description: A practical, story-driven introduction to networking for DevOps that connects switching, routing, gateways, and DNS into one clear mental model for troubleshooting real Linux environments.
+tags:
+  - Networking
+draft: false
+---
+
+When I started studying networking for DevOps, I expected it to be mostly memorizing commands. It turned out to be more about building a mental model of how traffic moves.
+
+Once that model clicked, commands like `ip addr`, `route`, and `nslookup` stopped feeling like random syntax and started feeling like tools for answering one question:
+
+**Where is this packet trying to go, and who decides the next step?**
+
+This chapter covers the foundations that made networking feel practical: switching, routing, gateways, IP addressing, and DNS on Linux.
+
+## The Big Picture: How Machines Talk
+
+At a high level, networking comes down to four core ideas:
+
+- **Switching**: communication inside the same network
+- **Routing**: communication between different networks
+- **Gateway**: the default exit path out of your local network
+- **IP addressing**: how devices are identified
+
+If you can reason about those four, most day-to-day troubleshooting becomes manageable.
+
+## Traffic Flow: Same Network vs Different Network
+
+### 1) Same network: switching
+
+If two machines are on the same subnet (for example `192.168.1.10` and `192.168.1.11`), they can communicate through a switch.
+
+Each system needs:
+
+1. A network interface (such as `eth0`)
+2. An assigned IP address
+
+You can validate connectivity with:
+
+```bash
+ping 192.168.1.11
+```
+
+### 2) Different networks: routing
+
+A switch cannot move traffic between separate networks such as:
+
+- `192.168.1.0/24`
+- `192.168.2.0/24`
+
+That requires a router. The router is the device that interconnects networks and forwards packets between them.
+
+### 3) How a host decides: routing table
+
+Every Linux host keeps a routing table. This is the lookup map used to decide where outgoing traffic should be sent.
+
+```bash
+ip route
+# or
+route
+```
+
+### 4) The gateway: your network's exit door
+
+The default gateway is the path used when traffic is destined outside the local network.
+
+Practical flow:
+
+1. Laptop to printer (same subnet): local switching path
+2. Laptop to `google.com`: not local, so send to default gateway
+3. Gateway/router forwards traffic outward toward internet routes
+
+In many home networks, the gateway is often something like `192.168.1.1` or `10.0.0.1`.
+
+## Linux Networking Commands Worth Memorizing
+
+These commands appeared repeatedly in labs and are useful in real operations:
+
+```bash
+ip link
+ip addr
+ip addr add 192.168.1.10/24 dev eth0
+ping 192.168.1.11
+ip route
+ip route add ...
+cat /proc/sys/net/ipv4/ip_forward
+echo 1 > /proc/sys/net/ipv4/ip_forward
+```
+
+Notes:
+
+- `ip addr add ...` is temporary unless persisted in system config.
+- `ip_forward` enables packet forwarding on a host acting as a router.
+- Permanent forwarding is typically configured via `sysctl` settings.
+
+## Concepts That Helped Me the Most
+
+### Network interface and NIC
+
+- A **network interface** is the host's connection point to a network (physical or virtual).
+- A **NIC** (Network Interface Card) is the physical hardware component enabling that connectivity.
+
+No interface means no network communication.
+
+### Switch vs router
+
+- **Switch**: connects devices inside one network; forwards using MAC addresses (OSI Layer 2).
+- **Router**: connects different networks; forwards using IP addresses (OSI Layer 3).
+
+Routers in home environments also commonly perform NAT to share one public ISP IP across internal devices.
+
+### Home network reality
+
+A typical home setup is one network, but multiple networks commonly appear when you add:
+
+- Guest Wi-Fi (isolated subnet)
+- IoT segmentation (often VLAN-based)
+- Double NAT (router behind router)
+
+Those patterns explain many "why can't this device reach that one?" problems.
+
+## DNS: Turning Names into Reachable IPs
+
+After learning packet flow, DNS made more sense because it answers a different question: **what IP should this name map to?**
+
+### Local name resolution with `/etc/hosts`
+
+If host B is `192.168.1.11`, host A can map a friendly name locally:
+
+```bash
+echo "192.168.1.11 db" | sudo tee -a /etc/hosts
+```
+
+Then:
+
+```bash
+ping db
+ssh db
+```
+
+Key behavior:
+
+- `/etc/hosts` is local and authoritative for that machine
+- It does not verify remote hostname identity
+- You can map multiple names to one IP
+
+Example:
+
+```bash
+echo "192.168.1.11 www.google.com" | sudo tee -a /etc/hosts
+```
+
+This forces local resolution of that name to the specified IP.
+
+## Why Central DNS Exists
+
+Managing many hosts with local `/etc/hosts` files does not scale. If one server IP changes, every client file has to be updated manually.
+
+A DNS server centralizes those mappings.
+
+Configure resolver settings in:
+
+```bash
+echo "nameserver 192.168.1.100" | sudo tee -a /etc/resolv.conf
+```
+
+Resolution order is controlled by `/etc/nsswitch.conf`, commonly:
+
+```text
+hosts: files dns
+```
+
+That means: check local files first, then query DNS.
+
+## DNS Hierarchy in Plain Terms
+
+For names like `www.google.com`, resolution may traverse:
+
+1. Root DNS servers
+2. TLD servers (for `.com`)
+3. Authoritative servers for `google.com`
+
+Organisations follow the same model with their own domains and subdomains (`mail.mycompany.com`, `hr.mycompany.com`, and so on).
+
+## Common DNS Record Types
+
+- **A**: hostname to IPv4 address
+- **AAAA**: hostname to IPv6 address
+- **CNAME**: alias name pointing to another hostname
+
+These are the core records you will constantly encounter.
+
+## DNS Diagnostics: `nslookup` and `dig`
+
+`ping` can confirm resolution in context, but dedicated DNS tools give deeper visibility:
+
+```bash
+nslookup www.google.com
+dig www.google.com
+```
+
+Important caveat from the labs:
+
+- `nslookup` and `dig` query DNS servers directly and generally bypass local `/etc/hosts`.
+- This is useful when you need to separate "local override issue" from "real DNS issue."
+
+## Search Domains: Using Short Names
+
+You can reduce typing by configuring a search domain:
+
+```bash
+echo "search mycompany.com" | sudo tee -a /etc/resolv.conf
+```
+
+Then short names (for example `app01`) can resolve as `app01.mycompany.com`.
+
+This is convenient in internal environments where most lookups belong to one domain.
+
+## Lab-Safe Command Pattern (`tee` vs direct redirection)
+
+A useful pattern from this chapter:
+
+```bash
+echo "127.0.0.1 www.google.com" | sudo tee -a /etc/hosts
+```
+
+Why this matters:
+
+- `sudo` applies to `tee` (the writer), so protected files can be updated safely.
+- `-a` appends instead of overwriting.
+- Avoids permission issues common with `sudo ... >> file` redirection patterns.
+
+## Practical Q&A (Condensed)
+
+- **Can a system have multiple IPs?** Yes, across multiple interfaces or multiple addresses on one interface.
+- **Which Linux command shows kernel routing table?** `route` (or `ip route`).
+- **If local hosts and DNS disagree, which wins by default?** `/etc/hosts` when `hosts: files dns`.
+- **Top-level domain in `www.google.com`?** `.com`.
+- **Example subdomain?** `maps.google.com`.
+- **Tool to query hostname from DNS server?** `nslookup` (or `dig` for deeper details).
+
+## Final Reflection
+
+Networking became easier once I stopped treating it as separate facts and started seeing it as one chain:
+
+1. Interface and IP define identity on the network
+2. Switching handles local traffic
+3. Routing and gateway handle non-local traffic
+4. DNS tells you which IP to target in the first place
+
+This chapter felt abstract at first, but mapping it to a home network setup made it practical. For DevOps work, that mental model is the real prerequisite.

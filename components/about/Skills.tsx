@@ -5,31 +5,26 @@ export const Skills = () => {
   const workSkills = [
     "JavaScript",
     "TypeScript",
-    "HTML",
-    "CSS",
     "React",
-    "Redux",
+    "Next.js",
     "NodeJS",
     "Express",
     "Postgres",
     "MongoDB",
     "GitHub",
     "Jira",
-    "Heroku",
     "AWS",
+    "Docker",
+    "AI",
   ];
 
   const funSkills = [
-    "Rust",
     "Tailwind",
     "Java",
     "Spring",
     "Figma",
-    "Whimsical",
-    "Planetscale",
     "GraphQL",
     "Python",
-    "FastAPI",
   ];
   return (
     <div className="relative">
