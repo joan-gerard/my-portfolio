@@ -1,11 +1,12 @@
 "use client";
 
-import { CtaButton, GradientText, Reveal, SectionBadge } from "@/components/utils";
 import {
-  CV_DOWNLOAD_FILENAME,
-  CV_URL,
-  SOCIAL_LINKS,
-} from "@/constants/site";
+  CtaButton,
+  GradientText,
+  Reveal,
+  SectionBadge,
+} from "@/components/utils";
+import { CV_DOWNLOAD_FILENAME, CV_URL, SOCIAL_LINKS } from "@/constants/site";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -14,7 +15,7 @@ const Hero_V3 = () => {
     <section
       id="hero"
       data-section-theme="light"
-      className="relative bg-[var(--surface-light)] pt-32 pb-20 md:pt-40 md:pb-28"
+      className="relative bg-[var(--surface-light)] pt-32 pb-12 md:pt-40 md:pb-16"
     >
       <div className="mx-auto max-w-5xl px-6 lg:px-8 flex flex-col items-center gap-10 md:gap-14 text-center">
         <Reveal width="w-fit">
@@ -27,7 +28,7 @@ const Hero_V3 = () => {
               id="home-hero-title"
               className="text-balance pb-2 md:pb-3 lg:pb-4 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.1] tracking-tight text-[var(--ink)]"
             >
-              Full Stack <GradientText>&amp;</GradientText> DevOps engineer
+              Full Stack <GradientText>&amp;</GradientText> DevOps Engineer
             </h1>
           </Reveal>
         </div>
