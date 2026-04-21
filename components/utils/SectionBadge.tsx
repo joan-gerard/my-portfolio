@@ -11,9 +11,13 @@ interface SectionBadgeProps {
 
 /**
  * Small uppercase pill with a gradient border (orange -> pink -> purple).
- * Rendered as two nested spans: the outer holds the gradient background,
- * the inner masks everything except the 1px ring, using the surface color
- * so the gradient only shows as a thin outline.
+ *
+ * Rendered as two nested spans: the outer holds the gradient as a
+ * `background-image` (via Tailwind's `bg-[image:var(--…)]` syntax — the bare
+ * `bg-[var(--…)]` form would compile to `background-color` which is invalid
+ * for a `linear-gradient()` value and would render nothing). The inner span
+ * fills with the surface color, leaving just the 1px padding of the outer
+ * span visible as the gradient ring.
  */
 export const SectionBadge = ({
   children,
@@ -28,7 +32,7 @@ export const SectionBadge = ({
     <span
       className={clsx(
         "inline-flex rounded-full p-px",
-        "bg-[var(--accent-gradient)]",
+        "bg-[image:var(--accent-gradient)]",
         className,
       )}
     >

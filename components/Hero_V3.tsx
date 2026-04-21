@@ -19,10 +19,9 @@ const Hero_V3 = () => {
         <Reveal width="w-full">
           <h1
             id="home-hero-title"
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.02] tracking-tight text-[var(--ink)]"
+            className="text-balance pb-2 md:pb-3 lg:pb-4 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.1] tracking-tight text-[var(--ink)]"
           >
-            Full Stack engineer <GradientText>&amp;</GradientText> DevOps
-            learner
+            Full Stack <GradientText>&amp;</GradientText> DevOps engineer
           </h1>
         </Reveal>
 

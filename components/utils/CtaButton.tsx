@@ -73,7 +73,7 @@ export const CtaButton = (props: CtaButtonProps) => {
 
   if (variant === "outline") {
     const wrapperClass = clsx(
-      "inline-flex rounded-full p-px bg-[var(--accent-gradient)]",
+      "inline-flex rounded-full p-px bg-[image:var(--accent-gradient)]",
       className,
     );
     const innerClass = clsx(baseClasses, getOutlineInnerClasses(surface));

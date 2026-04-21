@@ -35,7 +35,7 @@ const Contact = () => {
         <div className="flex flex-col gap-8">
           <SectionHeader
             tone="light"
-            eyebrow="Let's talk for your project done"
+            eyebrow="Let's talk about your next project"
             title="Let's create amazing stuff together!"
             kicker="Have a project in mind? Looking to partner or work together? Reach out through the form and I'll get back to you within 48 hours."
           />

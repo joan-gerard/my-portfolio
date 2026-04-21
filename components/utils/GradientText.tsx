@@ -15,7 +15,7 @@ export const GradientText = ({ children, className }: GradientTextProps) => {
   return (
     <span
       className={clsx(
-        "bg-[var(--accent-gradient)] bg-clip-text text-transparent",
+        "bg-[image:var(--accent-gradient)] bg-clip-text text-transparent",
         className,
       )}
     >

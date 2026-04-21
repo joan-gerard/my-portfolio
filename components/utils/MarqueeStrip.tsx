@@ -85,7 +85,7 @@ export const MarqueeStrip = ({
                 <span>{item}</span>
                 <span
                   aria-hidden
-                  className="inline-block h-2 w-2 rounded-full bg-[var(--accent-gradient)]"
+                  className="inline-block h-2 w-2 rounded-full bg-[image:var(--accent-gradient)]"
                 />
               </li>
             ))}
