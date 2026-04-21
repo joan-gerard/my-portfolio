@@ -33,7 +33,7 @@ type ButtonProps = BaseProps &
 type CtaButtonProps = AnchorProps | ButtonProps;
 
 const baseClasses =
-  "inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs md:text-sm font-semibold uppercase tracking-[0.15em] transition-all duration-200";
+  "inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs md:text-sm font-semibold uppercase tracking-[0.15em] transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50";
 
 function getSolidClasses(surface: Surface): string {
   return surface === "light"
