@@ -12,7 +12,7 @@ type Props = {
 };
 
 /**
- * Portoz-style case-study row for blog posts.
+ * Portoz-style case-study row for blog posts on a dark surface.
  *
  * Layout mirrors the Work section: meta row (category + date) above a large
  * title, with an arrow affordance on the right. A top hairline separates each
