@@ -87,7 +87,15 @@ export function useActiveSectionTheme(
           return;
         }
       }
-      setTheme(themeFor(sections[0]));
+      const firstSection = sections[0];
+      const lastSection = sections[sections.length - 1];
+      const firstRectTop = firstSection.getBoundingClientRect().top;
+
+      if (probeY < firstRectTop) {
+        setTheme(themeFor(firstSection));
+      } else {
+        setTheme(themeFor(lastSection));
+      }
     };
 
     const refreshSections = () => {

@@ -19,8 +19,8 @@ const Footer = () => {
         <div className="mx-auto max-w-6xl">
           <Reveal width="w-full">
             <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight">
-              Let&apos;s create something{" "}
-              <GradientText>amazing &amp; extraordinary</GradientText> together.
+              Let&apos;s craft{" "}
+              <GradientText>bold &amp; memorable</GradientText> digital experiences.
             </h2>
           </Reveal>
           <Reveal width="w-full">
