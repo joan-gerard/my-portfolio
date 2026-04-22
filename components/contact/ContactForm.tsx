@@ -19,7 +19,7 @@ interface ContactFormProps {
     email: string;
     phone: string;
     message: string;
-    company: string;
+    website_url: string;
   };
   fieldErrors: ContactFieldErrors;
   submitError: string | null;
@@ -28,7 +28,7 @@ interface ContactFormProps {
   siteKey: string;
   turnstileRef: RefObject<TurnstileInstance | null>;
   onSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>;
-  onFieldChange: <K extends "name" | "email" | "phone" | "message" | "company">(
+  onFieldChange: <K extends "name" | "email" | "phone" | "message" | "website_url">(
     key: K,
   ) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onTurnstileSuccess: (token: string) => void;
@@ -110,19 +110,16 @@ export function ContactForm({
         />
       </FormField>
 
-      <div
-        aria-hidden
-        className="absolute left-[-9999px] h-0 w-0 overflow-hidden"
-      >
+      <div className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
         <label>
-          Company
+          Website
           <input
             type="text"
-            name="company"
+            name="website_url"
             tabIndex={-1}
             autoComplete="off"
-            value={formState.company}
-            onChange={onFieldChange("company")}
+            value={formState.website_url}
+            onChange={onFieldChange("website_url")}
           />
         </label>
       </div>

@@ -14,10 +14,10 @@ import { z } from "zod";
  * - `email` is required and must be a real address (we'll be replying to it).
  * - `message` has a 10-char minimum so bots typing "a" can't squeak through,
  *   and a 5000-char cap to bound the outgoing email size.
- * - `company` is the honeypot. It MUST be empty. Real users never see the
- *   field (it's visually hidden + aria-hidden), so any non-empty value is
- *   a bot — the API returns 200 without sending mail (see route). The
- *   schema only bounds length so validation runs before that check.
+ * - `website_url` is the honeypot. It MUST be empty. Real users never see
+ *   the field (it's visually hidden), so any non-empty value is a bot —
+ *   the API returns 200 without sending mail (see route). The schema only
+ *   bounds length so validation runs before that check.
  * - `turnstileToken` is the Cloudflare Turnstile challenge result. The
  *   server re-verifies it against Cloudflare's siteverify endpoint before
  *   sending anything.
@@ -31,7 +31,7 @@ export const contactSchema = z.object({
     .trim()
     .min(10, { error: "Message should be at least 10 characters" })
     .max(5000, { error: "Message is too long (5000 characters max)" }),
-  company: z.preprocess(
+  website_url: z.preprocess(
     (v) => (typeof v === "string" ? v : ""),
     z.string().max(200),
   ),

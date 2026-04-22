@@ -22,7 +22,7 @@ const initialFormState = {
   phone: "",
   message: "",
   /** Honeypot — must stay empty. Real users can't see this field. */
-  company: "",
+  website_url: "",
 };
 
 type FormState = typeof initialFormState;
@@ -60,7 +60,7 @@ export function useContactForm() {
       email: formState.email.trim(),
       phone: formState.phone.trim(),
       message: formState.message.trim(),
-      company: formState.company,
+      website_url: formState.website_url,
       turnstileToken,
     };
 

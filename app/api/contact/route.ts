@@ -19,7 +19,7 @@ import {
  * Pipeline, in order:
  *   1. Per-IP rate limit (cheap reject of repeat offenders).
  *   2. JSON parse + Zod validation.
- *   3. Honeypot — if the `company` field is filled, respond 200 so the bot
+ *   3. Honeypot — if the `website_url` field is filled, respond 200 so the bot
  *      thinks it worked but do nothing.
  *   4. Turnstile siteverify (calls out to Cloudflare).
  *   5. Resend delivery.
@@ -69,10 +69,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  const { name, email, phone, message, company, turnstileToken } =
+  const { name, email, phone, message, website_url, turnstileToken } =
     parsed.data;
 
-  if (company.trim().length > 0) {
+  if (website_url.trim().length > 0) {
     // Silent success. The bot gets a 200 and moves on, we log nothing
     // sensitive, and we never call Resend.
     return NextResponse.json({ ok: true });

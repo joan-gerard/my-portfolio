@@ -72,7 +72,7 @@ build time, so a redeploy is required whenever it changes.
 - **Runtime**: the route is pinned to `nodejs` because the Resend SDK
   uses Node APIs and the in-memory rate limiter relies on warm-instance
   memory that Edge functions don't share.
-- **Spam defence** is layered: honeypot field (`company`) → per-IP rate
+- **Spam defence** is layered: honeypot field (`website_url`) → per-IP rate
   limit (`lib/contact/rate-limit.ts`, 3 req / 10 min / warm instance) →
   Turnstile siteverify. The honeypot returns `200 OK` so bots don't
   learn they were rejected.
