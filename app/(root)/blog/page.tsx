@@ -26,7 +26,7 @@ export default async function BlogPage({ searchParams }: Props) {
   const posts = getAllPosts({ includeDrafts: showDrafts });
 
   return (
-    <main
+    <div
       data-section-theme="dark"
       className="min-h-screen bg-[var(--surface-dark)] text-white"
     >
@@ -78,6 +78,6 @@ export default async function BlogPage({ searchParams }: Props) {
           </ul>
         )}
       </section>
-    </main>
+    </div>
   );
 }

@@ -84,7 +84,12 @@ export const CtaButton = (props: CtaButtonProps) => {
         ? { target: "_blank", rel: "noopener noreferrer" }
         : {};
       return (
-        <Link href={href} className={wrapperClass} {...externalProps} {...anchorRest}>
+        <Link
+          href={href}
+          className={wrapperClass}
+          {...anchorRest}
+          {...externalProps}
+        >
           <span className={innerClass}>{content}</span>
         </Link>
       );
@@ -106,7 +111,12 @@ export const CtaButton = (props: CtaButtonProps) => {
       ? { target: "_blank", rel: "noopener noreferrer" }
       : {};
     return (
-      <Link href={href} className={solidClass} {...externalProps} {...anchorRest}>
+      <Link
+        href={href}
+        className={solidClass}
+        {...anchorRest}
+        {...externalProps}
+      >
         {content}
       </Link>
     );
