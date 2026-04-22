@@ -18,7 +18,7 @@ const Experience = () => {
         <div className="flex flex-col gap-8">
           <SectionHeader
             tone="light"
-            eyebrow="Experience"
+            eyebrow="Career Journey"
             title={
               <>
                 I blend creativity with{" "}

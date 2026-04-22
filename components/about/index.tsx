@@ -13,7 +13,7 @@ const About = () => {
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           tone="light"
-          eyebrow="Core Experience"
+          eyebrow="Experience Snapshot"
           title={
             <>
               I blend <em className="not-italic">engineering </em> with a
