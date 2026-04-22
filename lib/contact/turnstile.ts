@@ -50,19 +50,36 @@ export async function verifyTurnstile(
     body.set("remoteip", remoteIp);
   }
 
-  const response = await fetch(SITEVERIFY_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
-  });
+  const controller = new AbortController();
+  const timeoutMs = 5000;
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, timeoutMs);
 
-  if (!response.ok) {
-    return { success: false, errorCodes: [`http_${response.status}`] };
+  try {
+    const response = await fetch(SITEVERIFY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      return { success: false, errorCodes: [`http_${response.status}`] };
+    }
+
+    const json = (await response.json()) as SiteverifyResponse;
+    return {
+      success: json.success === true,
+      errorCodes: json["error-codes"] ?? [],
+    };
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return { success: false, errorCodes: ["timeout"] };
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  const json = (await response.json()) as SiteverifyResponse;
-  return {
-    success: json.success === true,
-    errorCodes: json["error-codes"] ?? [],
-  };
 }
