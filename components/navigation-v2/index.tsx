@@ -1,6 +1,6 @@
 "use client";
 
-import NavigationPanel from "@/components/navigation/NavigationPanel";
+import NavigationPanel from "@/components/navigation-v2/NavigationPanel";
 import { CtaButton } from "@/components/utils";
 import clsx from "clsx";
 import { motion } from "framer-motion";

@@ -63,26 +63,28 @@ function ExperienceItem({
   description,
 }: ExperienceItemProps) {
   return (
-    <Reveal width="w-full">
-      <li className="border-b border-[var(--hairline-light)] py-6 first:pt-0 last:border-b-0">
-        <p className="text-xs md:text-sm font-bold uppercase tracking-[0.18em]">
-          <GradientText>{title}</GradientText>
-        </p>
-        <div className="mt-2 flex items-start justify-between gap-4">
-          <h3 className="text-xl md:text-2xl font-extrabold tracking-tight text-[var(--ink)]">
-            {position}
-          </h3>
-          <span className="pt-1 text-sm text-[var(--ink-subtle)] whitespace-nowrap">
-            {time}
-          </span>
+    <li className="border-b border-[var(--hairline-light)] py-6 first:pt-0 last:border-b-0">
+      <Reveal width="w-full">
+        <div>
+          <p className="text-xs md:text-sm font-bold uppercase tracking-[0.18em]">
+            <GradientText>{title}</GradientText>
+          </p>
+          <div className="mt-2 flex items-start justify-between gap-4">
+            <h3 className="text-xl md:text-2xl font-extrabold tracking-tight text-[var(--ink)]">
+              {position}
+            </h3>
+            <span className="pt-1 text-sm text-[var(--ink-subtle)] whitespace-nowrap">
+              {time}
+            </span>
+          </div>
+          <div className="mt-1 flex items-center justify-between gap-4 text-sm text-[var(--ink-muted)]">
+            <span>{location}</span>
+          </div>
+          <p className="mt-3 text-sm md:text-base leading-relaxed text-[var(--ink-muted)]">
+            {description}
+          </p>
         </div>
-        <div className="mt-1 flex items-center justify-between gap-4 text-sm text-[var(--ink-muted)]">
-          <span>{location}</span>
-        </div>
-        <p className="mt-3 text-sm md:text-base leading-relaxed text-[var(--ink-muted)]">
-          {description}
-        </p>
-      </li>
-    </Reveal>
+      </Reveal>
+    </li>
   );
 }

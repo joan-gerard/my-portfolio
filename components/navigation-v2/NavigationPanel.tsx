@@ -122,7 +122,6 @@ const NavLink = ({
     scrollToElementById(text);
   };
   return (
-    // <Link href={`#${text}`}>
     <motion.p
       className={clsx(
         "inline-block w-fit font-extrabold text-4xl uppercase transition-colors hover:cursor-pointer sm:text-6xl md:text-7xl",
@@ -136,15 +135,10 @@ const NavLink = ({
         damping: 5,
       }}
       onClick={handleClick}
-      // whileHover={{
-      //   y: -15,
-      //   rotate: "-7.5deg",
-      // }}
       rel="nofollow"
     >
       {text}
     </motion.p>
-    // </Link>
   );
 };
 export default NavigationPanel;
