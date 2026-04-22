@@ -50,7 +50,6 @@ export interface Build {
   githubUrl: string;
   liveUrl: string | null;
   isFeatured?: boolean;
-  additionalTitle?: string;
   javascriptCode?: string | null;
   pythonCode?: string;
 }
@@ -63,7 +62,6 @@ export const work: Build[] = [
     heading: "Stand out. Get seen.",
     category: "Full-stack app",
     status: "live",
-    additionalTitle: "Additional content explaining the above card here",
     description: [
       "MyHireView is a modern application platform that transforms how job seekers present themselves to recruiters.",
       "By combining CV uploads, video pitches, and shareable application pages with built-in analytics, MyHireView empowers candidates to stand out in competitive job markets while providing recruiters with a streamlined, friction-free viewing experience.",
@@ -88,10 +86,9 @@ export const work: Build[] = [
     heading: "Never compromise.",
     category: "Full-stack app",
     status: "live",
-    additionalTitle: "Additional content explaining the above card here",
     description: [
-      "2 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, blanditiis soluta eius quam modi aliquam quaerat odit deleniti minima maiores voluptate est ut saepe accusantium maxime doloremque nulla consectetur possimus.",
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium reiciendis blanditiis aliquam aut fugit sint",
+      "Pitch Portal helps founders package product updates and investor material into one clear, shareable workspace.",
+      "It focuses on fast publishing, clear storytelling, and a lightweight collaboration flow for small teams.",
     ],
     stack: ["Next.js 15", "Appwrite"],
     githubUrl: githubRepoUrl("pitch-portal"),
@@ -121,11 +118,10 @@ export const work: Build[] = [
     heading: "Dress for the best.",
     category: "Prototype",
     status: "in-progress",
-    additionalTitle: "Additional content explaining the above card here",
     stack: ["Next.js 15", "Appwrite", "CMS"],
     description: [
-      "3 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, blanditiis soluta eius quam modi aliquam quaerat odit deleniti minima maiores voluptate est ut saepe accusantium maxime doloremque nulla consectetur possimus.",
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium reiciendis blanditiis aliquam aut fugit sint",
+      "Aora is an exploratory prototype for fashion discovery, trying out personalized browsing and product storytelling patterns.",
+      "The current phase is focused on validating interaction flows and content structure before shipping a public release.",
     ],
     githubUrl: githubRepoUrl("react-native-practice"),
     liveUrl: null,
@@ -153,10 +149,9 @@ export const work: Build[] = [
     heading: "Built for all of us.",
     category: "Full-stack app",
     status: "live",
-    additionalTitle: "Additional content explaining the above card here",
     description: [
-      "1 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, blanditiis soluta eius quam modi aliquam quaerat odit deleniti minima maiores voluptate est ut saepe accusantium maxime doloremque nulla consectetur possimus.",
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium reiciendis blanditiis aliquam aut fugit sint",
+      "The second generation of this portfolio introduces a clearer information architecture and stronger visual system.",
+      "It is built to showcase shipped work, technical writing, and ongoing DevOps progress in a single cohesive experience.",
     ],
     stack: ["Next.js 15", "Appwrite", "CMS", "Auth", "Express"],
     githubUrl: githubRepoUrl("my-portfolio"),
@@ -176,71 +171,6 @@ app = your_package.init({
 })
   
 app.do_cool_thing()`,
-    isFeatured: false,
-  },
-  {
-    imgUrl:
-      "https://images.unsplash.com/photo-1530893609608-32a9af3aa95c?q=80&w=2564&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    subheading: "Pitch Portal 2",
-    slug: "pitch-portal-2",
-    heading: "Never compromise.",
-    category: "Full-stack app",
-    status: "live",
-    additionalTitle: "Additional content explaining the above card here",
-    description: [
-      "2 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, blanditiis soluta eius quam modi aliquam quaerat odit deleniti minima maiores voluptate est ut saepe accusantium maxime doloremque nulla consectetur possimus.",
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium reiciendis blanditiis aliquam aut fugit sint",
-    ],
-    stack: ["Next.js 15", "Appwrite"],
-    githubUrl: githubRepoUrl("pitch-portal"),
-    liveUrl: "https://pitch-portal.vercel.app/",
-    javascriptCode: `import { initializeSDK } from "your-package";
-
-    // Pitch Portal
-    const app = initializeSDK({
-        apiKey: "sk_abc123"
-    });
-      
-    app.doCoolThing();`,
-    pythonCode: `import your_package
-        
-    app = your_package.init({
-        "api_key": "sk_abc123"
-    })
-      
-    app.do_cool_thing()`,
-    isFeatured: false,
-  },
-  {
-    imgUrl:
-      "https://images.unsplash.com/photo-1504610926078-a1611febcad3?q=80&w=2416&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    subheading: "Aora 2",
-    slug: "aora-2",
-    heading: "Dress for the best.",
-    category: "Prototype",
-    status: "in-progress",
-    additionalTitle: "Additional content explaining the above card here",
-    stack: ["Next.js 15", "Appwrite", "CMS"],
-    description: [
-      "3 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi, blanditiis soluta eius quam modi aliquam quaerat odit deleniti minima maiores voluptate est ut saepe accusantium maxime doloremque nulla consectetur possimus.",
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium reiciendis blanditiis aliquam aut fugit sint",
-    ],
-    githubUrl: githubRepoUrl("react-native-practice"),
-    liveUrl: null,
-    javascriptCode: `import { initializeSDK } from "your-package";
-    
-    const app = initializeSDK({
-        apiKey: "sk_abc123"
-    });
-      
-    app.doCoolThing();`,
-    pythonCode: `import your_package
-        
-    app = your_package.init({
-        "api_key": "sk_abc123"
-    })
-      
-    app.do_cool_thing()`,
     isFeatured: false,
   },
 ];

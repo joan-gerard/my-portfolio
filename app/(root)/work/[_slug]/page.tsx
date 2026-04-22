@@ -1,5 +1,12 @@
 import { CodeCard } from "@/components/CodeCard";
-import { Chip, CtaButton, Reveal, SectionBadge } from "@/components/utils";
+import {
+  Chip,
+  CtaButton,
+  DetailsGrid,
+  DetailsGridItem,
+  Reveal,
+  SectionBadge,
+} from "@/components/utils";
 import { BUILD_STATUS_LABEL, work } from "@/constants/work";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -70,28 +77,15 @@ export default async function ProjectDetailPage({ params }: Props) {
             </h1>
           </Reveal>
 
-          {/* KEEP COMMENTED OUT FOR NOW */}
-          {/* {project.heading ? (
-            <Reveal>
-              <p className="text-base leading-relaxed text-[var(--ink-dark-muted)] md:text-lg">
-                {project.heading}
-              </p>
-            </Reveal>
-          ) : null}
-
           <Reveal>
-            <h2 className="mt-4 text-lg font-semibold text-white md:text-xl">
-              Project details
-            </h2>
-          </Reveal> */}
-
-          <Reveal>
-            <dl className="grid grid-cols-1 gap-y-6 border-y border-[var(--hairline-dark)] py-8 sm:grid-cols-2">
-              <DetailItem label="Category">{project.category}</DetailItem>
-              <DetailItem label="Status">
+            <DetailsGrid tone="dark">
+              <DetailsGridItem tone="dark" label="Category">
+                {project.category}
+              </DetailsGridItem>
+              <DetailsGridItem tone="dark" label="Status">
                 {BUILD_STATUS_LABEL[project.status]}
-              </DetailItem>
-            </dl>
+              </DetailsGridItem>
+            </DetailsGrid>
           </Reveal>
         </header>
 
@@ -189,24 +183,5 @@ export default async function ProjectDetailPage({ params }: Props) {
         </footer>
       </article>
     </main>
-  );
-}
-
-function DetailItem({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <dt className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--ink-dark-subtle)] md:text-xs">
-        {label}
-      </dt>
-      <dd className="text-base font-medium text-white md:text-lg">
-        {children}
-      </dd>
-    </div>
   );
 }

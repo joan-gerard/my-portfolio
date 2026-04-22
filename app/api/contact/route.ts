@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { Resend } from "resend";
 import { SITE_EMAIL } from "@/constants/site";
 import {
   contactSchema,
   type ContactFieldErrors,
 } from "@/lib/contact/schema";
+import { mapContactFieldErrors } from "@/lib/contact/mapFieldErrors";
 import { singleLineForEmailHeader } from "@/lib/contact/sanitize";
 import { getClientIp, rateLimit } from "@/lib/contact/rate-limit";
 import {
@@ -62,13 +62,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   const parsed = contactSchema.safeParse(payload);
   if (!parsed.success) {
-    const flat = z.flattenError(parsed.error);
-    const fieldErrors: ContactFieldErrors = {};
-    for (const [key, messages] of Object.entries(flat.fieldErrors)) {
-      if (messages && messages.length > 0) {
-        fieldErrors[key as keyof ContactFieldErrors] = messages[0];
-      }
-    }
+    const fieldErrors = mapContactFieldErrors(parsed.error);
     return errorResponse(
       { error: "Some fields need attention.", fieldErrors },
       400,

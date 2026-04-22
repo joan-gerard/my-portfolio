@@ -1,4 +1,4 @@
-import { WorkCaseStudy } from "@/components/work/WorkCaseStudy";
+import { WorkCaseStudyList } from "@/components/work/WorkCaseStudyList";
 import { CtaButton, SectionHeader } from "@/components/utils";
 import { work } from "@/constants/work";
 
@@ -30,18 +30,7 @@ export default function WorkPage() {
           className="mx-auto mb-16 items-center text-center"
         />
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
-          {work.map((item) => (
-            <WorkCaseStudy
-              key={item.slug}
-              imgUrl={item.imgUrl}
-              title={item.subheading}
-              tagline={item.heading}
-              category={item.category}
-              slug={item.slug}
-            />
-          ))}
-        </div>
+        <WorkCaseStudyList items={work} />
 
         <div className="mt-24 flex justify-center">
           <CtaButton href="/#contact" surface="dark" variant="outline">

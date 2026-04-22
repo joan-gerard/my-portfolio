@@ -1,6 +1,6 @@
 import type { BlogPostFrontmatter } from "@/lib/blog";
 import { formatBlogDate } from "@/lib/blog";
-import { Reveal, SectionBadge } from "../utils";
+import { DetailsGrid, DetailsGridItem, Reveal, SectionBadge } from "../utils";
 
 type Props = {
   frontmatter: BlogPostFrontmatter;
@@ -45,35 +45,20 @@ export function BlogArticleHeader({ frontmatter, readingMinutes }: Props) {
       </Reveal>
 
       <Reveal>
-        <dl className="grid grid-cols-1 gap-y-6 border-y border-[var(--hairline-light)] py-8 sm:grid-cols-3">
-          <DetailItem label="Published">
+        <DetailsGrid tone="light">
+          <DetailsGridItem tone="light" label="Published">
             <time dateTime={frontmatter.date}>
               {formatBlogDate(frontmatter.date)}
             </time>
-          </DetailItem>
-          <DetailItem label="Read time">{readingMinutes} min read</DetailItem>
-          <DetailItem label="Category">{category}</DetailItem>
-        </dl>
+          </DetailsGridItem>
+          <DetailsGridItem tone="light" label="Read time">
+            {readingMinutes} min read
+          </DetailsGridItem>
+          <DetailsGridItem tone="light" label="Category">
+            {category}
+          </DetailsGridItem>
+        </DetailsGrid>
       </Reveal>
     </header>
-  );
-}
-
-function DetailItem({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <dt className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--ink-subtle)] md:text-xs">
-        {label}
-      </dt>
-      <dd className="text-base font-medium text-[var(--ink)] md:text-lg">
-        {children}
-      </dd>
-    </div>
   );
 }

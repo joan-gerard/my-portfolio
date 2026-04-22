@@ -2,19 +2,14 @@
 
 import NavigationPanel from "@/components/navigation/NavigationPanel";
 import { CtaButton } from "@/components/utils";
-import { scrollToElementById } from "@/lib/scrollToSection";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import {
-  MouseEvent as ReactMouseEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { FiMenu } from "react-icons/fi";
 import { useActiveSectionTheme, type NavTheme } from "./useActiveSectionTheme";
+import { useRouteThenScroll } from "./useRouteThenScroll";
 
 /**
  * In-page sections are referenced by their element id. External routes use a
@@ -95,7 +90,7 @@ const NavigationV2 = () => {
                 in once the wrapper itself is visible.
               */}
               <div className="hidden lg:inline-flex">
-                <ContactCta theme={theme} pathname={pathname} />
+                <ContactCta theme={theme} />
               </div>
               <MobileMenuButton
                 theme={theme}
@@ -148,16 +143,8 @@ function NavInlineLink({
   theme: NavTheme;
   pathname: string;
 }) {
-  const router = useRouter();
-  const pendingSectionRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (pathname === "/" && pendingSectionRef.current) {
-      const id = pendingSectionRef.current;
-      pendingSectionRef.current = null;
-      scrollToElementById(id);
-    }
-  }, [pathname]);
+  const section = link.kind === "section" ? link.section : null;
+  const { onClick } = useRouteThenScroll(section ?? "contact");
 
   const colorClass =
     theme === "light"
@@ -185,23 +172,8 @@ function NavInlineLink({
     );
   }
 
-  const section = link.section;
-  const handleSectionClick = (e: ReactMouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    if (pathname !== "/") {
-      pendingSectionRef.current = section;
-      router.push("/");
-      return;
-    }
-    scrollToElementById(section);
-  };
-
   return (
-    <a
-      href={`/#${section}`}
-      onClick={handleSectionClick}
-      className={clsx(baseClass, colorClass)}
-    >
+    <a href={`/#${section}`} onClick={onClick} className={clsx(baseClass, colorClass)}>
       {link.label}
     </a>
   );
@@ -214,40 +186,19 @@ function NavInlineLink({
  */
 function ContactCta({
   theme,
-  pathname,
   className,
 }: {
   theme: NavTheme;
-  pathname: string;
   className?: string;
 }) {
-  const router = useRouter();
-  const pendingRef = useRef(false);
-
-  useEffect(() => {
-    if (pathname === "/" && pendingRef.current) {
-      pendingRef.current = false;
-      scrollToElementById("contact");
-    }
-  }, [pathname]);
-
-  const handleClick = (e: ReactMouseEvent<HTMLAnchorElement>) => {
-    if (pathname !== "/") {
-      e.preventDefault();
-      pendingRef.current = true;
-      router.push("/");
-      return;
-    }
-    e.preventDefault();
-    scrollToElementById("contact");
-  };
+  const { onClick } = useRouteThenScroll("contact");
 
   return (
     <CtaButton
       href="/#contact"
       surface={theme}
       variant="solid"
-      onClick={handleClick}
+      onClick={onClick}
       className={clsx(
         "text-[10px] md:text-xs px-4 md:px-5 py-2 md:py-2.5",
         className,

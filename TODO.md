@@ -1,6 +1,6 @@
 # To-Do
 
-- [ ] Review mobile responsiveness
+- [x] Review mobile responsiveness
 - [ ] Do overall refactoring
 - [ ] Review Coderabbit feedback
 - [ ] Verify a sending domain in Resend and update `CONTACT_FROM_EMAIL` in Vercel (currently defaults to `onboarding@resend.dev`)

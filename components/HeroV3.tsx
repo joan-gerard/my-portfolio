@@ -10,7 +10,7 @@ import { CV_DOWNLOAD_FILENAME, CV_URL, SOCIAL_LINKS } from "@/constants/site";
 import Image from "next/image";
 import Link from "next/link";
 
-const Hero_V3 = () => {
+const HeroV3 = () => {
   return (
     <section
       id="hero"
@@ -85,4 +85,4 @@ const Hero_V3 = () => {
   );
 };
 
-export default Hero_V3;
+export default HeroV3;
