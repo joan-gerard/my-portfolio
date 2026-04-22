@@ -1,116 +1,44 @@
-"use client";
-import { Chip, PageHeader, Reveal } from "@/components/utils";
+import { CtaButton, SectionHeader } from "@/components/utils";
+import { WorkCaseStudyList } from "@/components/work/WorkCaseStudyList";
 import { work } from "@/constants/work";
-import { motion, useAnimation, useInView } from "framer-motion";
-import Link from "next/link";
-import { useEffect, useRef } from "react";
-import { AiFillGithub, AiOutlineExport } from "react-icons/ai";
 
-interface Props {
-  description: string[];
-  liveUrl: string | null;
-  imgUrl: string;
-  stack: string[];
-  subheading: string;
-  githubUrl: string;
-  slug: string;
-}
-
-const page = () => {
-  return (
-    <Reveal>
-      <section className="px-6 my-8 lg:px-24 xl:px-36 mx-auto" id="projects">
-        <PageHeader title="Projects" dir="l" className="mb-12 mt-32" />
-
-        <div className="grid gap-12 grid-cols-1 md:grid-cols-2">
-          {work.map((project) => {
-            return <Project key={project.subheading} {...project} />;
-          })}
-        </div>
-      </section>
-    </Reveal>
-  );
+export const metadata = {
+  title: "Work | Joan Gerard",
+  description:
+    "A full archive of the products, prototypes and side projects I've shipped.",
 };
 
-export default page;
-
-function Project({
-  liveUrl,
-  description,
-  imgUrl,
-  subheading,
-  githubUrl,
-  stack,
-  slug,
-}: Props) {
-  const controls = useAnimation();
-
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-
-  useEffect(() => {
-    if (isInView) {
-      controls.start("visible");
-    } else {
-      controls.start("hidden");
-    }
-  }, [isInView, controls]);
-
+/**
+ * Full `/work` index — mirrors Portoz's `/case-study` page:
+ * a large headline introduces the archive, followed by a vertical stack of
+ * case-study rows rendered with the same `WorkCaseStudy` card used on the
+ * home-page Work section.
+ */
+export default function WorkPage() {
   return (
-    <>
-      <motion.div
-        ref={ref}
-        variants={{
-          hidden: { opacity: 0, y: 100 },
-          visible: { opacity: 1, y: 0 },
-        }}
-        initial="hidden"
-        animate={controls}
-        transition={{ duration: 0.75 }}
-      >
-        <div className="w-full aspect-video bg-zinc-700 relative rounded-lg overflow-hidden">
-          <img
-            src={imgUrl}
-            alt={`An image of the ${subheading} project.`}
-            className="absolute bottom-0 rounded"
-          />
+    <main
+      data-section-theme="dark"
+      className="min-h-screen bg-[var(--surface-dark)] text-white"
+    >
+      <section className="mx-auto w-full max-w-6xl px-6 pt-32 pb-24 md:pt-40 lg:px-12">
+        <SectionHeader
+          tone="dark"
+          eyebrow="Builds"
+          title="Built with curiosity, crafted with care"
+          kicker="A complete archive of apps, prototypes, and DevOps labs I have designed, built, and refined."
+          align="center"
+          className="mx-auto mb-16 items-center text-center"
+          as="h1"
+        />
+
+        <WorkCaseStudyList items={work} />
+
+        <div className="mt-24 flex justify-center">
+          <CtaButton href="/#contact" surface="dark" variant="outline">
+            Start a project
+          </CtaButton>
         </div>
-        <div className="mt-6">
-          <Reveal width="w-full">
-            <div className="flex items-center gap-2 w-full">
-              <h4 className="font-bold text-lg shrink-0 max-w-[calc(100%-150px)] text-white">
-                {subheading}
-              </h4>
-              <div className="w-full h-px bg-zinc-600" />
-              {githubUrl && (
-                <Link href={githubUrl} target="_blank" rel="nofollow">
-                  <AiFillGithub className="text-xl text-zinc-300 hover:text-indigo-300 transition-colors" />
-                </Link>
-              )}
-              {liveUrl && (
-                <Link href={liveUrl} target="_blank" rel="nofollow">
-                  <AiOutlineExport className="text-xl text-zinc-300 hover:text-indigo-300 transition-colors" />
-                </Link>
-              )}
-            </div>
-          </Reveal>
-          <Reveal>
-            <div className="flex flex-wrap gap-4 my-2">
-              {stack.map((el) => (
-                <Chip key={el}>{el}</Chip>
-              ))}
-            </div>
-          </Reveal>
-          <Reveal>
-            <p className="text-zinc-300 leading-relaxed">
-              {description[0]}
-              <span className="inline-block text-sm text-indigo-300 cursor-pointer ml-2">
-                <Link href={`/work/${slug}`}>Learn more {">"}</Link>
-              </span>
-            </p>
-          </Reveal>
-        </div>
-      </motion.div>
-    </>
+      </section>
+    </main>
   );
 }

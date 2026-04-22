@@ -1,7 +1,7 @@
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import { NotFoundView } from "@/components/NotFoundView";
-import Navigation from "@/components/navigation";
+import Navigation from "@/components/navigation-v2";
 import { Reveal } from "@/components/utils";
 
 export const metadata = {
@@ -13,11 +13,16 @@ export default function GlobalNotFound() {
   return (
     <main className="font-work-sans">
       <Navigation />
-      <Reveal>
-        <div className="pt-28 sm:pt-32">
-          <NotFoundView />
-        </div>
-      </Reveal>
+      <div
+        data-section-theme="dark"
+        className="bg-[var(--surface-dark)] text-white"
+      >
+        <Reveal>
+          <div className="pt-28 sm:pt-32">
+            <NotFoundView />
+          </div>
+        </Reveal>
+      </div>
       <Contact />
       <Footer />
     </main>

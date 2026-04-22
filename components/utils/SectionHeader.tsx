@@ -1,29 +1,83 @@
 import clsx from "clsx";
+import { ReactNode } from "react";
 import Reveal from "./Reveal";
+import SectionBadge from "./SectionBadge";
 
-interface Props {
-  title: string;
-  dir?: "l" | "r";
+type Tone = "light" | "dark";
+type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+
+interface SectionHeaderProps {
+  /** Uppercase eyebrow text shown inside the gradient pill. */
+  eyebrow?: string;
+  /** Main display heading. */
+  title: ReactNode;
+  /** Optional lead paragraph below the heading. */
+  kicker?: ReactNode;
+  as?: HeadingTag;
+  tone?: Tone;
+  align?: "left" | "center";
   className?: string;
 }
 
-export const SectionHeader = ({ title, dir = "r", className }: Props) => {
+/**
+ * Portoz-style section header: eyebrow pill + large bold heading + optional kicker.
+ * Reveals on scroll via the existing `Reveal` primitive.
+ */
+export const SectionHeader = ({
+  eyebrow,
+  title,
+  kicker,
+  as = "h2",
+  tone = "light",
+  align = "left",
+  className,
+}: SectionHeaderProps) => {
+  const Tag = as;
+  const headingColor = tone === "light" ? "text-[var(--ink)]" : "text-white";
+  const kickerColor =
+    tone === "light"
+      ? "text-[var(--ink-muted)]"
+      : "text-[var(--ink-dark-muted)]";
+  const alignClass =
+    align === "center" ? "items-center text-center" : "items-start text-left";
+
   return (
     <div
-      className={clsx("flex items-center gap-8", className)}
-      style={{ flexDirection: dir === "r" ? "row" : "row-reverse" }}
+      className={clsx("flex flex-col gap-5 md:gap-6", alignClass, className)}
     >
-      <Reveal>
-        <div className="w-full h-px bg-zinc-700" />
-      </Reveal>
-
-      <h2>
+      {eyebrow ? (
         <Reveal>
-          <span className="text-3xl md:text-5xl text-white font-black text-end uppercase whitespace-nowrap">
-            {title}
-          </span>
+          <SectionBadge tone={tone}>{eyebrow}</SectionBadge>
         </Reveal>
-      </h2>
+      ) : null}
+      <Reveal>
+        <Tag
+          className={clsx(
+            "text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight text-balance",
+            headingColor,
+          )}
+        >
+          {title}
+        </Tag>
+      </Reveal>
+      {kicker ? (
+        <Reveal>
+          <p
+            className={clsx(
+              "max-w-xl text-base md:text-lg leading-relaxed",
+              // Reveal forces its wrapper to w-full, so a block <p> with
+              // max-w-xl won't auto-centre. Force mx-auto when the header is
+              // center-aligned so the kicker tracks the heading above it.
+              align === "center" && "mx-auto",
+              kickerColor,
+            )}
+          >
+            {kicker}
+          </p>
+        </Reveal>
+      ) : null}
     </div>
   );
 };
+
+export default SectionHeader;

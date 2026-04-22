@@ -92,7 +92,7 @@ function CodeBlock({
   return (
     <div className="my-8 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 shadow-lg shadow-black/20">
       <div className="flex items-center justify-between border-b border-zinc-800/90 px-4 py-2">
-        <span className="font-mono text-xs font-medium tracking-wide text-indigo-400/95">
+        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400">
           {label}
         </span>
       </div>

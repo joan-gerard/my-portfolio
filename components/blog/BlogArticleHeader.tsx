@@ -1,39 +1,64 @@
 import type { BlogPostFrontmatter } from "@/lib/blog";
 import { formatBlogDate } from "@/lib/blog";
-import { Chip } from "../utils";
+import { DetailsGrid, DetailsGridItem, Reveal, SectionBadge } from "../utils";
 
 type Props = {
   frontmatter: BlogPostFrontmatter;
   readingMinutes: number;
 };
 
+/**
+ * Portoz-style article header on a light surface.
+ *
+ * Mirrors the Portoz case-study detail layout: an eyebrow pill over a large
+ * display heading, the post description as a lead paragraph, and an "Article
+ * details" metadata grid (Published / Read time / Category) rendered like a
+ * Portoz `Project details` block.
+ */
 export function BlogArticleHeader({ frontmatter, readingMinutes }: Props) {
+  const category = frontmatter.tags?.[0] ?? "Article";
+
   return (
-    <header className="border-b border-zinc-800/90 pb-10">
-      <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400">
-        Blog
-      </p>
-      <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight text-white md:text-4xl lg:text-5xl">
-        {frontmatter.title}
-      </h1>
+    <header className="mb-16 flex flex-col gap-8 md:gap-10">
+      <Reveal>
+        <SectionBadge tone="light">Blog</SectionBadge>
+      </Reveal>
 
-      <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-500">
-        <time dateTime={frontmatter.date} className="text-zinc-400">
-          {formatBlogDate(frontmatter.date)}
-        </time>
-        <span className="hidden sm:inline" aria-hidden>
-          ·
-        </span>
-        <span>{readingMinutes} min read</span>
-      </div>
+      <Reveal>
+        <h1 className="text-balance text-4xl font-extrabold leading-[1.05] tracking-tight text-[var(--ink)] md:text-5xl lg:text-6xl">
+          {frontmatter.title}
+        </h1>
+      </Reveal>
 
-      {frontmatter.tags && frontmatter.tags.length > 0 ? (
-        <div className="mt-6 flex flex-wrap gap-2">
-          {frontmatter.tags.map((tag) => (
-            <Chip key={tag}>{tag}</Chip>
-          ))}
-        </div>
+      {frontmatter.description ? (
+        <Reveal>
+          <p className="max-w-2xl text-base leading-relaxed text-[var(--ink-muted)] md:text-lg">
+            {frontmatter.description}
+          </p>
+        </Reveal>
       ) : null}
+
+      <Reveal>
+        <h2 className="mt-4 text-lg font-semibold text-[var(--ink)] md:text-xl">
+          Article details
+        </h2>
+      </Reveal>
+
+      <Reveal>
+        <DetailsGrid tone="light">
+          <DetailsGridItem tone="light" label="Published">
+            <time dateTime={frontmatter.date}>
+              {formatBlogDate(frontmatter.date)}
+            </time>
+          </DetailsGridItem>
+          <DetailsGridItem tone="light" label="Read time">
+            {readingMinutes} min read
+          </DetailsGridItem>
+          <DetailsGridItem tone="light" label="Category">
+            {category}
+          </DetailsGridItem>
+        </DetailsGrid>
+      </Reveal>
     </header>
   );
 }

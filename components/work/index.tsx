@@ -1,40 +1,35 @@
-"use client";
+import { CtaButton, SectionHeader } from "@/components/utils";
 import { work } from "@/constants/work";
-import Link from "next/link";
-import { FiArrowUpRight } from "react-icons/fi";
-import { ImageTextParallaxContent } from "../parallax/ImageTextParallaxContent";
-import { SectionHeader } from "../utils";
-import ProjectDescription from "./ProjectDescription";
+import { WorkCaseStudyList } from "./WorkCaseStudyList";
 
 export const Work = () => {
-  const topFeaturedWork = work.filter((el) => el.isFeatured == true);
+  const featured = work.filter((el) => el.isFeatured);
+  const recent = work.filter((el) => !el.isFeatured).slice(0, 3);
+  const items = featured.concat(recent);
 
   return (
-    <section className="z-0 px-6 my-8 lg:px-24 xl:px-36 mx-auto" id="work">
-      <SectionHeader title="Work" dir="l" />
+    <section
+      id="work"
+      data-section-theme="dark"
+      className="bg-[var(--surface-dark)] text-white px-6 py-24 lg:px-24 xl:px-36"
+    >
+      <div className="mx-auto max-w-6xl">
+        <SectionHeader
+          tone="dark"
+          eyebrow="Builds"
+          title="Built with curiosity, crafted with care"
+          kicker="A curated selection of products and experiments I have built, shipped, and continuously improved."
+          align="center"
+          className="mb-16 mx-auto"
+        />
 
-      {topFeaturedWork.map((el) => (
-        <ImageTextParallaxContent
-          imgUrl={el.imgUrl}
-          subheading={el.subheading}
-          heading={el.heading}
-          key={el.subheading}
-        >
-          <ProjectDescription
-            additionalTitle={el.additionalTitle}
-            description={el.description}
-            slug={el.slug}
-            stack={el.stack}
-          />
-        </ImageTextParallaxContent>
-      ))}
-      <div className="flex justify-center mb-12">
-        <Link
-          href={`/work`}
-          className="w-full rounded bg-[#6366f1] px-9 py-4 text-lg text-white transition-colors bg-opacity-80 hover:bg-opacity-100 md:w-fit"
-        >
-          See more projects <FiArrowUpRight className="inline" />
-        </Link>
+        <WorkCaseStudyList items={items} />
+
+        <div className="mt-16 flex justify-center">
+          <CtaButton href="/work" surface="dark" variant="outline">
+            View all projects
+          </CtaButton>
+        </div>
       </div>
     </section>
   );

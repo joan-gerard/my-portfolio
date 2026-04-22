@@ -8,10 +8,15 @@ export const metadata = {
 
 export default function NotFound() {
   return (
-    <Reveal>
-      <div className="pt-28 sm:pt-32">
-        <NotFoundView />
-      </div>
-    </Reveal>
+    <div
+      data-section-theme="dark"
+      className="bg-[var(--surface-dark)] text-white"
+    >
+      <Reveal>
+        <div className="pt-28 sm:pt-32">
+          <NotFoundView />
+        </div>
+      </Reveal>
+    </div>
   );
 }

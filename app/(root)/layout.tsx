@@ -1,6 +1,6 @@
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
-import Navigation from "@/components/navigation";
+import Navigation from "@/components/navigation-v2";
 
 export default function Layout({
   children,

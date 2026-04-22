@@ -1,3 +1,4 @@
+import BackToTop from "@/components/BackToTop";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -67,9 +68,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${workSans.variable} antialiased bg-black`}
+        className={`${workSans.variable} antialiased bg-[var(--surface-light)] text-[var(--ink)]`}
       >
         {children}
+        <BackToTop />
       </body>
     </html>
   );

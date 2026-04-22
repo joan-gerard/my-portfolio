@@ -1,5 +1,5 @@
 import { AiFillCode, AiFillSmile } from "react-icons/ai";
-import { Chip, Reveal } from "../utils";
+import { Chip, GradientText, Reveal } from "../utils";
 
 export const Skills = () => {
   const workSkills = [
@@ -26,34 +26,45 @@ export const Skills = () => {
     "GraphQL",
     "Python",
   ];
+
   return (
-    <div className="relative">
-      <Reveal>
-        <div>
-          <h4 className="flex items-center mb-6">
-            <AiFillCode className="text-indigo-500 text-2xl" />
-            <span className="font-bold ml-2 text-white">Use at work</span>
+    <aside className="relative rounded-3xl border border-[var(--hairline-light)] bg-white p-6 md:p-8 shadow-sm h-fit">
+      <Reveal width="w-full">
+        <div className="mb-8">
+          <h4 className="flex items-center gap-2 mb-4">
+            <AiFillCode className="text-xl text-[var(--accent-mid)]" />
+            <span className="font-bold text-[var(--ink)]">
+              <GradientText>Use at work</GradientText>
+            </span>
           </h4>
-          <div className="flex flex-wrap gap-2 mb-12">
+          <div className="flex flex-wrap gap-2">
             {workSkills.map((skill) => (
-              <Chip key={skill}>{skill}</Chip>
+              <Chip key={skill} tone="light">
+                {skill}
+              </Chip>
             ))}
           </div>
         </div>
       </Reveal>
-      <Reveal>
+      <Reveal width="w-full">
         <div>
-          <h4 className="flex items-center mb-6">
-            <AiFillSmile className="text-indigo-500 text-2xl" />
-            <span className="font-bold ml-2 text-white">Use for fun</span>
+          <h4 className="flex items-center gap-2 mb-4">
+            <AiFillSmile className="text-xl text-[var(--accent-mid)]" />
+            <span className="font-bold text-[var(--ink)]">
+              <GradientText>Use for fun</GradientText>
+            </span>
           </h4>
-          <div className="flex flex-wrap gap-2 mb-12">
+          <div className="flex flex-wrap gap-2">
             {funSkills.map((skill) => (
-              <Chip key={skill}>{skill}</Chip>
+              <Chip key={skill} tone="light">
+                {skill}
+              </Chip>
             ))}
           </div>
         </div>
       </Reveal>
-    </div>
+    </aside>
   );
 };
+
+export default Skills;
