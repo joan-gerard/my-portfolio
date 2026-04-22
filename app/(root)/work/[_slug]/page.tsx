@@ -27,9 +27,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!project) {
     return { title: "Project not found" };
   }
+
+  const descriptionSource = Array.isArray(project.description)
+    ? project.description.join("\n\n")
+    : "";
+  const firstParagraph = descriptionSource
+    .split(/\n\s*\n|\n/u, 1)[0]
+    ?.trim();
+  const metadataDescriptionBase =
+    firstParagraph && firstParagraph.length > 0 ? firstParagraph : project.heading;
+  const metadataDescription =
+    metadataDescriptionBase.length > 160
+      ? `${metadataDescriptionBase.slice(0, 157).trimEnd()}...`
+      : metadataDescriptionBase;
+
   return {
     title: `${project.subheading} | Work`,
-    description: project.heading,
+    description: metadataDescription,
   };
 }
 
