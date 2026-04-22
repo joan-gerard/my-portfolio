@@ -12,7 +12,7 @@ export function ContactSuccessState({ onReset }: ContactSuccessStateProps) {
         Thanks — your message is on its way.
       </p>
       <p className="text-[var(--ink-muted)]">
-        I&apos;ll get back to you within 48 hours. In the meantime, feel free to{" "}
+        I&apos;ll get back to you soon. In the meantime, feel free to{" "}
         <Link
           href={SOCIAL_LINKS.linkedin}
           target="_blank"
