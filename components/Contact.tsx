@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  CtaButton,
-  Reveal,
-  SectionHeader,
-} from "@/components/utils";
+import { CtaButton, Reveal, SectionHeader } from "@/components/utils";
 import { MAILTO_HREF, SITE_EMAIL, SOCIAL_LINKS } from "@/constants/site";
 import {
   contactSchema,
@@ -15,8 +11,8 @@ import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import Link from "next/link";
 import { FormEvent, useRef, useState } from "react";
 import { AiFillMail } from "react-icons/ai";
-import { FiPhone } from "react-icons/fi";
 import { z } from "zod";
+import LinkedInIcon from "./utils/LinkedInIcon";
 
 const inputBaseClass =
   "w-full border-0 border-b border-[var(--hairline-light)] bg-transparent py-3 text-base text-[var(--ink)] placeholder:text-[var(--ink-subtle)] focus:border-[var(--ink)] focus:outline-none focus:ring-0 transition-colors";
@@ -169,8 +165,8 @@ const Contact = () => {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-3 text-base md:text-lg font-medium underline underline-offset-4 hover:text-[var(--accent-mid)] transition-colors"
                 >
-                  <FiPhone className="text-xl text-[var(--accent-mid)]" />
-                  Message me on LinkedIn
+                  <LinkedInIcon className="w-[1em] h-[1em] text-[var(--accent-mid)]" />
+                  Find me on LinkedIn
                 </Link>
               </li>
             </ul>
@@ -183,7 +179,11 @@ const Contact = () => {
               Send a message
             </h3>
             {status === "success" ? (
-              <div role="status" aria-live="polite" className="flex flex-col gap-4">
+              <div
+                role="status"
+                aria-live="polite"
+                className="flex flex-col gap-4"
+              >
                 <p className="text-[var(--ink)] font-medium">
                   Thanks — your message is on its way.
                 </p>
@@ -292,7 +292,10 @@ const Contact = () => {
                   Any value here means a bot filled it; the server silently
                   accepts the submission without sending anything.
                 */}
-                <div aria-hidden className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+                <div
+                  aria-hidden
+                  className="absolute left-[-9999px] h-0 w-0 overflow-hidden"
+                >
                   <label>
                     Company
                     <input
@@ -325,8 +328,10 @@ const Contact = () => {
                 ) : (
                   <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
                     Captcha is not configured — set{" "}
-                    <code className="font-mono">NEXT_PUBLIC_TURNSTILE_SITE_KEY</code>
-                    {" "}to enable submissions.
+                    <code className="font-mono">
+                      NEXT_PUBLIC_TURNSTILE_SITE_KEY
+                    </code>{" "}
+                    to enable submissions.
                   </p>
                 )}
 

@@ -21,8 +21,8 @@ export const Work = () => {
         <SectionHeader
           tone="dark"
           eyebrow="Builds"
-          title="Meet with creative things"
-          kicker="A selection of things I've built, shipped and tinkered with."
+          title="Built with curiosity, crafted with care"
+          kicker="A curated selection of products and experiments I have built, shipped, and continuously improved."
           align="center"
           className="mb-16 mx-auto"
         />

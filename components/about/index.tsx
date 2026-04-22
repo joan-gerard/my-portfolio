@@ -16,7 +16,7 @@ const About = () => {
           eyebrow="Core Experience"
           title={
             <>
-              I blend <em className="not-italic">engineering</em> with a
+              I blend <em className="not-italic">engineering </em> with a
               learner&apos;s mindset
             </>
           }

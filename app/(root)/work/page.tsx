@@ -24,8 +24,8 @@ export default function WorkPage() {
         <SectionHeader
           tone="dark"
           eyebrow="Builds"
-          title="Meet with creative things"
-          kicker="A full archive of the apps, prototypes and DevOps labs I've built and tinkered with."
+          title="Built with curiosity, crafted with care"
+          kicker="A complete archive of apps, prototypes, and DevOps labs I have designed, built, and refined."
           align="center"
           className="mx-auto mb-16 items-center text-center"
         />
