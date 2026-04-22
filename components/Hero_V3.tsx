@@ -15,7 +15,7 @@ const Hero_V3 = () => {
     <section
       id="hero"
       data-section-theme="light"
-      className="relative bg-[var(--surface-light)] pt-32 pb-12 md:pt-40 md:pb-16"
+      className="relative bg-[var(--surface-light)] pt-32 pb-6 md:pt-40 md:pb-16"
     >
       <div className="mx-auto max-w-5xl px-6 lg:px-8 flex flex-col items-center gap-10 md:gap-14 text-center">
         <Reveal width="w-fit">
@@ -51,7 +51,7 @@ const Hero_V3 = () => {
         </div>
 
         <Reveal width="w-full">
-          <div className="flex flex-wrap items-center justify-center gap-6">
+          <div className="flex w-full flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
             <CtaButton
               href={CV_URL}
               download={CV_DOWNLOAD_FILENAME}
@@ -60,22 +60,24 @@ const Hero_V3 = () => {
             >
               Download CV
             </CtaButton>
-            <Link
-              href={SOCIAL_LINKS.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs md:text-sm font-semibold uppercase tracking-[0.15em] text-[var(--ink)] underline underline-offset-4 hover:text-[var(--ink-muted)] transition-colors"
-            >
-              GitHub
-            </Link>
-            <Link
-              href={SOCIAL_LINKS.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs md:text-sm font-semibold uppercase tracking-[0.15em] text-[var(--ink)] underline underline-offset-4 hover:text-[var(--ink-muted)] transition-colors"
-            >
-              LinkedIn
-            </Link>
+            <div className="flex items-center justify-center gap-5">
+              <Link
+                href={SOCIAL_LINKS.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs md:text-sm font-semibold uppercase tracking-[0.15em] text-[var(--ink)] underline underline-offset-4 hover:text-[var(--ink-muted)] transition-colors"
+              >
+                GitHub
+              </Link>
+              <Link
+                href={SOCIAL_LINKS.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs md:text-sm font-semibold uppercase tracking-[0.15em] text-[var(--ink)] underline underline-offset-4 hover:text-[var(--ink-muted)] transition-colors"
+              >
+                LinkedIn
+              </Link>
+            </div>
           </div>
         </Reveal>
       </div>

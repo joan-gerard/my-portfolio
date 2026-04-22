@@ -12,7 +12,7 @@ const Experience = () => {
     <section
       id="experience"
       data-section-theme="light"
-      className="bg-[var(--surface-light)] px-6 py-24 lg:px-24 xl:px-36"
+      className="bg-[var(--surface-light)] px-6 pt-24 pb-14 md:py-24 lg:px-24 xl:px-36"
     >
       <div className="mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
         <div className="flex flex-col gap-8">

@@ -8,7 +8,7 @@ const About = () => {
     <section
       id="about"
       data-section-theme="light"
-      className="bg-[var(--surface-light)] px-6 py-24 lg:px-24 xl:px-36"
+      className="bg-[var(--surface-light)] px-6 pt-14 pb-24 md:py-24 lg:px-24 xl:px-36"
     >
       <div className="mx-auto max-w-6xl">
         <SectionHeader

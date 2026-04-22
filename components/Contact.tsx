@@ -137,7 +137,7 @@ const Contact = () => {
     <section
       id="contact"
       data-section-theme="light"
-      className="bg-[var(--surface-light)] px-6 pt-16 pb-24 lg:px-24 xl:px-36"
+      className="bg-[var(--surface-light)] px-6 pt-10 pb-24 md:pt-16 lg:px-24 xl:px-36"
     >
       <div className="mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
         <div className="flex flex-col gap-8">
