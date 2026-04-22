@@ -73,17 +73,13 @@ export const CtaButton = (props: CtaButtonProps) => {
   );
 
   if (variant === "outline") {
-    const isButtonDisabled =
-      !("href" in rest && rest.href) &&
-      Boolean((rest as ButtonProps).disabled);
-    const wrapperClass = clsx(
-      "inline-flex rounded-full p-px bg-[image:var(--accent-gradient)]",
-      isButtonDisabled && "cursor-not-allowed opacity-50",
-      className,
-    );
     const innerClass = clsx(baseClasses, getOutlineInnerClasses(surface));
 
     if ("href" in rest && rest.href) {
+      const wrapperClass = clsx(
+        "inline-flex rounded-full p-px bg-[image:var(--accent-gradient)]",
+        className,
+      );
       const { href, external, ...anchorRest } = rest as AnchorProps;
       const externalProps = external
         ? { target: "_blank", rel: "noopener noreferrer" }
@@ -101,6 +97,11 @@ export const CtaButton = (props: CtaButtonProps) => {
     }
 
     const { type = "button", ...buttonRest } = rest as ButtonProps;
+    const wrapperClass = clsx(
+      "inline-flex rounded-full p-px bg-[image:var(--accent-gradient)]",
+      Boolean(buttonRest.disabled) && "cursor-not-allowed opacity-50",
+      className,
+    );
     return (
       <button type={type} className={wrapperClass} {...buttonRest}>
         <span className={innerClass}>{content}</span>

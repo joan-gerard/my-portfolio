@@ -53,18 +53,17 @@ export function rateLimit(ip: string): RateLimitResult {
 /**
  * Best-effort client IP extraction from the request headers.
  *
- * Next.js on Vercel populates `x-forwarded-for` with the chain of proxies
- * the request passed through; the left-most entry is the original client.
- * Falls back to a constant bucket so missing-header requests can't bypass
- * the limiter entirely.
+ * Vercel sets `x-vercel-forwarded-for` to the client IP after edge/proxy
+ * normalization, which is safer than parsing user-controlled proxy chains.
+ * Falls back to `x-real-ip`, then a constant bucket so missing-header
+ * requests can't bypass the limiter entirely.
  */
 export function getClientIp(request: Request): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
-  }
+  const vercelForwarded = request.headers.get("x-vercel-forwarded-for");
+  if (vercelForwarded) return vercelForwarded;
+
   const real = request.headers.get("x-real-ip");
   if (real) return real;
+
   return "unknown";
 }

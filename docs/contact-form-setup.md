@@ -31,13 +31,13 @@ The form depends on two completely separate third-parties:
 
 The five environment variables split cleanly along that line:
 
-| # | Variable | Belongs to | Required? |
-| --- | --- | --- | --- |
-| 1 | `RESEND_API_KEY` | Resend | **Yes** |
-| 2 | `CONTACT_FROM_EMAIL` | Resend | Optional (default: `onboarding@resend.dev`) |
-| 3 | `CONTACT_TO_EMAIL` | Resend | Optional (falls back to `SITE_EMAIL` from `constants/site.ts`) |
-| 4 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare | **Yes in production** |
-| 5 | `TURNSTILE_SECRET_KEY` | Cloudflare | **Yes in production** |
+| #   | Variable                         | Belongs to | Required?                                                      |
+| --- | -------------------------------- | ---------- | -------------------------------------------------------------- |
+| 1   | `RESEND_API_KEY`                 | Resend     | **Yes**                                                        |
+| 2   | `CONTACT_FROM_EMAIL`             | Resend     | Optional (default: `onboarding@resend.dev`)                    |
+| 3   | `CONTACT_TO_EMAIL`               | Resend     | Optional (falls back to `SITE_EMAIL` from `constants/site.ts`) |
+| 4   | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare | **Yes in production**                                          |
+| 5   | `TURNSTILE_SECRET_KEY`           | Cloudflare | **Yes in production**                                          |
 
 The "Yes in production" caveat matters: `.env.example` ships with
 Cloudflare's public test keys pre-filled so you can develop and test the
@@ -60,7 +60,7 @@ How to get it:
 
 ### `CONTACT_FROM_EMAIL` — optional, controls the "From:" line
 
-When a user submits the form, Resend sends *you* an email. This variable
+When a user submits the form, Resend sends _you_ an email. This variable
 decides what address appears as the sender in your inbox client. Two
 realistic options:
 
@@ -78,7 +78,7 @@ realistic options:
 
 ### `CONTACT_TO_EMAIL` — optional, your inbox
 
-The address that *receives* the form submissions. If unset, the code
+The address that _receives_ the form submissions. If unset, the code
 falls back to `SITE_EMAIL` from `constants/site.ts`:
 
 ```ts
@@ -86,7 +86,7 @@ export const SITE_EMAIL = "joan.gerard@outlook.com";
 ```
 
 Set `CONTACT_TO_EMAIL` only if you want submissions to land in a
-*different* inbox (e.g. a Gmail account dedicated to portfolio leads)
+_different_ inbox (e.g. a Gmail account dedicated to portfolio leads)
 without changing the rest of the codebase.
 
 ## Cloudflare Turnstile variables (2)
@@ -142,11 +142,11 @@ The "always passes" pair is the most useful default, but Cloudflare also
 exposes test keys that force the opposite behaviours — handy when you
 want to verify your error UI without touching real keys.
 
-| Behaviour | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | `TURNSTILE_SECRET_KEY` | When to use it |
-| --- | --- | --- | --- |
-| **Always passes** | `1x00000000000000000000AA` | `1x0000000000000000000000000000000AA` | Default for local dev — the values shipped in `.env.example`. Lets you submit the form end-to-end without ever seeing a challenge. |
-| **Always fails** | `2x00000000000000000000AB` | `2x0000000000000000000000000000000AA` | Verify that your "Captcha verification failed" UI renders correctly. The widget loads, issues a token, but the server's `siteverify` call comes back rejected. |
-| **Forces an interactive challenge** | `3x00000000000000000000FF` | `3x0000000000000000000000000000000AA` | See what the visible challenge actually looks like (clickable checkbox / image grid) — useful for visual QA of widget sizing inside the form layout. |
+| Behaviour                           | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | `TURNSTILE_SECRET_KEY`                | When to use it                                                                                                                                                 |
+| ----------------------------------- | -------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Always passes**                   | `1x00000000000000000000AA`       | `1x0000000000000000000000000000000AA` | Default for local dev — the values shipped in `.env.example`. Lets you submit the form end-to-end without ever seeing a challenge.                             |
+| **Always fails**                    | `2x00000000000000000000AB`       | `2x0000000000000000000000000000000AA` | Verify that your "Captcha verification failed" UI renders correctly. The widget loads, issues a token, but the server's `siteverify` call comes back rejected. |
+| **Forces an interactive challenge** | `3x00000000000000000000FF`       | `3x0000000000000000000000000000000AA` | See what the visible challenge actually looks like (clickable checkbox / image grid) — useful for visual QA of widget sizing inside the form layout.           |
 
 To swap, edit `.env.local`, restart `pnpm dev`, and resubmit the form.
 Both halves of the pair must come from the same row — mixing rows
@@ -161,7 +161,7 @@ There are two places, one per environment.
 Create a file named **`.env.local`** (not `.env`) in the project root.
 Next.js loads env files in this priority order:
 
-```
+```text
 .env.local          ← personal, machine-specific, git-ignored (use this)
 .env.development    ← committed, shared dev defaults
 .env                ← committed, all-environments defaults
@@ -208,10 +208,10 @@ For a portfolio it's safe to enable all three.
 
 ## Troubleshooting
 
-| Symptom | Likely cause | Fix |
-| --- | --- | --- |
-| Form returns `503` "temporarily unavailable" | `RESEND_API_KEY` or `TURNSTILE_SECRET_KEY` missing | Add the var, restart `pnpm dev` (or redeploy on Vercel). |
+| Symptom                                          | Likely cause                                                                                                  | Fix                                                                |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Form returns `503` "temporarily unavailable"     | `RESEND_API_KEY` or `TURNSTILE_SECRET_KEY` missing                                                            | Add the var, restart `pnpm dev` (or redeploy on Vercel).           |
 | Form returns `400` "Captcha verification failed" | Site key and secret key are from different Turnstile widgets, or the hostname isn't whitelisted on the widget | Check the pair matches; add `localhost` to the widget's hostnames. |
-| Form returns `429` "Too many messages" | Per-IP rate limit (3 / 10 min / warm instance) tripped | Wait, or restart the dev server to clear the in-memory limiter. |
-| Email never arrives | Resend's free tier sandbox sender (`onboarding@resend.dev`) landed in spam | Check your spam folder; long-term, verify a domain in Resend. |
-| Captcha widget shows a yellow warning banner | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is empty | Set the site key, restart `pnpm dev`. |
+| Form returns `429` "Too many messages"           | Per-IP rate limit (3 / 10 min / warm instance) tripped                                                        | Wait, or restart the dev server to clear the in-memory limiter.    |
+| Email never arrives                              | Resend's free tier sandbox sender (`onboarding@resend.dev`) landed in spam                                    | Check your spam folder; long-term, verify a domain in Resend.      |
+| Captcha widget shows a yellow warning banner     | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is empty                                                                     | Set the site key, restart `pnpm dev`.                              |
