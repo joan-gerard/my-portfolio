@@ -9,7 +9,7 @@ draft: false
 
 When I started studying networking for DevOps, I expected it to be mostly memorizing commands. It turned out to be more about building a mental model of how traffic moves.
 
-Once that model clicked, commands like `ip addr`, `route`, and `nslookup` stopped feeling like random syntax and started feeling like tools for answering one question:
+Once that model clicked, commands like `ip addr`, `ip route`, and `nslookup` stopped feeling like random syntax and started feeling like tools for answering one question:
 
 **Where is this packet trying to go, and who decides the next step?**
 
@@ -21,7 +21,7 @@ At a high level, networking comes down to four core ideas:
 
 - **Switching**: communication inside the same network
 - **Routing**: communication between different networks
-- **Gateway**: the default exit path out of your local network
+- **Gateway**: the default exit path out of your local network...used when no more specific route exists in the routing table
 - **IP addressing**: how devices are identified
 
 If you can reason about those four, most day-to-day troubleshooting becomes manageable.
@@ -30,7 +30,7 @@ If you can reason about those four, most day-to-day troubleshooting becomes mana
 
 ### 1) Same network: switching
 
-If two machines are on the same subnet (for example `192.168.1.10` and `192.168.1.11`), they can communicate through a switch.
+Before traffic is sent, ARP is used to map the destination IP to a MAC address. If two machines are on the same subnet (for example `192.168.1.10` and `192.168.1.11`), they can communicate through a switch.
 
 Each system needs:
 
@@ -42,6 +42,8 @@ You can validate connectivity with:
 ```bash
 ping 192.168.1.11
 ```
+
+`ping` uses ICMP to test reachability and basic network connectivity.
 
 ### 2) Different networks: routing
 
@@ -58,8 +60,6 @@ Every Linux host keeps a routing table. This is the lookup map used to decide wh
 
 ```bash
 ip route
-# or
-route
 ```
 
 ### 4) The gateway: your network's exit door
@@ -80,7 +80,7 @@ These commands appeared repeatedly in labs and are useful in real operations:
 
 ```bash
 ip link
-ip addr
+ip addr  # or ip a (common shorthand)
 ip addr add 192.168.1.10/24 dev eth0
 ping 192.168.1.11
 ip route
@@ -92,7 +92,7 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 Notes:
 
 - `ip addr add ...` is temporary unless persisted in system config.
-- `ip_forward` enables packet forwarding on a host acting as a router.
+- `ip_forward` This enables the host to forward packets between interfaces, effectively allowing it to act as a router..
 - Permanent forwarding is typically configured via `sysctl` settings.
 
 ## Concepts That Helped Me the Most
@@ -166,6 +166,8 @@ Configure resolver settings in:
 echo "nameserver 192.168.1.100" | sudo tee -a /etc/resolv.conf
 ```
 
+> On many modern systems, /etc/resolv.conf is managed automatically, so changes may not persist.
+
 Resolution order is controlled by `/etc/nsswitch.conf`, commonly:
 
 ```text
@@ -203,7 +205,7 @@ dig www.google.com
 
 Important caveat from the labs:
 
-- `nslookup` and `dig` query DNS servers directly and generally bypass local `/etc/hosts`.
+- `nslookup` and `dig` query DNS servers directly, which helps isolate DNS issues from local resolution (such as /etc/hosts).
 - This is useful when you need to separate "local override issue" from "real DNS issue."
 
 ## Search Domains: Using Short Names
@@ -243,11 +245,8 @@ Why this matters:
 
 ## Final Reflection
 
-Networking became easier once I stopped treating it as separate facts and started seeing it as one chain:
+Networking started to make sense once I stopped memorizing commands and focused on flow.
 
-1. Interface and IP define identity on the network
-2. Switching handles local traffic
-3. Routing and gateway handle non-local traffic
-4. DNS tells you which IP to target in the first place
+Every issue now maps back to the same chain: how a system identifies itself, how it reaches other networks, and how names resolve to addresses. When something breaks, the problem is almost always somewhere along that path.
 
-This chapter felt abstract at first, but mapping it to a home network setup made it practical. For DevOps work, that mental model is the real prerequisite.
+For DevOps work, this mental model matters more than any individual command. It is what turns debugging from guesswork into a structured process.
