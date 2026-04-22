@@ -33,6 +33,7 @@ export function useContactForm() {
   const [turnstileToken, setTurnstileToken] = useState<string>("");
   const [status, setStatus] = useState<SubmissionStatus>("idle");
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const isSubmittingRef = useRef(false);
   const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   const resetTurnstile = () => {
@@ -51,7 +52,7 @@ export function useContactForm() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (status === "submitting") return;
+    if (isSubmittingRef.current) return;
 
     setSubmitError(null);
 
@@ -70,6 +71,7 @@ export function useContactForm() {
       return;
     }
 
+    isSubmittingRef.current = true;
     setStatus("submitting");
     setFieldErrors({});
 
@@ -103,6 +105,8 @@ export function useContactForm() {
       );
       setStatus("error");
       resetTurnstile();
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 
