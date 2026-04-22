@@ -61,6 +61,8 @@ export function ContactForm({
           placeholder="Your name"
           value={formState.name}
           onChange={onFieldChange("name")}
+          aria-describedby={fieldErrors.name ? "contact-name-error" : undefined}
+          aria-invalid={fieldErrors.name ? true : undefined}
           className={fieldClass(inputBaseClass, fieldErrors.name)}
         />
       </FormField>
@@ -75,6 +77,8 @@ export function ContactForm({
           placeholder="hello@mail.com"
           value={formState.email}
           onChange={onFieldChange("email")}
+          aria-describedby={fieldErrors.email ? "contact-email-error" : undefined}
+          aria-invalid={fieldErrors.email ? true : undefined}
           className={fieldClass(inputBaseClass, fieldErrors.email)}
         />
       </FormField>
@@ -88,6 +92,8 @@ export function ContactForm({
           placeholder="+(123) 456 789 00"
           value={formState.phone}
           onChange={onFieldChange("phone")}
+          aria-describedby={fieldErrors.phone ? "contact-phone-error" : undefined}
+          aria-invalid={fieldErrors.phone ? true : undefined}
           className={fieldClass(inputBaseClass, fieldErrors.phone)}
         />
       </FormField>
@@ -106,6 +112,10 @@ export function ContactForm({
           placeholder="Type here..."
           value={formState.message}
           onChange={onFieldChange("message")}
+          aria-describedby={
+            fieldErrors.message ? "contact-message-error" : undefined
+          }
+          aria-invalid={fieldErrors.message ? true : undefined}
           className={`${fieldClass(inputBaseClass, fieldErrors.message)} resize-none`}
         />
       </FormField>

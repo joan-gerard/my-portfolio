@@ -22,6 +22,16 @@ export function useRouteThenScroll(sectionId: string) {
   }, [pathname, sectionId]);
 
   const onClick = (event: ReactMouseEvent<HTMLAnchorElement>) => {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
     event.preventDefault();
 
     if (pathname !== "/") {
