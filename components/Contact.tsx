@@ -38,7 +38,7 @@ const Contact = () => {
             tone="light"
             eyebrow="Let's talk about your next project"
             title="Let's create amazing stuff together!"
-            kicker="Have a project in mind? Looking to partner or work together? Reach out through the form and I'll get back to you within 48 hours."
+            kicker="Have a project in mind? Looking to partner or work together? Reach out through the form and I will get back to you as soon as I can."
           />
           <Reveal width="w-full">
             <ul className="flex flex-col gap-4 text-[var(--ink)]">
