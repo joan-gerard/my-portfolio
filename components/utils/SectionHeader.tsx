@@ -4,6 +4,7 @@ import Reveal from "./Reveal";
 import SectionBadge from "./SectionBadge";
 
 type Tone = "light" | "dark";
+type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
 interface SectionHeaderProps {
   /** Uppercase eyebrow text shown inside the gradient pill. */
@@ -12,6 +13,7 @@ interface SectionHeaderProps {
   title: ReactNode;
   /** Optional lead paragraph below the heading. */
   kicker?: ReactNode;
+  as?: HeadingTag;
   tone?: Tone;
   align?: "left" | "center";
   className?: string;
@@ -25,10 +27,12 @@ export const SectionHeader = ({
   eyebrow,
   title,
   kicker,
+  as = "h2",
   tone = "light",
   align = "left",
   className,
 }: SectionHeaderProps) => {
+  const Tag = as;
   const headingColor = tone === "light" ? "text-[var(--ink)]" : "text-white";
   const kickerColor =
     tone === "light"
@@ -47,14 +51,14 @@ export const SectionHeader = ({
         </Reveal>
       ) : null}
       <Reveal>
-        <h2
+        <Tag
           className={clsx(
             "text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight text-balance",
             headingColor,
           )}
         >
           {title}
-        </h2>
+        </Tag>
       </Reveal>
       {kicker ? (
         <Reveal>

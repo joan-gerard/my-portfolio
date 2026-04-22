@@ -1,5 +1,5 @@
-import { WorkCaseStudyList } from "@/components/work/WorkCaseStudyList";
 import { CtaButton, SectionHeader } from "@/components/utils";
+import { WorkCaseStudyList } from "@/components/work/WorkCaseStudyList";
 import { work } from "@/constants/work";
 
 export const metadata = {
@@ -28,6 +28,7 @@ export default function WorkPage() {
           kicker="A complete archive of apps, prototypes, and DevOps labs I have designed, built, and refined."
           align="center"
           className="mx-auto mb-16 items-center text-center"
+          as="h1"
         />
 
         <WorkCaseStudyList items={work} />

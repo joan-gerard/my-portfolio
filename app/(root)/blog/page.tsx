@@ -38,6 +38,7 @@ export default async function BlogPage({ searchParams }: Props) {
           kicker="I'm going through a DevOps course and writing about it as I go — what I'm learning, what I'm building, what broke, and how I fixed it. No polish, just honest progress."
           align="center"
           className="mx-auto mb-16 items-center text-center"
+          as="h1"
         />
 
         {isDevelopment ? (

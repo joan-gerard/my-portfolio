@@ -33,7 +33,8 @@ type ButtonProps = BaseProps &
 type CtaButtonProps = AnchorProps | ButtonProps;
 
 const baseClasses =
-  "inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs md:text-sm font-semibold uppercase tracking-[0.15em] transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs md:text-sm font-semibold uppercase tracking-[0.15em] transition-all duration-200";
+const disabledStateClasses = "disabled:cursor-not-allowed disabled:opacity-50";
 
 function getSolidClasses(surface: Surface): string {
   return surface === "light"
@@ -72,8 +73,12 @@ export const CtaButton = (props: CtaButtonProps) => {
   );
 
   if (variant === "outline") {
+    const isButtonDisabled =
+      !("href" in rest && rest.href) &&
+      Boolean((rest as ButtonProps).disabled);
     const wrapperClass = clsx(
       "inline-flex rounded-full p-px bg-[image:var(--accent-gradient)]",
+      isButtonDisabled && "cursor-not-allowed opacity-50",
       className,
     );
     const innerClass = clsx(baseClasses, getOutlineInnerClasses(surface));
@@ -103,7 +108,12 @@ export const CtaButton = (props: CtaButtonProps) => {
     );
   }
 
-  const solidClass = clsx(baseClasses, getSolidClasses(surface), className);
+  const solidClass = clsx(
+    baseClasses,
+    disabledStateClasses,
+    getSolidClasses(surface),
+    className,
+  );
 
   if ("href" in rest && rest.href) {
     const { href, external, ...anchorRest } = rest as AnchorProps;

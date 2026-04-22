@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 type Tone = "light" | "dark";
 
@@ -29,6 +29,8 @@ export const MarqueeStrip = ({
   size = "lg",
   className,
 }: MarqueeStripProps) => {
+  const shouldReduceMotion = useReducedMotion();
+
   const surface =
     tone === "dark"
       ? "bg-[var(--surface-dark)] text-white"
@@ -45,6 +47,16 @@ export const MarqueeStrip = ({
       : "text-3xl md:text-4xl lg:text-5xl";
 
   const paddingY = size === "lg" ? "py-12 md:py-16" : "py-8 md:py-10";
+  const marqueeAnimationProps = shouldReduceMotion
+    ? {}
+    : {
+        animate: { x: ["0%", "-50%"] },
+        transition: {
+          duration,
+          ease: "linear" as const,
+          repeat: Infinity,
+        },
+      };
 
   return (
     <div
@@ -60,12 +72,7 @@ export const MarqueeStrip = ({
     >
       <motion.div
         className="flex w-max whitespace-nowrap"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{
-          duration,
-          ease: "linear",
-          repeat: Infinity,
-        }}
+        {...marqueeAnimationProps}
       >
         {[0, 1].map((track) => (
           <ul
@@ -77,9 +84,9 @@ export const MarqueeStrip = ({
               "font-extrabold tracking-tight",
             )}
           >
-            {items.map((item) => (
+            {items.map((item, itemIndex) => (
               <li
-                key={`${track}-${item}`}
+                key={`${track}-${itemIndex}-${item}`}
                 className="flex items-center gap-10 md:gap-16"
               >
                 <span>{item}</span>
