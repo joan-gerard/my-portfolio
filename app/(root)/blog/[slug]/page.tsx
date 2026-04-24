@@ -1,4 +1,6 @@
 import { BlogArticleHeader } from "@/components/blog/BlogArticleHeader";
+import { BlogToc } from "@/components/blog/BlogToc";
+import { BlogTocMobile } from "@/components/blog/BlogTocMobile";
 import { blogMdxComponents } from "@/components/mdx/blog-mdx-components";
 import { CtaButton } from "@/components/utils";
 import {
@@ -58,6 +60,28 @@ const articleBodyClassName =
   "[&_td]:border-b [&_td]:border-[var(--hairline-light)] [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-top [&_td]:text-[var(--ink-muted)] " +
   "[&_tbody_tr:last-child_td]:border-b-0";
 
+type TocItem = {
+  id: string;
+  label: string;
+};
+
+function extractH2TocItems(mdxSource: string): TocItem[] {
+  const h2WithIdRegex = /<h2\s+id="([^"]+)">([\s\S]*?)<\/h2>/g;
+  const items: TocItem[] = [];
+  let match: RegExpExecArray | null = h2WithIdRegex.exec(mdxSource);
+
+  while (match) {
+    const id = match[1]?.trim();
+    const label = match[2]?.replace(/<[^>]+>/g, "").trim();
+    if (id && label) {
+      items.push({ id, label });
+    }
+    match = h2WithIdRegex.exec(mdxSource);
+  }
+
+  return items;
+}
+
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = loadPost(slug);
@@ -66,6 +90,7 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   const readingMinutes = getReadingMinutesFromMdxSource(post.content);
+  const tocItems = extractH2TocItems(post.content);
 
   const { content } = await compileMDX<BlogPostFrontmatter>({
     source: post.content,
@@ -83,28 +108,44 @@ export default async function BlogPostPage({ params }: Props) {
       data-section-theme="light"
       className="min-h-screen bg-[var(--surface-light)] text-[var(--ink)]"
     >
-      <article className="mx-auto w-full max-w-3xl px-6 pt-32 pb-24 md:pt-40 lg:px-8">
-        <BlogArticleHeader
-          frontmatter={post.frontmatter}
-          readingMinutes={readingMinutes}
-        />
+      <div className="mx-auto w-full max-w-6xl px-6 pt-32 pb-24 md:pt-40 lg:px-8">
+        <div className="grid grid-cols-1 gap-16 xl:grid-cols-[minmax(0,1fr)_17rem]">
+          <article className="min-w-0 xl:max-w-3xl">
+            <BlogArticleHeader
+              frontmatter={post.frontmatter}
+              readingMinutes={readingMinutes}
+            />
 
-        <div className={articleBodyClassName}>{content}</div>
+            <div className={articleBodyClassName}>{content}</div>
 
-        <footer className="mt-24 border-t border-[var(--hairline-light)] pt-12">
-          <CtaButton
-            href="/blog"
-            surface="light"
-            variant="outline"
-            showArrow={false}
-          >
-            <span className="inline-flex items-center gap-2">
-              <FiArrowLeft className="text-base" aria-hidden />
-              Back to blog
-            </span>
-          </CtaButton>
-        </footer>
-      </article>
+            <footer className="mt-24 border-t border-[var(--hairline-light)] pt-12">
+              <CtaButton
+                href="/blog"
+                surface="light"
+                variant="outline"
+                showArrow={false}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <FiArrowLeft className="text-base" aria-hidden />
+                  Back to blog
+                </span>
+              </CtaButton>
+            </footer>
+          </article>
+
+          {tocItems.length > 0 ? (
+            <aside className="hidden xl:block">
+              <div className="sticky top-28 rounded-2xl border border-[var(--hairline-light)] bg-white/70 p-5">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-subtle)]">
+                  On this page
+                </p>
+                <BlogToc items={tocItems} />
+              </div>
+            </aside>
+          ) : null}
+        </div>
+      </div>
+      <BlogTocMobile items={tocItems} />
     </main>
   );
 }

@@ -15,7 +15,7 @@ Once that model clicked, commands like `ip addr`, `ip route`, and `nslookup` sto
 
 This chapter covers the foundations that made networking feel practical: switching, routing, gateways, IP addressing, and DNS on Linux.
 
-## The Big Picture: How Machines Talk
+<h2 id="the-big-picture">The Big Picture: How Machines Talk</h2>
 
 At a high level, networking comes down to four core ideas:
 
@@ -26,7 +26,7 @@ At a high level, networking comes down to four core ideas:
 
 If you can reason about those four, most day-to-day troubleshooting becomes manageable.
 
-## Traffic Flow: Same Network vs Different Network
+<h2 id="traffic-flow">Traffic Flow: Same Network vs Different Network</h2>
 
 ### 1) Same network: switching
 
@@ -74,7 +74,9 @@ Practical flow:
 
 In many home networks, the gateway is often something like `192.168.1.1` or `10.0.0.1`.
 
-## Linux Networking Commands Worth Memorizing
+<h2 id="linux-networking-commands-worth-memorizing">
+  Linux Networking Commands Worth Memorizing
+</h2>
 
 These commands appeared repeatedly in labs and are useful in real operations:
 
@@ -95,7 +97,7 @@ Notes:
 - `ip_forward` This enables the host to forward packets between interfaces, effectively allowing it to act as a router..
 - Permanent forwarding is typically configured via `sysctl` settings.
 
-## Concepts That Helped Me the Most
+<h2 id="concepts-that-helped-me">Concepts That Helped Me the Most</h2>
 
 ### Network interface and NIC
 
@@ -121,7 +123,9 @@ A typical home setup is one network, but multiple networks commonly appear when 
 
 Those patterns explain many "why can't this device reach that one?" problems.
 
-## DNS: Turning Names into Reachable IPs
+<h2 id="turning-names-into-reachable-ips">
+  DNS: Turning Names into Reachable IPs
+</h2>
 
 After learning packet flow, DNS made more sense because it answers a different question: **what IP should this name map to?**
 
@@ -154,7 +158,7 @@ echo "192.168.1.11 www.google.com" | sudo tee -a /etc/hosts
 
 This forces local resolution of that name to the specified IP.
 
-## Why Central DNS Exists
+<h2 id="central-dns">Why Central DNS Exists</h2>
 
 Managing many hosts with local `/etc/hosts` files does not scale. If one server IP changes, every client file has to be updated manually.
 
@@ -176,7 +180,7 @@ hosts: files dns
 
 That means: check local files first, then query DNS.
 
-## DNS Hierarchy in Plain Terms
+<h2 id="dns-hierarchy">DNS Hierarchy in Plain Terms</h2>
 
 For names like `www.google.com`, resolution may traverse:
 
@@ -186,7 +190,7 @@ For names like `www.google.com`, resolution may traverse:
 
 Organisations follow the same model with their own domains and subdomains (`mail.mycompany.com`, `hr.mycompany.com`, and so on).
 
-## Common DNS Record Types
+<h2 id="common-dns-record-types">Common DNS Record Types</h2>
 
 - **A**: hostname to IPv4 address
 - **AAAA**: hostname to IPv6 address
@@ -194,7 +198,9 @@ Organisations follow the same model with their own domains and subdomains (`mail
 
 These are the core records you will constantly encounter.
 
-## DNS Diagnostics: `nslookup` and `dig`
+<h2 id="dbs-diagnostics">
+  DNS Diagnostics: <code>nslookup</code> and <code>dig</code>
+</h2>
 
 `ping` can confirm resolution in context, but dedicated DNS tools give deeper visibility:
 
@@ -220,7 +226,8 @@ Then short names (for example `app01`) can resolve as `app01.mycompany.com`.
 
 This is convenient in internal environments where most lookups belong to one domain.
 
-## Lab-Safe Command Pattern (`tee` vs direct redirection)
+{/* prettier-ignore */}
+<h2 id="lab-safe-command-pattern">Lab-Safe Command Pattern (<code>tee</code> vs direct redirection)</h2>
 
 A useful pattern from this chapter:
 
@@ -234,7 +241,7 @@ Why this matters:
 - `-a` appends instead of overwriting.
 - Avoids permission issues common with `sudo ... >> file` redirection patterns.
 
-## Practical Q&A (Condensed)
+<h2 id="qa">Practical Q&A (Condensed)</h2>
 
 - **Can a system have multiple IPs?** Yes, across multiple interfaces or multiple addresses on one interface.
 - **Which Linux command shows kernel routing table?** `route` (or `ip route`).
@@ -243,7 +250,7 @@ Why this matters:
 - **Example subdomain?** `maps.google.com`.
 - **Tool to query hostname from DNS server?** `nslookup` (or `dig` for deeper details).
 
-## Final Reflection
+<h2 id="final-reflection">Final Reflection</h2>
 
 Networking started to make sense once I stopped memorizing commands and focused on flow.
 

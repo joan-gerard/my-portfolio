@@ -1,0 +1,486 @@
+---
+title: "Mac to Cloud: Building an Automated Delivery Pipeline"
+date: "2026-04-23"
+description: A phase-by-phase guide to building a professional delivery pipeline with Lima, Docker, PostgreSQL, GitHub, and GitHub Actions, from local Linux environment to automated cloud image delivery.
+tags:
+  - DevOps
+  - Docker
+  - CI/CD
+draft: false
+---
+
+I am building a professional-grade, automated delivery pipeline where a custom-defined Linux environment runs a containerized full-stack application and ships to the cloud automatically whenever I push code.
+
+The goal is simple: build once, operate with confidence, and automate repeatable delivery.
+
+<h2 id="prerequisites">Prerequisites (Apple Silicon Mac)</h2>
+
+To ensure a smooth experience, have these three pillars ready before starting this roadmap.
+
+### Hardware and OS
+
+- **Apple Silicon Mac:** M1, M2, or M3 (required for the `arm64` images used in this setup).
+- **macOS:** Prefer the latest version (Sonoma or Ventura) for reliable Virtualization framework support.
+
+### Software Tools
+
+- **Homebrew:** Package manager for macOS.
+- **Lima:** VM engine (`brew install lima`).
+- **Git:** Version control (usually pre-installed, or install with `brew install git`).
+- **Text editor:** VS Code, Sublime Text, or `nano` in the terminal.
+
+### Cloud Accounts
+
+- **GitHub account:** Hosts your code and runs CI/CD with GitHub Actions.
+- **Docker Hub account:** Stores and distributes your container images in a registry.
+
+<h2 id="what-is-lima">What Is Lima?</h2>
+
+Lima (Linux Machines) is an open-source tool that runs Linux virtual machines on macOS with a focus on simplicity and performance.
+
+You can think of it as a macOS equivalent to the "Linux-on-host" experience many developers associate with WSL on Windows.
+
+<h2 id="why-lima">Why We Are Using Lima</h2>
+
+While there are many ways to run Linux, Lima is a strong engineering choice for this roadmap:
+
+- **Apple Silicon optimization:** It uses macOS `Virtualization.framework`, which is typically faster and more battery-efficient than older VM tools like VirtualBox.
+- **Infrastructure as Code:** Instead of clicking through GUI menus, you define the machine in `YAML`, which is easier to version, share, and reproduce.
+- **Headless operation:** It runs directly in the terminal, without a heavy desktop VM window consuming extra RAM and screen space.
+- **Seamless file sharing:** It mounts your Mac folders into the Linux VM so you can edit with VS Code on macOS and run inside Linux immediately.
+- **Automatic networking:** It handles port forwarding for you, so services running in Lima can be reached from your Mac browser via `http://localhost`.
+
+<h2 id="phase-1">Phase 1: Infrastructure as Code (The Foundation)</h2>
+
+We skip manual clicking and ISO downloads. The machine is defined as code. The goal here is not "a VM that works," but a VM you can destroy and recreate in minutes.
+
+- **Defining the blueprint:** Create a `lima.yaml` file to specify CPU, RAM, and disk.
+- **The bridge:** Configure mounts to link Mac folders to the Linux VM.
+- **Automatic provisioning:** Add startup provisioning in YAML to install Docker and Docker Compose on first boot.
+- **The launch:** Use `limactl` to create and start the environment.
+
+### Example `lima.yaml`
+
+Recommended: use a descriptive filename for your Lima configuration (for example `lima-lab-v2.yaml` or `staging-lab.yaml`). The file does **not** have to be named `lima.yaml`.
+
+```yaml
+# lima.yaml
+arch: "aarch64"
+images:
+  - location: "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-arm64.img"
+
+cpus: 2
+memory: "4GiB"
+disk: "20GiB"
+
+# Automatically mount your Mac's Home folder inside the VM
+# This creates the "bridge"
+mounts:
+  - location: "~"
+    writable: true
+
+# Enable Docker
+containerd:
+  system: true
+  user: true
+
+# Provisioning: This runs automatically on the first boot
+provision:
+  - mode: system
+    script: |
+      apt-get update
+      apt-get install -y docker.io docker-compose-v2
+      systemctl enable --now docker
+```
+
+### Launch and Enter the VM
+
+```bash
+limactl start lima.yaml
+limactl shell lima
+```
+
+I also like setting a local shell alias on macOS:
+
+```bash
+nano ~/.zshrc
+# add:
+alias dlab='limactl shell lima'
+```
+
+### Sanity Check: Docker Works
+
+After entering the VM, verify Docker with:
+
+```bash
+sudo docker run hello-world
+```
+
+If you want to avoid `sudo` for Docker commands in your current Linux session:
+
+```bash
+sudo usermod -aG docker $USER
+newgrp docker
+groups  # Verify group applied correctly
+```
+
+This gives us a reproducible Linux workspace that can be rebuilt at any time and used like a local DevOps lab.
+
+<h2 id="phase-2">Phase 2: Containerization (The Application)</h2>
+
+Next, we package the full stack in a portable and repeatable way. We will use Nginx for the web layer and PostgreSQL for the data layer. Let's keep this simple; complexity kills momentum early.
+
+### Web Layer (Nginx)
+
+Create a `Dockerfile`:
+
+```dockerfile
+FROM nginx:latest
+COPY index.html /usr/share/nginx/html/index.html
+```
+
+Create `index.html`:
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lima Lab</title>
+    <style>
+      body {
+        background-color: #2c3e50;
+        color: white;
+        font-family: sans-serif;
+        text-align: center;
+        padding-top: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Welcome to your Lima Lab!</h1>
+    <p>This is running in a Docker container on Ubuntu 24.04.</p>
+  </body>
+</html>
+```
+
+### Data Layer (PostgreSQL)
+
+You do not need to build a custom database image here. Use the official Postgres image.
+
+### Orchestration (`compose.yaml`)
+
+```yaml
+version: "3.9"
+
+services:
+  web:
+    build: .
+    ports:
+      - "80:80"
+    restart: always
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: devdb
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    restart: always
+
+volumes:
+  postgres_data:
+```
+
+### Run the Stack
+
+Inside Lima:
+
+```bash
+docker compose up -d --build
+```
+
+Now test from your Mac browser:
+
+- [http://localhost:80](http://localhost:80)
+
+At this stage, the app behaves like a real deployment, but still runs locally.
+
+<h2 id="phase-3">Phase 3: Database Operations (The State)</h2>
+
+An application is incomplete without reliable state.
+
+### Verify the Database Is Running
+
+Inside your Lima shell, check container status:
+
+```bash
+docker ps
+```
+
+You should see a Postgres container listening on port `5432`.
+
+### "Exec" into the Database
+
+```bash
+docker compose exec db psql -U devuser -d devdb
+```
+
+- `-U devuser`: Uses the database user defined in `compose.yaml`.
+- `-d devdb`: Connects to the database name defined in `compose.yaml`.
+
+Once connected, you can create tables, insert test data, and validate persistence across restarts.
+
+### Create a Schema and Add Data
+
+When you see the `devdb=#` prompt, run:
+
+```sql
+-- 1) Create a table for lab inventory
+CREATE TABLE inventory (
+  id SERIAL PRIMARY KEY,
+  item_name TEXT NOT NULL,
+  quantity INT
+);
+
+-- 2) Insert some DevOps "tools"
+INSERT INTO inventory (item_name, quantity) VALUES ('Docker Containers', 2);
+INSERT INTO inventory (item_name, quantity) VALUES ('Lima VMs', 1);
+
+-- 3) Verify data
+SELECT * FROM inventory;
+```
+
+### The Persistence Test (Crucial)
+
+Now prove your data is stored safely on disk, not only in container memory.
+
+1. Exit PostgreSQL:
+
+```bash
+\q
+```
+
+2. Stop and remove the running containers:
+
+```bash
+docker compose down
+```
+
+3. Start the stack again:
+
+```bash
+docker compose up -d
+```
+
+4. Re-check your data directly:
+
+```bash
+docker compose exec db psql -U devuser -d devdb -c "SELECT * FROM inventory;"
+```
+
+### Why This Is a DevOps Win
+
+Because your `compose.yaml` maps a volume:
+
+```yaml
+- postgres_data:/var/lib/postgresql
+```
+
+Docker persists PostgreSQL data outside the container filesystem. Even if the container is replaced, the data remains.
+
+Key point: in DevOps, containers are disposable, but data volumes are treated as durable assets.
+
+This validates that our stack is not only running, but also durable.
+
+<h2 id="phase-4">Phase 4: Version Control and Identity (The Security)</h2>
+
+Now we prepare the project for professional collaboration and secure delivery.
+
+### Generate a Secure SSH Key
+
+On your Mac terminal (not inside the Lima VM), create a unique key pair for GitHub authentication:
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+When prompted:
+
+- Press Enter to keep the default file location.
+- Press Enter twice for no passphrase (good for lab speed; add one later for production security).
+
+### Introduce Your Mac to GitHub
+
+Now give GitHub the public half of your SSH key so it can identify your machine.
+
+1. Copy your public key:
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Copy the full line beginning with `ssh-ed25519`.
+
+2. In GitHub, open:
+
+- `Settings` -> `SSH and GPG keys`
+
+3. Add a new key:
+
+- Click **New SSH key**
+- Title it (for example) `[YOUR NAME] MacBook`
+- Paste your public key
+
+### Test the SSH Handshake
+
+```bash
+ssh -T git@github.com
+```
+
+If you see a message like:
+
+```text
+Hi <username>! You've successfully authenticated...
+```
+
+your machine identity is correctly configured and ready for Git operations over SSH.
+
+### Initialize Your Local Repository
+
+Go to your project folder on your Mac:
+
+```bash
+cd ~/lima-lab
+git init
+git branch -M main
+```
+
+### Connect and Push to a New Repository
+
+Create a new repository on GitHub named `lima-devops-lab` and do **not** initialize it with a README.
+
+Then connect your local folder:
+
+```bash
+git remote add origin git@github.com:<username>/lima-devops-lab.git
+```
+
+Ship your code:
+
+```bash
+git add .
+git commit -m "First commit: Lima IaC and Docker Stack"
+git push -u origin main
+```
+
+### Why This Is a DevOps Win
+
+- **SSH vs tokens:** Your machine identity is handled by SSH keys, so you do not rely on expiring Personal Access Tokens for routine Git auth.
+- **Infrastructure as Code:** Since `lima.yaml` is versioned in Git, someone else can clone the repository, run `limactl start lima.yaml`, and reproduce the same environment quickly.
+
+- **SSH handshake:** Generate a new SSH key on Mac and add it to GitHub.
+- **Repository creation:** Initialize a local Git repository and connect it to a new GitHub repo.
+- **The push:** Publish both infrastructure code (`lima.yaml`) and application code (`HTML`/`Docker` files).
+
+Once this is done, the pipeline has a trusted source of truth.
+
+<h2 id="phase-5">Phase 5: CI/CD Automation (The Factory)</h2>
+
+This is where the robot takes over.
+
+### Secure the "Shipment" (Docker Hub Token)
+
+GitHub needs permission to push images to Docker Hub. Use a Personal Access Token (PAT), not your account password.
+
+1. Log in to `docker.com`.
+2. Go to `Account Settings` -> `Security` -> `New Access Token`.
+3. Set:
+   - **Description:** `Lima-Lab-Pipeline`
+   - **Access permissions:** `Read`, `Write`, `Delete`
+4. Copy the token immediately (it starts with `dckr_pat_`).
+
+### Store the "Secrets" in GitHub
+
+Never commit credentials into source code. Store them as GitHub Actions secrets.
+
+1. Open your `lima-devops-lab` repository on GitHub.
+2. Go to `Settings` -> `Secrets and variables` -> `Actions`.
+3. Click **New repository secret** and create:
+   - **Name:** `DOCKER_USERNAME` | **Value:** your Docker Hub username
+   - **Name:** `DOCKER_PASSWORD` | **Value:** your `dckr_pat_...` token
+
+### Create the Automation Workflow
+
+Inside your local project folder, create the workflow path:
+
+```bash
+mkdir -p .github/workflows
+nano .github/workflows/deploy.yml
+```
+
+Paste this workflow:
+
+```yaml
+name: Build and Push to Docker Hub
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/lima-nginx:latest
+```
+
+### Trigger the "Big Bang"
+
+Commit and push the workflow file to start automation:
+
+```bash
+git add .
+git commit -m "Add CI/CD pipeline"
+git push origin main
+```
+
+### Watch the Logs
+
+1. Open the `Actions` tab on GitHub.
+2. Click the running workflow (yellow spinner) to inspect logs in real time.
+3. Once it turns green, your image is live on Docker Hub.
+
+- **Docker Hub registry:** Create a Docker Hub Personal Access Token (PAT).
+- **GitHub Secrets:** Store credentials safely in repository secrets.
+- **The workflow:** Write a GitHub Actions workflow YAML that builds and pushes container images automatically on every push.
+
+From here onward, shipping becomes consistent and low-friction.
+
+<h2 id="the-final-conclusion">The Final Conclusion</h2>
+
+The sequence follows a clear cycle: **Build -> Operate -> Automate**.
+
+By the end, this is no longer just a VM exercise. It is a full delivery pipeline where a small code change on a Mac can trigger a reliable cloud-ready artifact with minimal manual work.
+
+You have just completed a professional DevOps lifecycle:
+
+- **Infrastructure:** Defined by Lima (IaC).
+- **Application:** Multi-service Docker Compose (Web + DB).
+- **Identity:** Secure SSH Handshake.
+- **Automation:** GitHub Actions (CI/CD).
