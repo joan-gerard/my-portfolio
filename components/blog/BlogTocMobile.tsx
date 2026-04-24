@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { BlogToc } from "@/components/blog/BlogToc";
+import { useState } from "react";
 import { FiList } from "react-icons/fi";
 
 type TocItem = {
@@ -19,7 +19,7 @@ export function BlogTocMobile({ items }: BlogTocMobileProps) {
   if (!items.length) return null;
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-3 xl:hidden">
+    <div className="fixed bottom-6 left-6 z-40 flex flex-col items-start gap-3 xl:hidden">
       {isOpen ? (
         <div
           id="mobile-toc-panel"
@@ -50,7 +50,9 @@ export function BlogTocMobile({ items }: BlogTocMobileProps) {
         className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--ink)] text-white shadow-md transition hover:bg-black"
         aria-expanded={isOpen}
         aria-controls="mobile-toc-panel"
-        aria-label={isOpen ? "Hide table of contents" : "Show table of contents"}
+        aria-label={
+          isOpen ? "Hide table of contents" : "Show table of contents"
+        }
       >
         <FiList className="text-lg" aria-hidden />
       </button>
