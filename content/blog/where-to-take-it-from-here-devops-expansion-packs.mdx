@@ -1,0 +1,65 @@
+---
+title: "Where to Take It from Here: 4 Expansion Packs for Your DevOps Lab"
+date: "2026-04-24"
+description: A practical roadmap for what to build next after your first Lima-to-cloud pipeline, with four expansion tracks from monitoring to Kubernetes and Terraform.
+tags:
+  - DevOps
+  - Observability
+  - Kubernetes
+  - Terraform
+draft: false
+---
+
+Now that you have built the "Standard Model" of a DevOps pipeline, the plumbing is working.
+
+From here, you can take this lab in several professional directions depending on which part of the job excites you most.
+
+If you want the full foundation first, start with [Mac to Cloud: Building an Automated Delivery Pipeline](/blog/mac-to-cloud-pipeline).
+
+Here are four expansion packs for your Lima lab, ranked from easiest to most advanced.
+
+<h2 id="monitoring-observability">Expansion 1: Monitoring & Observability (The "Dashboard" Step)</h2>
+
+In production, you do not wait for a user to tell you the site is down; you watch the metrics.
+
+**The Goal:** Add extra services to your `compose.yaml` for Prometheus (to collect data) and Grafana (to visualize dashboards).
+
+**What you'll learn:** How to monitor CPU, RAM, and uptime-related metrics for your Nginx and Postgres containers.
+
+**Challenge:** Can you build a dashboard that shows how many hits your Nginx server has received?
+
+<h2 id="reverse-proxy-ssl">Expansion 2: Reverse Proxy & SSL (The "Security" Step)</h2>
+
+Right now, your site is "naked" on port 80. Real sites use HTTPS and a reverse proxy.
+
+**The Goal:** Add Traefik or a second Nginx container to act as a front door.
+
+**What you'll learn:** How to handle domain names, SSL certificates, and routing traffic between different apps.
+
+**Challenge:** Can you set it up so `app1.localhost` goes to one container and `app2.localhost` goes to another?
+
+<h2 id="kubernetes-scale-step">Expansion 3: Kubernetes (The "Scale" Step)</h2>
+
+Docker Compose is great for one machine, but Kubernetes (K8s) is how many production platforms run at scale.
+
+**The Goal:** Instead of standard Docker orchestration, install K3s (a lightweight Kubernetes distribution) inside your Lima VM.
+
+**What you'll learn:** The difference between a container and a pod, plus how Kubernetes self-heals by replacing failed workloads.
+
+**Challenge:** Can you kill your Nginx pod and watch Kubernetes bring it back to life in seconds?
+
+<h2 id="terraform-cloud-step">Expansion 4: Infrastructure as Code: Terraform (The "Cloud" Step)</h2>
+
+You used Lima to build a VM on your Mac. Terraform is used to build and manage infrastructure on AWS, Google Cloud, Azure, and more.
+
+**The Goal:** Install the Terraform CLI on your Mac and use it to manage your Lima VM instead of `limactl`.
+
+**What you'll learn:** How to manage infrastructure across different providers with one language (HCL).
+
+**Challenge:** Can you use one command to spin up your VM, install Docker, and deploy your GitHub repo?
+
+<h2 id="closing-thought">Closing Thought</h2>
+
+At this point, you are no longer learning random tools. You are composing a professional platform skill set one layer at a time.
+
+Pick one expansion pack, ship a small milestone this week, and keep the lab iterative.
