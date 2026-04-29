@@ -1,0 +1,28 @@
+---
+title: "Day 1: Linux User Setup with Non-Interactive Shell"
+date: "2026-04-29"
+description: "Day 1 of the 100 Days of DevOps challenge: creating a service account user with a non-interactive shell."
+tags:
+  - DevOps
+  - Challenge
+  - 100DaysOfDevOps
+  - Linux
+  - UserManagement
+draft: true
+---
+
+This post documents **Day 1** of my **100 Days of DevOps** challenge.
+
+## Day 1
+
+### Task
+
+To accommodate the backup agent tool's specifications, the system admin team at xFusionCorp Industries requires the creation of a user with a non-interactive shell.
+
+Create a user named `mariyam` with a non-interactive shell on App Server 3.
+
+### Why this matters
+
+When you create a user in Linux, they are usually assigned a shell (for example, Bash) so they can log in and run commands. A non-interactive shell means the account cannot open a normal command prompt session.
+
+This is a security best practice for service accounts: users that exist only to run a specific piece of software (like a backup agent), not to be used by a human for interactive logins.
