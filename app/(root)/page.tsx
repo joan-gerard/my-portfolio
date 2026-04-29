@@ -1,4 +1,5 @@
 import About from "@/components/about";
+import DevOpsChallengeSpotlight from "@/components/DevOpsChallengeSpotlight";
 import Experience from "@/components/experience";
 import HeroV3 from "@/components/HeroV3";
 import SpecialtyStrip from "@/components/SpecialtyStrip";
@@ -10,6 +11,7 @@ export default function Home() {
       <HeroV3 />
       <About />
       <SpecialtyStrip />
+      <DevOpsChallengeSpotlight />
       <Work />
       <Experience />
     </div>

@@ -24,6 +24,7 @@ const LINKS: NavLinkItem[] = [
   { label: "About", kind: "section", section: "about" },
   { label: "Work", kind: "section", section: "work" },
   { label: "Experience", kind: "section", section: "experience" },
+  { label: "Challenge", kind: "route", href: "/devops-100-days" },
   { label: "Blog", kind: "route", href: "/blog" },
 ];
 
@@ -173,7 +174,11 @@ function NavInlineLink({
   }
 
   return (
-    <a href={`/#${section}`} onClick={onClick} className={clsx(baseClass, colorClass)}>
+    <a
+      href={`/#${section}`}
+      onClick={onClick}
+      className={clsx(baseClass, colorClass)}
+    >
       {link.label}
     </a>
   );

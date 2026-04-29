@@ -1,10 +1,10 @@
 "use client";
+import { scrollToElementById } from "@/lib/scrollToSection";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, type MutableRefObject } from "react";
 import { FiX } from "react-icons/fi";
-import { scrollToElementById } from "@/lib/scrollToSection";
 
 const NavigationPanel = ({
   isOpen,
@@ -72,9 +72,15 @@ const NavigationPanel = ({
         />
         <NavLink
           setIsOpen={setIsOpen}
+          text="challenge"
+          href="/devops-100-days"
+          isActive={pathname.startsWith("/devops-100-days")}
+        />
+        <NavLink
+          setIsOpen={setIsOpen}
           text="blog"
           href="/blog"
-          isActive={pathname === "/blog"}
+          isActive={pathname.startsWith("/blog")}
         />
         <NavLink
           setIsOpen={setIsOpen}
