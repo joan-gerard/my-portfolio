@@ -5,6 +5,7 @@ import { DetailsGrid, DetailsGridItem, Reveal, SectionBadge } from "../utils";
 type Props = {
   frontmatter: BlogPostFrontmatter;
   readingMinutes: number;
+  seriesLabel?: string;
 };
 
 /**
@@ -15,34 +16,40 @@ type Props = {
  * details" metadata grid (Published / Read time / Category) rendered like a
  * Portoz `Project details` block.
  */
-export function BlogArticleHeader({ frontmatter, readingMinutes }: Props) {
+export function BlogArticleHeader({
+  frontmatter,
+  readingMinutes,
+  seriesLabel,
+}: Props) {
   const category = frontmatter.tags?.[0] ?? "Article";
 
   return (
-    <header className="mb-16 flex flex-col gap-8 md:gap-10">
+    <header className="mb-6 flex flex-col gap-5 md:mb-10 md:gap-8">
       <Reveal>
         <SectionBadge tone="light">Blog</SectionBadge>
       </Reveal>
 
       <Reveal>
-        <h1 className="text-balance text-4xl font-extrabold leading-[1.05] tracking-tight text-[var(--ink)] md:text-5xl lg:text-6xl">
+        <h1 className="text-balance text-3xl font-extrabold leading-[1.08] tracking-tight text-(--ink) md:text-5xl lg:text-6xl">
           {frontmatter.title}
         </h1>
       </Reveal>
 
-      {frontmatter.description ? (
+      {seriesLabel ? (
         <Reveal>
-          <p className="max-w-2xl text-base leading-relaxed text-[var(--ink-muted)] md:text-lg">
-            {frontmatter.description}
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-(--ink-subtle) md:text-sm">
+            {seriesLabel}
           </p>
         </Reveal>
       ) : null}
 
-      <Reveal>
-        <h2 className="mt-4 text-lg font-semibold text-[var(--ink)] md:text-xl">
-          Article details
-        </h2>
-      </Reveal>
+      {frontmatter.description ? (
+        <Reveal>
+          <p className="max-w-2xl text-sm leading-relaxed text-(--ink-muted) md:text-lg">
+            {frontmatter.description}
+          </p>
+        </Reveal>
+      ) : null}
 
       <Reveal>
         <DetailsGrid tone="light">

@@ -1,0 +1,88 @@
+---
+title: "Fundamentals of DevOps (Part 1): Introduction and What is DevOps"
+date: "2026-04-22"
+description: Part 1 covers the origins of DevOps, why IT delivery struggles at scale, and the core definition, principles, antipatterns, and adjacent frameworks.
+tags:
+  - DevOps
+  - Fundamentals
+  - Series
+draft: true
+notesFromKodeKloud: true
+seriesKey: "fundamentals-of-devops"
+seriesPart: 1
+seriesTotalParts: 5
+---
+
+DevOps is more than a toolset. It is a way of building and operating software through collaboration, shared ownership, and fast feedback between development, operations, and other stakeholders.
+
+This lesson introduces the foundations and history of DevOps, the human side of delivery (culture, communication, and cross-functional teamwork), and core technical practices such as CI/CD and automation. It also covers LEAN thinking, continuous improvement, and the key architectures and metrics used to evaluate delivery performance and system quality.
+
+The format is narrative rather than lab-based, using realistic team challenges to show how DevOps principles solve real-world problems. By the end, you will have a clear understanding of DevOps fundamentals and practical insights you can apply in modern IT environments.
+
+<h2 id="why-it-struggles">Why IT struggles</h2>
+
+IT teams often start aligned around a single mission: turning a business idea into customer value. Early on, roles such as product, development, operations, QA, architecture, data, and security collaborate closely, and delivery moves quickly.
+
+As products and organizations scale, this alignment becomes harder to maintain. Communication slows, teams drift into silos, and each role optimizes for local goals instead of shared outcomes. The result is friction in delivery, weaker feedback loops, and reduced customer impact.
+
+DevOps addresses this breakdown by combining culture, practices, and tooling that reconnect teams around a common objective. It strengthens cross-functional collaboration, improves communication, and helps organizations deliver reliable, continuous value as complexity grows.
+
+<h2 id="devops-birth">The Birth and Evolution of DevOps</h2>
+
+DevOps emerged from a practical need: large IT organizations were struggling to deliver software despite having strong talent. The core issue was poor alignment across teams, weak processes, and limited automation. Over time, DevOps evolved into a broader movement that combines culture, engineering practices, and platform capabilities to improve delivery speed, quality, and business outcomes.
+
+#### 2009 - The movement begins
+
+At the O'Reilly Velocity Conference, John Allspaw and Paul Hammond highlighted Dev and Ops collaboration through Flickr's high-frequency deployment model. Later that year, Patrick Dubois launched DevOpsDays and popularized `#DevOps`, marking the formal start of the movement.
+
+#### 2013 - Cloud and DevOps acceleration
+
+Cloud platforms made infrastructure programmable through APIs, reducing manual operations and enabling faster, repeatable delivery workflows. Around the same period, DevOps thinking reached a wider audience through key publications and practical discussions on modern software delivery.
+
+#### 2015-2019 - Practice maturity and developer perspective
+
+DevOps expanded beyond release speed into organizational transformation, closely aligning with Agile, Lean, and CI/CD. During this phase, developer-centric perspectives and GitOps approaches helped teams standardize operations and improve collaboration across the software lifecycle.
+
+#### 2016 onward - Security and platform depth
+
+Organizations increasingly integrated security into DevOps conversations while adopting managed cloud services and Kubernetes at scale. The focus shifted from only shipping faster to building resilient, secure, data-informed delivery systems.
+
+#### Post-pandemic to 2023+
+
+DevOps continued evolving through platform engineering and internal developer platforms, with attention moving further toward people and process challenges. The central question remains the same: how can teams continuously adapt DevOps practices to solve new organizational and delivery problems.
+
+### The Journey through DevOps
+
+The article is organized into six distinct sections as seen below.
+
+![The Journey through DevOps](/journey-through-devops.png)
+
+<h2 id="what-is-devops">What is DevOps</h2>
+
+### A definition of DevOps
+
+At its essence, DevOps is an approach that dismantles the barriers between people, processes, and technologies. This integrated perspective enables IT teams to deliver fast and compliant software to customers. The spirit of DevOps involves continually asking how processes can be refined and improved to achieve more efficient and successful software delivery.
+
+> DevOps is fundamentally about unifying teams and fostering a culture of continuous improvement, ensuring that obstacles are removed in the pursuit of delivering quality software quickly.
+
+The DevOps approach is built upon three fundamental principles: Flow, Feedback and Continual Improvement.
+
+### The Antipatterns of DevOps
+
+DevOps is often misunderstood when organizations treat it as a tools-only initiative, a job title, or a complete replacement for delivery frameworks. In practice, DevOps succeeds when technology is supported by strong processes, clear team design, and skilled people who collaborate across development, operations, security, data, and quality functions.
+
+This section highlights what DevOps is **not**: it is not solved by naming someone a "DevOps Engineer," not achieved by adding a separate bridge team, and not equivalent to end-to-end organizational governance. Instead, it complements approaches like Agile by improving collaboration and delivery flow.
+
+Common antipatterns include persistent Dev/Ops silos, isolated DevOps or tools teams, one-sided ownership (Dev-only or Ops-only), rebranded legacy roles (sysadmins or "fake" SREs), and DBA silos that block fast, safe releases. Recognizing these patterns early helps teams redesign structures, restore feedback loops, and build a healthier DevOps culture.
+
+### The Frameworks around DevOps
+
+DevOps does not exist in isolation; it is strengthened by adjacent frameworks that improve how teams deliver and operate software.
+
+- **LEAN**: Foundational to DevOps through customer-centric value, small-batch work, and continuous feedback.
+- **Agile**: Closely aligned with DevOps by promoting iterative delivery, collaboration, and rapid learning loops.
+- **SAFe**: Applies DevOps principles at scale through value streams and tighter alignment between strategy and execution.
+- **ITIL**: Complements DevOps with mature service management and operations processes focused on reliability, quality, and continual improvement.
+- **SRE**: Adds a specialized reliability discipline within the DevOps ecosystem, emphasizing resilience, performance, and operational excellence at scale.
+
+Together, these frameworks show that DevOps is a unifying philosophy that integrates people, process, and technology practices rather than replacing them. This perspective sets up the next pillar of DevOps: people and team dynamics.

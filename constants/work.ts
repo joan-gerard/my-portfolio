@@ -56,6 +56,31 @@ export interface Build {
 
 export const work: Build[] = [
   {
+    imgUrl: "/journey-through-devops.png",
+    subheading: "Mac to Cloud Pipeline",
+    slug: "mac-to-cloud-pipeline",
+    heading: "Build once. Ship with confidence.",
+    category: "DevOps lab",
+    status: "completed",
+    description: [
+      "I built an end-to-end DevOps delivery pipeline that starts on an Apple Silicon Mac and produces cloud-ready container artifacts automatically, using a reproducible Ubuntu lab environment provisioned with Lima as Infrastructure as Code.",
+      "The stack was chosen intentionally: Lima for lightweight Apple Silicon virtualization and YAML-defined reproducibility, Docker and Docker Compose for portable multi-service runtime (Nginx + PostgreSQL), PostgreSQL volumes for durable state, GitHub for source of truth and collaboration, and GitHub Actions + Docker Hub for continuous image build and distribution.",
+      "The implementation was done in five phases: environment provisioning, containerization, state and persistence validation, secure Git identity, and CI/CD automation triggered on push to `main`, so delivery becomes repeatable instead of manual.",
+      "Key issues and fixes included Docker permission friction inside Linux (resolved by adding the user to the `docker` group), proving data survived container recreation (validated with explicit `compose down/up` persistence tests), and securing credential flow (solved with SSH keys for Git operations plus GitHub Actions secrets backed by a Docker Hub PAT rather than hardcoded credentials).",
+    ],
+    stack: [
+      "Lima",
+      "Docker",
+      "Docker Compose",
+      "PostgreSQL",
+      "GitHub Actions",
+      "Docker Hub",
+    ],
+    githubUrl: githubRepoUrl("lima-devops-lab-v2"),
+    liveUrl: null,
+    isFeatured: true,
+  },
+  {
     imgUrl: "/my-hire-view-1.webp",
     subheading: "MyHireView",
     slug: "my-hire-view",
