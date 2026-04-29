@@ -1,0 +1,261 @@
+---
+title: "DevOps Fundamentals: Cheatsheet"
+date: "2026-04-29"
+description: A dense, scannable reference covering every core concept from the DevOps Fundamentals series — definition, culture, people, process, metrics, and technology patterns.
+tags:
+  - DevOps
+  - Fundamentals
+  - Cheatsheet
+draft: true
+seriesKey: "fundamentals-of-devops"
+---
+
+A quick-reference summary of the five-part DevOps Fundamentals series. Use it to review concepts before an interview, reinforce what you have read, or onboard teammates to shared vocabulary.
+
+---
+
+<h2 id="part-1-introduction">Part 1 — Introduction</h2>
+
+### What is DevOps?
+
+DevOps is an approach that dismantles the barriers between people, processes, and technologies so that IT teams can deliver fast, reliable, and compliant software. It is built on three fundamental principles:
+
+| Principle | What it means |
+| --------- | ------------- |
+| **Flow** | Work moves continuously from idea to production with minimal handoff delays |
+| **Feedback** | Teams detect problems early through fast, visible feedback loops |
+| **Continual Improvement** | Teams regularly reflect and incrementally raise quality, speed, and reliability |
+
+> "DevOps is fundamentally about unifying teams and fostering a culture of continuous improvement."
+
+### Brief History
+
+| Year | Milestone |
+| ---- | --------- |
+| 2009 | Allspaw & Hammond demonstrate 10+ deploys/day at Flickr (Velocity Conf); Patrick Dubois launches DevOpsDays |
+| 2013 | Cloud APIs make infra programmable; *The Phoenix Project* and *The DevOps Handbook* are published |
+| 2015–2019 | Alignment with Agile/Lean matures; GitOps and developer-centric practices emerge |
+| 2016+ | Security integration (DevSecOps); Kubernetes and managed cloud at scale |
+| 2020+ | Platform engineering and internal developer platforms become standard conversation |
+
+### Antipatterns to Avoid
+
+- Treating DevOps as a **tools-only** initiative
+- Creating a dedicated **"DevOps team"** as a permanent bridge silo
+- Naming a single person **"DevOps Engineer"** and considering the job done
+- Maintaining **Dev/Ops silos** under a new label
+- Rebranding legacy sysadmins as SREs without changing practices
+- Letting **DBA silos** block fast, safe data changes
+
+### Adjacent Frameworks
+
+| Framework | Core contribution to DevOps |
+| --------- | --------------------------- |
+| **LEAN** | Customer-centric value, small batches, waste elimination, continuous feedback |
+| **Agile** | Iterative delivery, collaboration, rapid learning loops |
+| **SAFe** | DevOps at enterprise scale through value streams |
+| **ITIL** | Mature service management, reliability, and continual improvement processes |
+| **SRE** | Reliability engineering discipline — resilience, performance, operational excellence |
+
+---
+
+<h2 id="part-2-people">Part 2 — People</h2>
+
+### Culture: Five Considerations
+
+| # | Consideration | Purpose |
+| - | ------------- | ------- |
+| 1 | **Shared Why** | Common mission before choosing tools or processes |
+| 2 | **Continuous Evolution** | Treat change as constant across people, process, and technology |
+| 3 | **Continual Improvement** | Reduce friction, address tech debt, learn through blameless reviews |
+| 4 | **Transparency and Trust** | Dashboards, docs, and clear agreements so teams can self-serve |
+| 5 | **Communication, Collaboration, Experimentation** | Open feedback, cross-team work, and safe experiments |
+
+> "Culture trumps strategy every time."
+
+### Core Values
+
+| Value | In practice |
+| ----- | ----------- |
+| **Empathy** | Cross-train Dev and Ops so each sees the other's constraints firsthand |
+| **Honesty** | Investigate root causes (use *five whys*) rather than patching symptoms |
+| **Courage** | Try new workflows, challenge outdated processes, run controlled experiments |
+| **Unity** | Align on shared outcomes; turn conflict into constructive decision-making |
+
+### Teams and Topologies
+
+**Key principle:** Every team must have — or have access to — all the skills needed to take a product from idea to production.
+
+| Model | When it fits |
+| ----- | ------------ |
+| **Fully cross-functional** (Dev + Ops in one team) | Startups, single-product orgs |
+| **Platform-oriented** (Ops as internal service) | Scaling orgs needing self-service deployment paths |
+| **Temporary bridge team** | Breaking down silos — must be dissolved once silos are gone |
+| **SRE-embedded** | High-reliability products needing resilience earlier in development |
+| **Managed external DevOps** | Limited in-house operational capacity |
+
+**Anti-tip:** Bridge teams that become permanent recreate the bottlenecks they were meant to remove.
+
+---
+
+<h2 id="part-3-process">Part 3 — Process</h2>
+
+### Automation
+
+> Automation applies technology, software, or defined processes to achieve efficient results with minimal human intervention.
+
+**What it enables:** predictable delivery, faster provisioning, reduced human error, earlier defect detection, scalable infrastructure.
+
+#### Common Automation Patterns
+
+| Pattern | What it does |
+| ------- | ------------ |
+| **SDLC Automation** | Automates requirements → dev → test → integration → deploy |
+| **CI** | Frequent integration with automated tests, static analysis, security checks |
+| **CD** | Extends automation from commit to production; repeatable, low-risk releases |
+| **GitOps** | Git as source of truth for infra and config; versioning + safe rollback |
+| **Platform Engineering** | Self-service internal developer platform with guardrails |
+
+#### Automation Maturity Stages
+
+| Stage | Focus |
+| ----- | ----- |
+| **Awareness** | Identify high-friction manual tasks; align stakeholders on an automation plan |
+| **Exploration** | Evaluate tools (e.g. Ansible, Terraform), map current workflows, define success criteria |
+| **Implementation** | Automate selected processes; validate in staging before production |
+| **Optimization** | Use metrics and feedback loops to continuously refine and improve automations |
+
+### LEAN Principles Applied to DevOps
+
+| Principle | DevOps application |
+| --------- | ------------------ |
+| **Define Value** | Prioritize work tied directly to customer outcomes; eliminate low-impact activity |
+| **Map the Value Stream** | Make the end-to-end workflow visible; expose bottlenecks and handoff delays |
+| **Create Flow** | Design processes so work moves without waiting in queues |
+| **Use a Pull System** | Align delivery with real demand (limit WIP, use small batches) |
+| **Pursue Perfection** | Frequent retrospectives, incremental fixes, ongoing waste reduction |
+
+> Lean asks "How do we remove waste?" DevOps asks "How do we ship reliable software faster through shared ownership and automation?" — combined, they reinforce each other.
+
+### Collaboration and Information Sharing
+
+**Why it matters:** Open communication reduces duplicated effort, breaks silos, improves incident resolution, and preserves institutional knowledge.
+
+**Practical habits:**
+- Treat scripts, configs, and workflows as reusable code artifacts (*everything as code*)
+- Maintain central repositories as a shared source of truth (tools, YAML, docs)
+- Run internal forums, meetups, and advocacy groups for cross-team knowledge exchange
+- Write clear READMEs, runbooks, and wikis to support onboarding and synchronization
+
+### DevSecOps
+
+Security is not a late-stage gate — it is a **shared, lifecycle-wide responsibility**.
+
+Embed security controls across: **design → development → testing → deployment → operations**
+
+Practical entry points: workshops, Lunch and Learns, hackathons, and pairing security specialists with delivery teams early.
+
+---
+
+<h2 id="part-4-product-and-technology">Part 4 — Product and Technology</h2>
+
+### DORA Metrics (Core Four)
+
+| Metric | What it measures | Why it matters |
+| ------ | ---------------- | -------------- |
+| **Lead Time to Deploy** | Time from first commit to production | Reveals delivery efficiency and time-to-market speed |
+| **Deployment Frequency** | How often changes reach production | Steady cadence reduces risk from large-batch releases |
+| **Change Failure Rate** | % of deployments causing failures needing rollback/patch | Uncovers testing and integration quality gaps |
+| **Mean Time to Recovery (MTTR)** | Avg time to restore service after an incident | Reflects incident response maturity and system resilience |
+
+> "You cannot manage what you do not measure."
+
+**DORA** = DevOps Research and Assessment.
+
+### Additional Metrics
+
+| Metric | Insight |
+| ------ | ------- |
+| **Quality of Service (QoS)** | How consistently delivery meets customer expectations (SLA performance) |
+| **Incident Violations per Application (IVPA)** | Which applications fail most; guides refactoring priorities |
+| **Node Stability** | Infrastructure reliability at the VM/node level |
+| **Root Cause Analysis (RCA)** | Structured learning after incidents to prevent recurrence |
+
+### Technology Evaluation Framework
+
+Before adopting a tool, ask:
+1. Does it solve the **right business problem**?
+2. Does it **integrate** well with existing systems?
+3. Can **multiple teams** adopt and use it effectively?
+
+This reduces tool sprawl and improves cross-team collaboration.
+
+### Design Patterns
+
+| Pattern | What it delivers |
+| ------- | ---------------- |
+| **CI** | Frequent merges + automated build/test; keeps main branch healthy |
+| **CD** | Automated validation across environments; releases stay production-ready |
+| **Continuous Deployment** | Auto-promotes validated changes to production (requires strong observability + rollback) |
+| **Microservices** | Independently deployable services; increases agility, reduces release coupling |
+| **GitOps** | Git as source of truth for app and infra changes; traceability and consistency |
+| **Platform Engineering** | Self-service internal platform combining CI/CD, GitOps, and microservices into one experience |
+
+---
+
+<h2 id="part-5-value-and-closing">Part 5 — Value and Closing</h2>
+
+### The Four Pillars of DevOps Value
+
+| Pillar | What it unlocks |
+| ------ | --------------- |
+| **Culture and collaboration** | Better communication, shared ownership, cross-team problem solving |
+| **Automation and empowerment** | Lower risk, self-service workflows, engineers focused on higher-value work |
+| **Process efficiency** | Shorter feedback loops, reliable releases, less manual friction |
+| **Data-driven decisions** | Metrics (DORA, SLAs, SLOs) validate progress and guide prioritization |
+
+### One-Line Takeaways by Role
+
+| Role | Core lesson |
+| ---- | ----------- |
+| **Leader** | Listen first, align on shared vision, then define standards collaboratively |
+| **Developer** | Shared values simplify decisions — involve the whole team in pipeline improvements |
+| **Operations** | Avoid the "superhero" trap; spread knowledge to reduce single points of failure |
+| **Tester** | Manual validation is a starting point, not an end state — automate the pipeline |
+| **Product Manager** | Optimize for customer value, not internal activity — apply LEAN in sequence |
+| **Security** | Shift left; reframe security as a delivery enabler, not a gate |
+| **Data / Analyst** | Track DORA metrics continuously to move from opinion to evidence |
+| **Architect** | Run PoCs to replace resistance with learning; no single technology fits every case |
+
+---
+
+<h2 id="quick-vocabulary-reference">Quick Vocabulary Reference</h2>
+
+| Term | Definition |
+| ---- | ---------- |
+| **CI** | Continuous Integration — frequent code merges with automated testing |
+| **CD** | Continuous Delivery/Deployment — automated path from commit to production |
+| **GitOps** | Using Git as the single source of truth for infra and application state |
+| **SRE** | Site Reliability Engineering — applies software engineering to operations |
+| **DevSecOps** | Security integrated as a shared responsibility throughout the SDLC |
+| **DORA** | DevOps Research and Assessment — four key delivery performance metrics |
+| **LEAN** | Process improvement philosophy focused on eliminating waste and maximizing customer value |
+| **Value Stream** | The end-to-end sequence of steps that deliver value from idea to customer |
+| **WIP** | Work In Progress — limiting it improves flow and reduces context-switching |
+| **MTTR** | Mean Time to Recovery — average time to restore service after an incident |
+| **Platform Engineering** | Building internal developer platforms so teams can self-serve deployment and operations |
+| **Blameless Review** | Post-incident process focused on learning and system improvement, not blame |
+
+---
+
+<h2 id="recommended-reading">Recommended Reading</h2>
+
+| Book / Resource | Authors | Year |
+| --------------- | ------- | ---- |
+| *10+ Deploys per Day* (Velocity talk) | John Allspaw & Paul Hammond | 2009 |
+| *The Phoenix Project* | Gene Kim, Kevin Behr, George Spafford | 2013 |
+| *The DevOps Handbook* | Gene Kim, Jez Humble, Patrick Debois, John Willis | 2013 |
+| *The Unicorn Project* | Gene Kim | 2019 |
+| *Effective DevOps* | Jennifer Davis & Katherine Daniels | 2022 |
+| *The DevOps Adoption Playbook* | Sanjeev Sharma | 2022 |
+| DevOps Topologies | Manuel Pais & Matthew Skelton | [web.devopstopologies.com](https://web.devopstopologies.com/) |
