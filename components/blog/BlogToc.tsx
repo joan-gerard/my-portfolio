@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 type TocItem = {
   id: string;
   label: string;
+  level: 2 | 3;
 };
 
 type BlogTocProps = {
@@ -84,7 +85,8 @@ export function BlogToc({ items, onNavigate }: BlogTocProps) {
                 aria-current={isActive ? "true" : undefined}
                 onClick={onNavigate}
                 className={
-                  "text-sm transition-colors " +
+                  "block text-sm transition-colors " +
+                  (item.level === 3 ? "pl-4 " : "") +
                   (isActive
                     ? "font-semibold text-[var(--ink)]"
                     : "text-[var(--ink-muted)] hover:text-[var(--ink)]")

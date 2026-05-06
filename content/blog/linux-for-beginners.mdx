@@ -1,0 +1,871 @@
+---
+title: "Linux for Beginners"
+date: "2026-04-30"
+description: Linux is the most widely used and loved platform and it remains foundational in cloud/DevOps because many key tools (like Docker historically and Ansible controllers) are built for Linux first.
+tags:
+  - Linux
+draft: false
+notesFromKodeKloud: true
+---
+
+<h2 id="introduction">Introduction</h2>
+
+These notes summarize Linux fundamentals that are important for anyone building a career in DevOps, cloud, or infrastructure.
+
+Linux powers modern technology at scale, from the world's fastest supercomputers and most web platforms to the majority of smartphones. In the DevOps ecosystem, many core tools were designed for Linux first: Docker started as Linux-only, Ansible controllers run on Linux, and Kubernetes control planes remain Linux-based.
+
+Because of this, Linux is not just helpful, it is foundational. The material behind these notes uses a story-driven format and hands-on labs to build practical skills in terminal usage, core system concepts, package management, security, networking, storage, and service management with systemd.
+
+### Common challenges faced when learning the Linux environment
+
+- Trouble with navigating Linux CLI
+- Navigating directory structures and files
+- No experience working with text editors (VI / Nano)
+- Different flavors of Linux
+- Errors during installation of apps and dependencies (rpm, apt. dkpg, yum)
+- Issues with networking between VMs
+- Trouble with permissions and security on Linux
+- Lack of hands-on practice
+
+### Learning structures
+
+- Interact with the terminal and understand the shell, which serves as the gateway to the Linux kernel
+- Study core Linux concepts that help you understand how systems operate
+- Explore various package management methods used by different Linux distributions
+- Gain confidence in navigating the command line, manipulating files, and using a variety of text editors
+- Understand file-level security, configure permissions, and implement essential Linux security practices
+- Troubleshoot networking connectivity issues effectively
+- Configure storage options including disk formatting, mounting, and creating logical volume groups
+- Set up custom applications to start on boot using SYSTEMD, the primary initializer for Linux services
+
+<h2 id="working-with-shell-part-1">Working with the Shell - Part 1</h2>
+
+### What is a Shell?
+
+The Linux Shell is a program that allows text-based interaction between the user and the OS. This interaction is carried out by typing commands into the interface and receiving the response in the same way.
+
+### Home directory
+
+When logging into the Shell, the very first directory would be the home directory ("/home/michael"). It allows users to store their personal data in the forms of files and directories.
+
+### Command types
+
+- Internal or Built-in Commands: echo, cd, pwd, set...
+- External Commands: mv, date, uptime, cp...
+
+To verify whether a command is internal or external, use the type command. For example, executing `type echo` shows that `echo` is a built-in command
+
+### whatis and man commands
+
+- **whatis** offers a brief overview of the command
+- **man** provides detailed information including usage examples, options and related data.
+
+### Shell types
+
+- Bourne Shell (sh)
+- C Shell (csh or tcsh)
+- Korn Shell (ksh)
+- Z Shell (zsh)
+- Bourne again Shell (bash)
+
+To check the shell being used
+
+```bash
+[~]$ echo $SHELL
+/bin/bash
+```
+
+To change your default shell, use the chsh command.
+
+    ```bash
+    [~]$ chsh
+    ```
+
+### Bash Shell Features
+
+- Bash auto-completion
+- `alias` command
+
+  ```bash
+  [~]$ alias dt=date
+  ```
+
+- `history` command to view a list of previously executed commands, making it easier to reuse them
+- Environment variables
+
+  ```bash
+  [~]$ echo $SHELL
+  [~]$ env
+  ```
+
+- Create a new environment variable
+
+  ```bash
+  [~]$ export OFFICE=caleston¨
+  ```
+
+- User profile scripts
+
+  User profile scripts, such as `~/.profile`, `~/.bash_profile`, `~/.bashrc`, and others, are executed when a user logs in, allowing the setup of the environment according to personal preferences
+
+  To make changes persistent in Unix-like operating systems, variables, aliases, and other configurations can be added to these profile files.
+
+  ```bash
+  echo 'export MY_VARIABLE="example_value"' >> ~/.profile
+  ```
+
+  This command appends the `export` statement to the end of the `~/.profile` file, making the variable `MY_VARIABLE` persistent across sessions.
+
+  To add an alias, like ll for ls -l, use:
+
+  ```bash
+  echo 'alias ll="ls -l"' >> ~/.profile
+  ```
+
+### Customising the Bash Prompt
+
+The Bash prompt, typically seen as [~]$ when you log in, can be customized to display useful system and user information.
+
+The appearance of the Bash prompt is controlled by the `PS1` environment variable. To view its current setting, run:
+
+```bash
+[~]$ echo $PS1
+[\W]$
+
+# \W = Present Working Directory
+# $ = Prompt Symbol
+```
+
+To customise the `PS1`
+
+```Bash
+[~]$ PS1="[ \d \t \u@\h:\w ] $ "
+[Thu Mar 12 22:12:54 bob@caleston:~ ] $
+```
+
+![list of options to update PS1](/linux-update-ps1.png)
+
+<h2 id="core-concepts">Linux Core Concepts</h2>
+
+### Linux Kernel
+
+What is a Kernel?
+
+- It is the major component of the OS
+- it is the core interface between a computer's hardware and its processes
+- it communicates between the two managing rss as efficiently as possible.
+
+<svg viewBox="0 0 720 320" width="100%" role="img" aria-label="Linux kernel interaction diagram">
+  <defs>
+    <marker id="arrow-end" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"></path>
+    </marker>
+    <marker id="arrow-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 10 0 L 0 5 L 10 10 z" fill="#475569"></path>
+    </marker>
+  </defs>
+
+<rect
+  x="20"
+  y="20"
+  width="680"
+  height="56"
+  rx="10"
+  fill="#f8fafc"
+  stroke="#cbd5e1"
+></rect>
+<text
+  x="360"
+  y="54"
+  textAnchor="middle"
+  fill="#111827"
+  fontSize="18"
+  fontWeight="700"
+  fontFamily="Arial, sans-serif"
+>
+  Applications / Processes
+</text>
+
+<rect
+  x="20"
+  y="128"
+  width="680"
+  height="64"
+  rx="10"
+  fill="#e2e8f0"
+  stroke="#94a3b8"
+></rect>
+<text
+  x="360"
+  y="167"
+  textAnchor="middle"
+  fill="#111827"
+  fontSize="20"
+  fontWeight="700"
+  fontFamily="Arial, sans-serif"
+>
+  Linux Kernel
+</text>
+
+<rect
+  x="20"
+  y="242"
+  width="210"
+  height="56"
+  rx="10"
+  fill="#f8fafc"
+  stroke="#cbd5e1"
+></rect>
+<text
+  x="125"
+  y="277"
+  textAnchor="middle"
+  fill="#111827"
+  fontSize="16"
+  fontWeight="700"
+  fontFamily="Arial, sans-serif"
+>
+  Memory
+</text>
+
+<rect
+  x="255"
+  y="242"
+  width="210"
+  height="56"
+  rx="10"
+  fill="#f8fafc"
+  stroke="#cbd5e1"
+></rect>
+<text
+  x="360"
+  y="277"
+  textAnchor="middle"
+  fill="#111827"
+  fontSize="16"
+  fontWeight="700"
+  fontFamily="Arial, sans-serif"
+>
+  CPU
+</text>
+
+<rect
+  x="490"
+  y="242"
+  width="210"
+  height="56"
+  rx="10"
+  fill="#f8fafc"
+  stroke="#cbd5e1"
+></rect>
+<text
+  x="595"
+  y="277"
+  textAnchor="middle"
+  fill="#111827"
+  fontSize="16"
+  fontWeight="700"
+  fontFamily="Arial, sans-serif"
+>
+  Devices
+</text>
+
+<line
+  x1="360"
+  y1="76"
+  x2="360"
+  y2="128"
+  stroke="#475569"
+  strokeWidth="2.5"
+  markerStart="url(#arrow-start)"
+  markerEnd="url(#arrow-end)"
+></line>
+
+  <line x1="125" y1="192" x2="125" y2="242" stroke="#475569" strokeWidth="2.5" markerStart="url(#arrow-start)" markerEnd="url(#arrow-end)"></line>
+  <line x1="360" y1="192" x2="360" y2="242" stroke="#475569" strokeWidth="2.5" markerStart="url(#arrow-start)" markerEnd="url(#arrow-end)"></line>
+  <line x1="595" y1="192" x2="595" y2="242" stroke="#475569" strokeWidth="2.5" markerStart="url(#arrow-start)" markerEnd="url(#arrow-end)"></line>
+</svg>
+
+The best analogy to understand Linux Kernel is the library analogy.
+
+<svg viewBox="0 0 720 320" width="100%" role="img" aria-label="Linux kernel interaction diagram">
+  <defs>
+    <marker id="arrow-end" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"></path>
+    </marker>
+    <marker id="arrow-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 10 0 L 0 5 L 10 10 z" fill="#475569"></path>
+    </marker>
+  </defs>
+
+<rect
+  x="20"
+  y="20"
+  width="680"
+  height="56"
+  rx="10"
+  fill="#f8fafc"
+  stroke="#cbd5e1"
+></rect>
+<text
+  x="360"
+  y="54"
+  textAnchor="middle"
+  fill="#111827"
+  fontSize="18"
+  fontWeight="700"
+  fontFamily="Arial, sans-serif"
+>
+  Students
+</text>
+
+<rect
+  x="20"
+  y="128"
+  width="680"
+  height="64"
+  rx="10"
+  fill="#e2e8f0"
+  stroke="#94a3b8"
+></rect>
+<text
+  x="360"
+  y="167"
+  textAnchor="middle"
+  fill="#111827"
+  fontSize="20"
+  fontWeight="700"
+  fontFamily="Arial, sans-serif"
+>
+  Librarian
+</text>
+
+<rect
+  x="20"
+  y="242"
+  width="210"
+  height="56"
+  rx="10"
+  fill="#f8fafc"
+  stroke="#cbd5e1"
+></rect>
+<text
+  x="125"
+  y="277"
+  textAnchor="middle"
+  fill="#111827"
+  fontSize="16"
+  fontWeight="700"
+  fontFamily="Arial, sans-serif"
+>
+  Books
+</text>
+
+<rect
+  x="255"
+  y="242"
+  width="210"
+  height="56"
+  rx="10"
+  fill="#f8fafc"
+  stroke="#cbd5e1"
+></rect>
+<text
+  x="360"
+  y="277"
+  textAnchor="middle"
+  fill="#111827"
+  fontSize="16"
+  fontWeight="700"
+  fontFamily="Arial, sans-serif"
+>
+  DVDs
+</text>
+
+<rect
+  x="490"
+  y="242"
+  width="210"
+  height="56"
+  rx="10"
+  fill="#f8fafc"
+  stroke="#cbd5e1"
+></rect>
+<text
+  x="595"
+  y="277"
+  textAnchor="middle"
+  fill="#111827"
+  fontSize="16"
+  fontWeight="700"
+  fontFamily="Arial, sans-serif"
+>
+  Workstations
+</text>
+
+<line
+  x1="360"
+  y1="76"
+  x2="360"
+  y2="128"
+  stroke="#475569"
+  strokeWidth="2.5"
+  markerStart="url(#arrow-start)"
+  markerEnd="url(#arrow-end)"
+></line>
+
+  <line x1="125" y1="192" x2="125" y2="242" stroke="#475569" strokeWidth="2.5" markerStart="url(#arrow-start)" markerEnd="url(#arrow-end)"></line>
+  <line x1="360" y1="192" x2="360" y2="242" stroke="#475569" strokeWidth="2.5" markerStart="url(#arrow-start)" markerEnd="url(#arrow-end)"></line>
+  <line x1="595" y1="192" x2="595" y2="242" stroke="#475569" strokeWidth="2.5" markerStart="url(#arrow-start)" markerEnd="url(#arrow-end)"></line>
+</svg>
+
+Without librarians, students would search every corner of the library and borrow any materials they find, with no reliable tracking of who borrowed what or when items are due back. In such a mismanaged system, resources might not be available when other students need them most.
+
+A librarian ensures that students get books appropriate to their year level, enforces borrowing limits (for example, one book per student), tracks due dates, sends reminders before deadlines, and makes sure resources are returned.
+
+#### Linux Kernel four major responsibilities
+
+- **Memory Management**: Tracks memory usage and allocation
+- **Process Management**: Schedules processes on the CPU and determines their execution order.
+- **Device Drivers**: Acts as an intermediary between hardware devices and software processes.
+- **System Calls and Security**: Handles requests from processes and enforces security policies.
+
+The Linux Kernel is **monolithic**, which means that the Kernel carries out CPU scheduling, memory management and several other operations by itself.
+
+The Kernel is also **modular**, which means it can extend its capabilities thriugh the use of dynamically loaded Kernel modules
+
+#### Kernel Versions
+
+```bash
+[~]$ uname
+Linux
+```
+
+```bash
+[~]$ uname -r
+4.15.0-72-generic
+```
+
+Where 4 is the Kernel Version, 15 is the Major Version, 0 the Minor Version, 72 the patch release and 'generic' the Distro Specifc Version
+
+#### Understanding Kernel and User Space
+
+Memory management is divided into 2 primary areas:
+
+**Kernel Space**:
+
+- Reserved exclusively for the kernel’s execution and its critical services.
+- Processes operating in kernel space have complete access to the system’s hardware resources.
+- In our library analogy, kernel space is like a restricted section that only the librarian or administrators can access.
+
+**User Space**:
+
+- Dedicated to processes running outside the kernel, with restricted access to hardware resources.
+- This area hosts various utilities, programming languages, and graphical tools collectively known as the userland.
+- Similar to the publicly accessible areas of the library designed for readers and reference.
+
+User space programs primarily work with data by performing operations on memory or disk. They communicate their needs through system calls to the kernel.
+
+![Kernal and User Space](/kernal-and-user-space.webp)
+
+<h3 id="working-with-hardware">Working With Hardware</h3>
+
+When a USB disk is attached, the kernel device driver detects the state change and emits a **uEvent**. That event is sent to the user-space device manager, **udev**, which then creates the corresponding device node under `/dev` (for example, `/dev/sdb1`).
+
+![The image illustrates the process of hardware interaction, showing a USB disk connecting through device drivers in kernel space and udev in user space to /dev/sdb1.](https://kodekloud.com/kk-media/image/upload/v1752881122/notes-assets/images/Learning-Linux-Basics-Course-Labs-Working-with-Hardware/frame_40.jpg)
+
+Once this flow completes, the new disk appears in the `/dev` filesystem and can be inspected or mounted.
+
+> **Tip:** Linux provides powerful CLI tools to inspect kernel logs, monitor device events, and view hardware configuration details. These are essential for troubleshooting and administration.
+
+#### Viewing Kernel and Device Events
+
+Use `dmesg` to view messages from the kernel ring buffer, including boot-time hardware detection logs. You can pipe output into tools like `less` or filter with `grep` for targeted checks.
+
+Use `udevadm` to query and monitor udev activity. For example, this command returns the udev path for a block device:
+
+```bash
+[~]$ udevadm info --query=path --name=/dev/sda5
+/devices/pci0000:00/0000:00:17.0/ata3/host2/target2:0:0/2:0:0:0/block/sda/sda5
+```
+
+To monitor kernel and udev events in real time:
+
+```bash
+[~]$ udevadm monitor
+monitor will print the received events for:
+UDEV - the event which udev sends out after rule processing
+KERNEL - the kernel uevent
+```
+
+> **Tip:** `udevadm monitor` is especially useful when attaching or removing devices (for example, unplugging a USB mouse) and validating event flow.
+
+#### Listing PCI Devices
+
+Use `lspci` to list PCI devices attached to the motherboard, such as network cards, USB controllers, video adapters, and RAID controllers.
+
+> PCI stands for Peripheral Component Interconnect, representing devices directly attached to the motherboard.
+
+```bash
+[~]$ lspci
+00:00.0 Host bridge: Intel Corporation Device 3e34 (rev 0c)
+00:02.0 VGA compatible controller: Intel Corporation Device 3ea0 (rev 02)
+00:08.0 System peripheral: Intel Corporation Xeon E3-1200 v5/v6 / E3-1500 v5 / 6th/7th Gen Core Processor Gaussian Mixture Model
+00:12.0 Signal processing controller: Intel Corporation Device 9df9 (rev 30)
+00:14.0 USB controller: Intel Corporation Device 9ded (rev 30)
+00:14.2 RAM memory: Intel Corporation Device 9def (rev 30)
+00:14.3 Network controller: Intel Corporation Device 9df0 (rev 30)
+00:15.0 Serial bus controller [0c80]: Intel Corporation Device 9de8 (rev 30)
+00:15.1 Serial bus controller [0c80]: Intel Corporation Device 9de9 (rev 30)
+00:16.0 Communication controller: Intel Corporation Device 9de0 (rev 30)
+00:17.0 RAID bus controller: Intel Corporation 82801 Mobile SATA Controller [RAID mode] (rev 30)
+00:1c.0 PCI bridge: Intel Corporation Device 9db0 (rev f0)
+00:1f.0 ISA bridge: Intel Corporation Device 9dab (rev 30)
+00:1f.3 Audio device: Intel Corporation Device 9dc8 (rev 30)
+00:1f.5 Serial bus controller [0c80]: Intel Corporation Device 9dad (rev 30)
+01:00.0 Unassigned class [ff00]: Realtek Semiconductor Co., Ltd. RTL8411B PCI Express Card Reader (rev 01)
+01:00.1 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller (rev 12)
+```
+
+#### Viewing Block Devices
+
+Use `lsblk` to inspect block devices and partitions (for example, disk `sda` and partitions `sda1` to `sda5`). It also shows major/minor numbers:
+
+- **Major number** identifies the device-driver type.
+- **Minor number** identifies a specific device handled by that driver.
+
+```bash
+[~]$ lsblk
+NAME   MAJ:MIN  RM  SIZE    RO  TYPE  MOUNTPOINT
+sda    8:0      0   119.2G  0   disk
+├─sda1 8:1      0   100M    0   part  /boot/efi
+├─sda2 8:2      0   16M     0   part
+├─sda3 8:3      0   71.5G   0   part
+├─sda4 8:4      0   1G      0   part
+└─sda5 8:5      0   46.6G   0   part  /
+```
+
+#### Displaying CPU Information
+
+Use `lscpu` to inspect architecture, sockets, cores, threads, cache sizes, and virtualization support.
+
+```bash
+[~]$ lscpu
+Architecture:          x86_64
+CPU op-mode(s):        32-bit, 64-bit
+Byte Order:            Little Endian
+CPU(s):                8
+On-line CPU(s) list:   0-7
+Thread(s) per core:    2
+Core(s) per socket:    4
+Socket(s):             1
+NUMA node(s):          1
+Vendor ID:             GenuineIntel
+CPU family:            6
+Model:                 142
+Model name:            Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz
+Stepping:              12
+CPU MHz:               700.060
+CPU max MHz:           3900.0000
+CPU min MHz:           400.0000
+BogoMIPS:              3600.00
+Virtualization:        VT-x
+L1d cache:             32K
+L1i cache:             32K
+L2 cache:              256K
+L3 cache:              6144K
+NUMA node0 CPU(s):     0-7
+```
+
+Key points from this sample:
+
+- 64-bit architecture (`x86_64`)
+- 1 socket, 4 cores per socket, 2 threads per core
+- 8 logical CPUs total
+
+#### Displaying Memory Information
+
+Use `lsmem --summary` for a compact memory overview:
+
+```bash
+[~]$ lsmem --summary
+Memory block size: 128M
+Total online memory: 8G
+Total offline memory: 0B
+```
+
+Use `free` to view memory usage (for example in MB with `-m`):
+
+```bash
+[~]$ free -m
+              total        used        free      shared  buff/cache   available
+Mem:          7824        2518         541         525        4764        4481
+Swap:         2047           0        2047
+```
+
+You can switch units with `-k` (KB), `-m` (MB), or `-g` (GB).
+
+#### Extracting Detailed Hardware Information
+
+Use `lshw` for deep hardware inventory details (firmware, board, CPU, memory, buses, and capabilities). Run with `sudo` for complete output:
+
+```bash
+[~]$ sudo lshw
+[sudo] password for bob:
+description: Notebook
+   product: Aspire A515-52 (000000000000000000000000)
+   vendor: Acer
+   version: V1.12
+   serial: NXH89AA0026262680A13400
+   width: 64 bits
+   capabilities: smbios-3.0 dmi-3.0 smp vsyscall32
+   configuration: chassis=notebook family=Aspire 5 sku=00000000000000000000 uuid=D74676912-9EFF-ABCD-8192-085643E554D
+*-core
+   description: Motherboard
+   product: Raticate_WL
+   vendor: WL
+   physical id: 0
+   version: V1.12
+   serial: LAC12110069651AB521500
+   slot: Type2 - Board Chassis Location
+*-firmware
+   description: BIOS
+   vendor: Insyde Corp.
+   physical id: 0
+   version: V1.12
+   date: 04/26/2019
+   size: 128KiB
+   capacity: 15MiB
+```
+
+Commands run with `sudo` are audited, and each user must authenticate with their own password.
+
+#### Summary
+
+Linux hardware management relies on a clear kernel-to-user-space flow plus practical inspection tools:
+
+- `dmesg` and `udevadm` for kernel/device events
+- `lspci` for PCI hardware discovery
+- `lsblk` for disks and partitions
+- `lscpu` and `lsmem`/`free` for CPU and memory views
+- `lshw` for full-system hardware inventory
+
+Using these regularly improves troubleshooting speed and overall system administration confidence.
+
+<h3 id="linux-boot-sequence">Linux Boot Sequence</h3>
+
+This section provides a simplified overview of the Linux boot process. The sequence has four key stages:
+
+1. BIOS POST
+2. Boot Loader (GRUB2)
+3. Kernel Initialization
+4. Service Initialization
+
+> **Note:** The Linux boot process starts either when a halted machine powers on or when a running system is rebooted/reset.
+
+![Linux Boot Sequence](/linux-boot-sequence.webp)
+
+#### 1. BIOS POST
+
+The first stage is BIOS POST (Power-On Self-Test). During this phase, firmware validates core hardware components before handing off control. Because POST is firmware-driven, it is mostly independent of Linux itself. If POST fails, the system cannot continue booting.
+
+#### 2. Boot Loader
+
+After POST succeeds, BIOS/firmware reads boot code from the selected boot device (commonly from the disk's early boot sectors and the `/boot` filesystem). The boot loader then displays available boot entries, loads the selected Linux kernel into memory, passes kernel parameters, and transfers execution to the kernel.
+
+In most Linux distributions, this boot loader is **GRUB2** (Grand Unified Boot Loader v2).
+
+#### 3. Kernel Initialization
+
+At this stage, the compressed kernel image is decompressed and loaded into memory. The kernel initializes hardware, memory subsystems, and core drivers, then prepares the system for user space.
+
+Typical early kernel log output may look like:
+
+```bash
+[0.554274]  Magic number: 0:465:215
+[0.557297]  event_source software: hash matches
+[0.557891]  rtc_cmos rtc_cmos: setting system clock to 2020-04-09 (1586412850)
+[0.559123]  BIOS EDD facility v0.16 2004-Jun-25, 0 devices found
+[0.559571]  EDD information not available.
+[0.697097]  Freeing unused kernel image memory: 2432K
+[0.7094611] Write protecting the kernel read-only data: 20480k
+[0.7094611] Freeing unused kernel image memory: 2008K
+[0.7094611] Freeing unused kernel image memory: 1880K
+[0.711046] 86/mm: Checked W+X mappings: passed, no W+X pages
+[1.000000] Intel(R) PRO/1000 Network Driver - version 7.3.20
+[1.000000] Copyright (c) 1999-2006 Intel Corporation.
+[1.000000] Copyright (c) 1999-2008 LSI Corporation
+[1.000000] Fusion MPT SPI Host driver 3.04.20
+[1.000000] UX2 version of gcm_enc/dec engaged.
+[1.000000] ES CTR mode by8 optimization enabled.
+[1.000000] Init: ImExPS/2 Generic Explorer Mouse as /devices/platform/put4
+[1.000000] 1000 0000:03:00.0 eth0: (PCI:33MHz:32-bit) 02:12:4b:00:00:00
+[1.000000] 1000 0000:03:00.0 eth0: Intel(R) PRO/1000 Network Co
+[1.000000] ptbase: ioc0: Initiating bringup
+```
+
+Once kernel initialization is complete, Linux launches the init process to bring up user space and essential system processes.
+
+#### 4. Service Initialization
+
+Modern Linux systems typically use **systemd** as PID 1 (init). `systemd` mounts filesystems, starts background services, resolves dependencies, and moves the system to a usable target state.
+
+Compared with legacy SysV init, one major advantage is parallel service startup, which helps reduce boot time.
+
+To confirm which init implementation is linked on your system:
+
+```bash
+[~]$ ls -l /sbin/init
+lrwxrwxrwx /sbin/init -> /lib/systemd/systemd
+```
+
+Additional boot logs often show filesystem mounts and service manager startup:
+
+```bash
+[5.574670] EXT4-fs (sda1): mounted filesystem with ordered data mode
+[5.720090] ip_tables: (C) 2000-2006 Netfilter Core Team
+[5.730460] systemd[1]: systemd 237 running in system mode. (+PAM +AUDIT +SELINUX +IMA +APPARMOR +SMACK +SYSVINIT +UTMP +LIBWRAP +FSTEST +GCRYPT +GNUTLS +ACL +XZ +LZ4 +SECCOMP +BLKID +ELFUTILS +KMOD +IDN =PCRE default-hierarchy=hybrid)
+[5.732961] systemd[1]: Detected virtualization oracle.
+[5.733871] systemd[1]: Detected architecture x86-64.
+[5.748912] systemd[1]: Set hostname to <kubemaster>.
+```
+
+When required services are active, boot is complete and the system is ready for user interaction.
+
+<h3 id="runlevels">Runlevels</h3>
+
+In Linux, the system can operate in several modes, known as runlevels. You might be familiar with graphical mode; however, runlevels allow for various operational modes beyond just the GUI.
+
+To determine the current runlevel of a Linux system, use the `runlevel` command:
+
+```bash theme={null}
+Ubuntu 18.04.4 LTS caleston-lp03 tty1
+caleston-lp03 login:
+```
+
+This output indicates that the system is running at runlevel 3, which is non-graphical mode. In contrast, another laptop could be configured to run at runlevel 5, which provides a graphical user interface.
+
+The boot process utilizes the runlevel setting by having the init process check the current runlevel and start only those services required for that mode. For instance, graphical mode (runlevel 5) needs a display manager service to start the GUI, whereas this service is unnecessary in non-graphical mode.
+
+![The image explains systemd runlevels, showing graphical and command line interfaces, with indicators for display-manager service enabled or disabled.](https://kodekloud.com/kk-media/image/upload/v1752881120/notes-assets/images/Learning-Linux-Basics-Course-Labs-Runlevels/frame_80.jpg)
+
+In modern Linux distributions like Ubuntu 18.04, the system uses systemd as the init process. Under systemd, traditional runlevels are represented as targets:
+
+![The image explains systemd targets and runlevels, showing how they boot into graphical or command line interfaces on RHEL and Ubuntu systems.](https://kodekloud.com/kk-media/image/upload/v1752881121/notes-assets/images/Learning-Linux-Basics-Course-Labs-Runlevels/frame_110.jpg)
+
+In this context:
+
+- Runlevel 5 corresponds to the graphical target.
+- Runlevel 3 corresponds to the multi-user target.
+
+While additional runlevels (or targets) exist, these two are the most commonly used.
+
+> If your system boots into a command line interface by default, it's likely configured to use the multi-user target.
+
+#### Changing the Default Target
+
+To view the current default systemd target, execute the following command, which reads the file located at `/etc/systemd/system/default.target`:
+
+```bash theme={null}
+$ systemctl get-default
+graphical.target
+
+$ ls -ltr /etc/systemd/system/default.target
+```
+
+In this example, the `default.target` file is a symbolic link to the `graphical.target` unit file located in the `/lib/systemd/system/` directory.
+
+If you wish to change the default target, use the `systemctl set-default` command followed by your desired target. For instance, to switch from graphical mode (runlevel 5) to multi-user mode (runlevel 3), run:
+
+```bash theme={null}
+$ systemctl get-default
+graphical.target
+
+$ ls -ltr /etc/systemd/system/default.target
+/etc/systemd/system/default.target -> /lib/systemd/system/graphical.target
+
+$ systemctl set-default multi-user.target
+Created symlink /etc/systemd/system/default.target -> /lib/systemd/system/multi-user.target
+```
+
+This command updates the default target, effectively switching your system's mode of operation from graphical to non-graphical.
+
+> After changing the default target, you may need to reboot your system for the changes to take effect.
+
+<h3 id="file-types">File Types</h3>
+
+| File Type     | Sub File Type      | Description                                                                                                                            |
+| ------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Regular File  | -                  | Common files and contain text, data, images, etc. Examples include configuration files, shell scripts, and JPEG images.                |
+| Directory     | -                  | Contains references to files and subdirectories.                                                                                       |
+| Special Files | Character Files    | usually located in the /dev directory, represent devices that interact serially with the operating system (e.g., a mouse or keyboard). |
+| -             | Block Files        | Also found under /dev, block files represent devices that read and write data in fixed-size blocks, such as hard disks and RAM.        |
+| -             | Links (Hard Links) | A hard link associates multiple filenames with the same block of data. Deleting one hard link can result in the removal of that data.  |
+| -             | Links (Symlinks)   | A symlink (Symbolic Link) acts like a shortcut, pointing to another file. Deleting a symlink does not affect its target file.          |
+| -             | Sockets            | Sockets are special files that facilitate communication between different processes.                                                   |
+| -             | Named Pipes        | Also known as FIFOs, these files allow one process to deliver its output directly to another using a unidirectional data flow.         |
+
+#### Identifying File Types
+
+1. Using the `file` command
+
+```bash
+[~]$ file /home/michael/
+/home/michael/: directory
+
+[~]$ file bash-script.sh
+bash-script.sh: Bourne-Again shell script, UTF-8 Unicode text executable
+```
+
+2. Using the `ls` command
+
+```bash
+[~]$ ls -ld /home/michael/
+drwxr-xr-x 3 root root 4096 Mar 18 17:20 /home/michael/
+```
+
+The first character of each line indicates the file type:
+| Symbol | File Type |
+| --- | --- |
+| d | Directory |
+| - | Regular file |
+| c | Character device |
+| l | Link (symbolic or hard link) |
+| s | Socket |
+| p | Named pipe |
+| b | Block device |
+
+<h3 id="filesystem">Filesystem</h3>
+
+#### Key Directories and Their Purposes
+
+| Directory           | Purpose                                          | Practical Notes                                                      |
+| ------------------- | ------------------------------------------------ | -------------------------------------------------------------------- |
+| `/home`             | Stores home directories for regular users.       | The root user's home is `/root`, not under `/home`.                  |
+| `/opt`              | Installation location for third-party software.  | Good place for custom app deployments.                               |
+| `/mnt`              | Temporary mount point for filesystems.           | Commonly used to mount network shares during setup tasks.            |
+| `/tmp`              | Stores temporary files and transient data.       | Copy installer packages here during setup, then clean up after use.  |
+| `/media`            | Auto-mount location for removable media.         | USB drives and similar devices often appear here automatically.      |
+| `/dev`              | Contains device files representing hardware.     | Includes block/character devices such as disks, keyboards, and mice. |
+| `/bin`              | Holds essential user binaries and commands.      | Includes tools such as `cp`, `mv`, `mkdir`, and `date`.              |
+| `/etc`              | Stores system-wide configuration files.          | Most Linux service and system configuration lives here.              |
+| `/lib` and `/lib64` | Provide shared libraries required by binaries.   | Runtime dependencies for many core and userland programs.            |
+| `/usr`              | Contains userland applications and related data. | Hosts software such as editors and browsers on modern systems.       |
+| `/var`              | Stores variable data such as logs and caches.    | First place to check during troubleshooting and incident diagnosis.  |
+
+#### Inspecting Mounted Filesystems
+
+To view details about each mounted filesystem, use the `df` command. The following example shows the command output:
+
+```bash
+[~]$ df -hP
+Filesystem      Size  Used Avail Use% Mounted on
+udev            3.8G     0  3.8G   0% /dev
+tmpfs           783M  1.6M  781M   1% /run
+/dev/sda3       43G   36G  7.3G  84% /
+tmpfs           3.9G  128K  3.9G   1% /dev/shm
+tmpfs           5.0M  4.0K  5.0M   1% /run/lock
+/dev/sda5       20G    1G   19G   5% /home
+/dev/sda4       10G    5G    5G  50% /var
+/dev/sdb1       5G     1G    4G  20% /media/usb
+```

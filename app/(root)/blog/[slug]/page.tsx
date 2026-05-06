@@ -16,6 +16,7 @@ import { compileMDX } from "next-mdx-remote/rsc";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FiArrowLeft } from "react-icons/fi";
+import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 
 type Props = {
@@ -66,6 +67,7 @@ const articleBodyClassName =
 type TocItem = {
   id: string;
   label: string;
+  level: 2 | 3;
 };
 
 type SeriesNavigation = {
@@ -75,18 +77,53 @@ type SeriesNavigation = {
   hub: { slug: string; title: string } | null;
 };
 
-function extractH2TocItems(mdxSource: string): TocItem[] {
-  const h2WithIdRegex = /<h2\s+id="([^"]+)">([\s\S]*?)<\/h2>/g;
+function slugifyHeadingLabel(label: string): string {
+  return label
+    .toLowerCase()
+    .trim()
+    .replace(/[`*_~[\]()]/g, "")
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+function extractTocItems(mdxSource: string): TocItem[] {
+  const headingRegex =
+    /<(h[23])(?:\s+[^>]*)?>([\s\S]*?)<\/\1>|^(#{2,3})\s+(.+)$/gm;
   const items: TocItem[] = [];
-  let match: RegExpExecArray | null = h2WithIdRegex.exec(mdxSource);
+  let match: RegExpExecArray | null = headingRegex.exec(mdxSource);
+  const usedIds = new Map<string, number>();
 
   while (match) {
-    const id = match[1]?.trim();
-    const label = match[2]?.replace(/<[^>]+>/g, "").trim();
-    if (id && label) {
-      items.push({ id, label });
+    const htmlTag = match[1];
+    const htmlContent = match[2];
+    const markdownHashes = match[3];
+    const markdownContent = match[4];
+    const level = htmlTag
+      ? (Number(htmlTag[1]) as 2 | 3)
+      : (markdownHashes.length as 2 | 3);
+    const label = (htmlContent ?? markdownContent ?? "")
+      .replace(/<[^>]+>/g, "")
+      .trim();
+
+    if (!label) {
+      match = headingRegex.exec(mdxSource);
+      continue;
     }
-    match = h2WithIdRegex.exec(mdxSource);
+
+    const explicitId = match[0].match(/\sid="([^"]+)"/)?.[1];
+    const baseId = explicitId ?? slugifyHeadingLabel(label);
+    if (!baseId) {
+      match = headingRegex.exec(mdxSource);
+      continue;
+    }
+
+    const duplicateCount = usedIds.get(baseId) ?? 0;
+    usedIds.set(baseId, duplicateCount + 1);
+    const id = duplicateCount === 0 ? baseId : `${baseId}-${duplicateCount}`;
+
+    items.push({ id, label, level });
+    match = headingRegex.exec(mdxSource);
   }
 
   return items;
@@ -150,7 +187,7 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   const readingMinutes = getReadingMinutesFromMdxSource(post.content);
-  const tocItems = extractH2TocItems(post.content);
+  const tocItems = extractTocItems(post.content);
   const seriesNavigation = getSeriesNavigation(slug, post.frontmatter);
 
   const { content } = await compileMDX<BlogPostFrontmatter>({
@@ -159,6 +196,7 @@ export default async function BlogPostPage({ params }: Props) {
       parseFrontmatter: false,
       mdxOptions: {
         remarkPlugins: [remarkGfm],
+        rehypePlugins: [rehypeSlug],
       },
     },
     components: blogMdxComponents,
