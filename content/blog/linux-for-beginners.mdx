@@ -16,7 +16,7 @@ Linux powers modern technology at scale, from the world's fastest supercomputers
 
 Because of this, Linux is not just helpful, it is foundational. The material behind these notes uses a story-driven format and hands-on labs to build practical skills in terminal usage, core system concepts, package management, security, networking, storage, and service management with systemd.
 
-### Common challenges faced when learning the Linux environment
+### Common challenges
 
 - Trouble with navigating Linux CLI
 - Navigating directory structures and files
@@ -180,10 +180,10 @@ What is a Kernel?
   textAnchor="middle"
   fill="#111827"
   fontSize="18"
-  fontWeight="700"
+  fontWeight="500"
   fontFamily="Arial, sans-serif"
 >
-  Applications / Processes
+  <tspan>Applications / Processes (Students)</tspan>
 </text>
 
 <rect
@@ -201,10 +201,10 @@ What is a Kernel?
   textAnchor="middle"
   fill="#111827"
   fontSize="20"
-  fontWeight="700"
+  fontWeight="500"
   fontFamily="Arial, sans-serif"
 >
-  Linux Kernel
+  <tspan>Linux Kernel (Librarian)</tspan>
 </text>
 
 <rect
@@ -222,10 +222,10 @@ What is a Kernel?
   textAnchor="middle"
   fill="#111827"
   fontSize="16"
-  fontWeight="700"
+  fontWeight="500"
   fontFamily="Arial, sans-serif"
 >
-  Memory
+  <tspan>Memory (Books)</tspan>
 </text>
 
 <rect
@@ -243,10 +243,10 @@ What is a Kernel?
   textAnchor="middle"
   fill="#111827"
   fontSize="16"
-  fontWeight="700"
+  fontWeight="500"
   fontFamily="Arial, sans-serif"
 >
-  CPU
+  <tspan>CPU (DVDs)</tspan>
 </text>
 
 <rect
@@ -264,10 +264,10 @@ What is a Kernel?
   textAnchor="middle"
   fill="#111827"
   fontSize="16"
-  fontWeight="700"
+  fontWeight="500"
   fontFamily="Arial, sans-serif"
 >
-  Devices
+  <tspan>Devices (Workstations)</tspan>
 </text>
 
 <line
@@ -286,138 +286,7 @@ What is a Kernel?
   <line x1="595" y1="192" x2="595" y2="242" stroke="#475569" strokeWidth="2.5" markerStart="url(#arrow-start)" markerEnd="url(#arrow-end)"></line>
 </svg>
 
-The best analogy to understand Linux Kernel is the library analogy.
-
-<svg viewBox="0 0 720 320" width="100%" role="img" aria-label="Linux kernel interaction diagram">
-  <defs>
-    <marker id="arrow-end" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"></path>
-    </marker>
-    <marker id="arrow-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-      <path d="M 10 0 L 0 5 L 10 10 z" fill="#475569"></path>
-    </marker>
-  </defs>
-
-<rect
-  x="20"
-  y="20"
-  width="680"
-  height="56"
-  rx="10"
-  fill="#f8fafc"
-  stroke="#cbd5e1"
-></rect>
-<text
-  x="360"
-  y="54"
-  textAnchor="middle"
-  fill="#111827"
-  fontSize="18"
-  fontWeight="700"
-  fontFamily="Arial, sans-serif"
->
-  Students
-</text>
-
-<rect
-  x="20"
-  y="128"
-  width="680"
-  height="64"
-  rx="10"
-  fill="#e2e8f0"
-  stroke="#94a3b8"
-></rect>
-<text
-  x="360"
-  y="167"
-  textAnchor="middle"
-  fill="#111827"
-  fontSize="20"
-  fontWeight="700"
-  fontFamily="Arial, sans-serif"
->
-  Librarian
-</text>
-
-<rect
-  x="20"
-  y="242"
-  width="210"
-  height="56"
-  rx="10"
-  fill="#f8fafc"
-  stroke="#cbd5e1"
-></rect>
-<text
-  x="125"
-  y="277"
-  textAnchor="middle"
-  fill="#111827"
-  fontSize="16"
-  fontWeight="700"
-  fontFamily="Arial, sans-serif"
->
-  Books
-</text>
-
-<rect
-  x="255"
-  y="242"
-  width="210"
-  height="56"
-  rx="10"
-  fill="#f8fafc"
-  stroke="#cbd5e1"
-></rect>
-<text
-  x="360"
-  y="277"
-  textAnchor="middle"
-  fill="#111827"
-  fontSize="16"
-  fontWeight="700"
-  fontFamily="Arial, sans-serif"
->
-  DVDs
-</text>
-
-<rect
-  x="490"
-  y="242"
-  width="210"
-  height="56"
-  rx="10"
-  fill="#f8fafc"
-  stroke="#cbd5e1"
-></rect>
-<text
-  x="595"
-  y="277"
-  textAnchor="middle"
-  fill="#111827"
-  fontSize="16"
-  fontWeight="700"
-  fontFamily="Arial, sans-serif"
->
-  Workstations
-</text>
-
-<line
-  x1="360"
-  y1="76"
-  x2="360"
-  y2="128"
-  stroke="#475569"
-  strokeWidth="2.5"
-  markerStart="url(#arrow-start)"
-  markerEnd="url(#arrow-end)"
-></line>
-
-  <line x1="125" y1="192" x2="125" y2="242" stroke="#475569" strokeWidth="2.5" markerStart="url(#arrow-start)" markerEnd="url(#arrow-end)"></line>
-  <line x1="360" y1="192" x2="360" y2="242" stroke="#475569" strokeWidth="2.5" markerStart="url(#arrow-start)" markerEnd="url(#arrow-end)"></line>
-  <line x1="595" y1="192" x2="595" y2="242" stroke="#475569" strokeWidth="2.5" markerStart="url(#arrow-start)" markerEnd="url(#arrow-end)"></line>
-</svg>
+The best analogy to understand Linux Kernel is the library analogy. The same interaction model applies: students represent user applications, the librarian represents the kernel, and books/DVDs/workstations represent system resources.
 
 Without librarians, students would search every corner of the library and borrow any materials they find, with no reliable tracking of who borrowed what or when items are due back. In such a mismanaged system, resources might not be available when other students need them most.
 
@@ -869,3 +738,521 @@ tmpfs           5.0M  4.0K  5.0M   1% /run/lock
 /dev/sda4       10G    5G    5G  50% /var
 /dev/sdb1       5G     1G    4G  20% /media/usb
 ```
+
+<h2 id="linux-package-management">Linux Package Management</h2>
+
+<h3 id="package-management-introduction">Introduction</h3>
+
+A Linux distribution (or "distro") is a complete operating system built by bundling the core Linux kernel with various software, tools, and a package manager to make it ready for use.
+
+#### What makes up a Distro?
+
+Think of a distribution as a "pre-packaged meal" where the Linux kernel is the main ingredient, but each chef (the distro creator) adds different sides and seasonings:
+
+- Linux Kernel: The core engine that talks to your hardware.
+- Package Manager: The tool used to install and update software (like the App Store).
+- Desktop Environment: The visual interface (windows, taskbars, and menus).
+- Default Apps: Pre-installed software like a web browser (Firefox) or office suite (LibreOffice).
+
+#### Debian-based vs. Red Hat-based
+
+Most Linux systems today belong to one of these two "families." They differ primarily in philosophy, package management, and who they are built for
+
+| Feature         | Debian-based                                                     | Red Hat-based                                                      |
+| --------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Philosophy      | Strictly community-driven; focuses on free open-source software. | Commercial focus; built for enterprise stability and paid support. |
+| Package Format  | Uses `.deb` files.                                               | Uses `.rpm` files.                                                 |
+| Tools           | APT (high-level) and `dpkg` (low-level).                         | DNF or YUM (high-level) and RPM (low-level).                       |
+| Popular Distros | Ubuntu, Linux Mint, Kali Linux, Pop!\_OS.                        | Fedora, RHEL, Rocky Linux, AlmaLinux.                              |
+| Support         | Community-led (forums, wikis, and volunteers).                   | Professional (paid 24/7 corporate support from Red Hat).           |
+
+<h3 id="rpm-and-yum">RPM and YUM</h3>
+
+RPM and YUM are the primary package managers for RPM-based Linux distributions. Both tools play essential roles in managing software packages by handling installation, upgrades, removal, and dependency resolution.
+
+#### RPM (Red Hat Package Manager)
+
+| Mode         | Command                                                                                                                                               |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Installation | `rpm -ivh telnet.rpm`<br /><br />`-i`: Install the package<br />`-v`: Verbose mode for detailed output.<br />`-h`: Display the installation progress. |
+| Uninstalling | `rpm -e telnet.rpm`                                                                                                                                   |
+| Updgrade     | `rpm -Uvh telnet.rpm`<br /><br />Note the uppercase `U`                                                                                               |
+| Query        | `rpm -q telnet.rpm`                                                                                                                                   |
+| Verifying    | `rpm -Vf <path to file>`<br /><br />Note the uppercase `V`                                                                                            |
+
+> One important limitation of **RPM** is that it does not automatically resolve package dependencies. This shortcoming is addressed by a higher-level package manager known as **YUM**
+
+#### YUM (Yellowdog Updater Modified)
+
+Repository configurations are stored in `.repo` files located in the `/etc/yum.repos.d` directory. YUM leverages these configuration files to locate and manage software packages. Repositories can be local or remote.
+
+##### YUM Installation Process
+
+When you run a yum install command, YUM conducts a comprehensive transaction check:
+
+- It verifies if the package is already installed.
+- It searches the enabled repositories in /etc/yum.repos.d for the package.
+- It checks for any missing or outdated dependencies.
+
+##### Common YUM Commands
+
+| Task                      | Command             | Use Case                                                     |
+| ------------------------- | ------------------- | ------------------------------------------------------------ |
+| List repositories         | `yum repolist`      | Display all configured repositories                          |
+| Identify package source   | `yum provides scp`  | Find which package provides a specific command (e.g., `scp`) |
+| Remove a package          | `yum remove httpd`  | Uninstall a package from the system                          |
+| Update a specific package | `yum update telnet` | Upgrade a package (e.g., Telnet)                             |
+| Update all packages       | `yum update`        | Upgrade all installed packages                               |
+
+<h3 id="dpkg-and-apt">DPKG and APT</h3>
+
+DPKG and APT are package managers in Debian-based distributions.
+
+#### DPKG (Debian Package Manager)
+
+| Task                      | Command                  |
+| ------------------------- | ------------------------ |
+| Install or update package | `dpkg -i telnet.deb`     |
+| Remove package            | `dpkg -r telnet`         |
+| List package details      | `dpkg -l telnet`         |
+| Check package status      | `dpkg -s telnet`         |
+| Verify the package        | `dpkg -p <path to file>` |
+
+#### APT (Advanced Package Tool)
+
+APT (Advanced Package Tool) is a user-friendly front-end for DPKG, which means it acts as a "manager" or "translator" to make a package management easier.
+
+APT relies on software repositories defined in the sources file. The repository details are stored in:
+
+```bash
+/etc/apt/sources.list
+```
+
+**Common APT Commands**
+
+Below is a table summarizing key APT commands along with their use cases:
+| Task | Command | Description |
+| --- | --- | --- |
+| Update repositories | `apt update` | Refresh the package repository information |
+| Upgrade packages | `apt upgrade` | Upgrade installed packages to the latest version in the repository |
+| Install a package | `apt install telnet` | Install a package (e.g., Telnet) and resolve dependencies automatically |
+| Remove a package | `apt remove telnet` | Remove an installed package |
+| Search for a package | `apt search telnet` | Search for a package within the repository |
+
+<h2 id="working-with-shell-part-2">Working with the Shell - Part 2</h2>
+
+<h3 id="compression-and-archival">File Compression and Archival</h3>
+
+#### Checking the size of a file
+
+| Task                                                                         | Command                | Output             |
+| ---------------------------------------------------------------------------- | ---------------------- | ------------------ |
+| To view files sizes in kilobytes                                             | `[~]$ du -sk test.img` | `100000`           |
+| For a more human-readable format                                             | `[~]$ du -sh test.img` | `98M     test.img` |
+| Use the `ls -lh` command to view<br /> file sizes in a human-readable format | `[~]$ ls -lh test.img` | -                  |
+
+#### Using `tar` for archival
+
+The `tar` command is one of the most common utilities used to group multiple files or directories into a single archive file (**tarball**). This is particularly useful for data backup, transfer, and archiving.
+
+To create a tar archive, use the `-c` option to create the archive and the `-f` option to specify the file name:
+
+```bash
+[~]$ tar -cf test.tar file1 file2 file3
+[~]$ ls -ltr test.tar
+-rw-rw-r--  1 1281054720 Mar 13 19:48 test.tar
+```
+
+You can list the contents of a tarball using:
+
+```bash
+[~]$ tar -tf test.tar
+./file1
+./file2
+./file3
+```
+
+To extract files from a tar archive, use the `-x` option:
+
+```bash
+[~]$ tar -xf test.tar
+```
+
+Additionally, to compress the tarball and reduce its file size, include the `-z` option:
+
+```bash
+[~]$ tar -zcf test.tar file1 file2 file3
+```
+
+#### Compression commands
+
+Linux offers several commands for compressing files. The choice of command depends on the type of data and required compression level. Below are examples using `bzip2`, `gzip`, and `xz`:
+
+| Utility | Compressing           | File extension | Uncompressing               |
+| ------- | --------------------- | -------------- | --------------------------- |
+| `bzip2` | `[~]$ bzip2 test.img` | `.bz2`         | `[~]$ bunzip2 test.img.bz2` |
+| `gzip`  | `[~]$ gzip test1.img` | `.gz`          | `[~]$ gunzip test1.img.gz`  |
+| `xz`    | `[~]$ xz test2.img`   | `.xz`          | `[~]$ unxz test2.img.xz`    |
+
+> It is important to note that you do not always need to fully uncompress a file to view its content. Tools like `zcat`, `bzcat`, and `xzcat` allow you to read compressed files without manual decompression.
+
+<h3 id="files-and-patterns">Searching for Files and Patterns</h3>
+
+#### Using the `locate` command
+
+The `locate` command provides a fast way to find files by querying a pre-built database (mlocate.db). For example, to search for files named “City.txt” within a directory structure representing continents, countries, and cities, simply run:
+
+```bash
+locate City.txt
+/home/michael/Africa/Egypt/Cairo/City.txt
+/home/michael/Asia/India/Mumbai/City.txt
+```
+
+> If the file isn’t listed, you may need to update the database manually by running `sudo updatedb`, then re-run the `locate` command
+
+#### Using the `find` command
+
+Unlike `locate`, the `find` command does not rely on a pre-built database and offers a highly versatile suite of options for searching. To locate a file named “City.txt” within the directory /home/michael, use:
+
+```bash
+find /home/michael -name City.txt
+/home/michael/Africa/Egypt/Cairo/City.txt
+/home/michael/Asia/India/Mumbai/City.txt
+```
+
+#### Using the `grep` command
+
+Assume you have a file named sample.txt with the following content:
+
+```bash
+[~]$ cat sample.txt
+This is the first line.
+Followed by the second line.
+And then the third line.
+The fourth line has CAPITAL LETTERS
+The fifth line does not want to be printed
+```
+
+| Command                                         | Description                                                                                |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `grep second sample.txt`                        | prints only the line that contains the word “second.”                                      |
+| `grep -i capital sample.txt`                    | for a case-insensitive search, add the `-i` flag                                           |
+| `grep -R "third line" /home/michael`            | search recursively through a directory<br /> with the `-R`flag                             |
+| `grep -v exam examples.txt`                     | print only the lines that do NOT match<br /> a particular pattern with the `-v` flag       |
+| `grep -w exam examples.txt`                     | match only the whole word “exam”<br /> with the `-w` option                                |
+| `grep -A1 Arsenal premier-league-table.txt`     | print the line containing “Arsenal” along with<br /> the line immediately **following** it |
+| `grep -B1 Arsenal premier-league-table.txt`     | print the line containing “Arsenal” along with<br /> the line immediately **preceding** it |
+| `grep -A1 -B1 Arsenal premier-league-table.txt` | combine both options to display one line<br /> before and one after a matching line        |
+
+<h3 id="io-redirection">IO Redirection</h3>
+
+This section delves into IO redirection in Linux and explain the concept of standard streams
+
+Every Linux command you run is automatically associated with three primary data streams:
+
+- **STDIN**: The standard input stream that accepts text input.
+- **STDOUT**: The standard output stream that displays text output on your screen.
+- **STDERR**: The standard error stream that shows error messages.
+
+Below is an example of displaying the content of a file using the cat command:
+
+```bash
+[~]$ cat sample_text.txt
+This is the file contents
+```
+
+If you attempt to access a file that does not exist, the error message is directed to **STDERR**:
+
+```bash
+[~]$ cat sample_text.txt
+This is the file contents
+cat: sample_text.txt: No such file or directory
+```
+
+#### Redirecting Standard Output and Error
+
+To redirect the standard output to a file instead of the screen, use the forward arrow symbol (`>`).
+
+Use a **single** arrow symbol to **overwrite** the file:
+
+```bash
+[~]$ echo $SHELL > shell.txt
+[~]$ cat shell.txt
+/bin/bash
+```
+
+Use a **double** arrow symbol to **append** to an existing file:
+
+```bash
+[~]$ echo "This is the Bash shell" >> shell.txt
+[~]$ cat shell.txt
+/bin/bash
+This is the Bash shell
+```
+
+To redirect only error messages to a file, prefix the redirection operator with the number `2`. This tells the shell to redirect **STDERR**:
+
+```bash
+[~]$ cat missing_file 2> error.txt
+[~]$ cat error.txt
+cat: missing_file: No such file or directory
+
+# append error msg instead of overwritting
+[~]$ cat missing_file 2>> error.txt
+```
+
+#### Using Pipes to Link Commands
+
+Often, you might want to pass the output of one command directly to another without creating an intermediary file—that’s where piping comes into play.
+
+The pipe operator (|) transfers the standard output from the command on its left to the standard input of the command on its right. For example:
+
+```bash
+command1 | command2
+```
+
+The pipe mechanism allows you to chain multiple commands together, enhancing efficiency and flexibility.
+
+#### The `tee` command
+
+Another valuable tool for managing IO redirection is the tee command. Unlike the redirection operator that sends the output exclusively to a file, tee duplicates the output by writing it both to a file and to the screen simultaneously.
+
+```bash
+[~]$ echo $SHELL | tee shell.txt
+/bin/bash
+[~]$ cat shell.txt
+/bin/bash
+```
+
+To append the output to the file rather than replacing its content, use the `-a` option with tee:
+
+```bash
+[~]$ echo $SHELL | tee -a shell.txt
+```
+
+By mastering these IO redirection techniques, you can efficiently manage command outputs and errors in Linux. Whether saving output to files, suppressing error messages, or chaining commands with pipes, these methods are essential for streamlining your workflow and enhancing your command-line proficiency.
+
+#### Practical exercise
+
+**Task 1**:
+Find the location of the file called dummy.service within the /etc filesystem and redirect its absolute path to the file located at /home/bob/dummy-service.
+
+You can use the redirect operator with the `echo` command to save the answer to the file.
+
+**Answer**:
+Run the command:
+
+```bash
+sudo find /etc -name dummy.service
+```
+
+Next, utilize the `echo` command to save the output from the previous step into a file:
+
+```bash
+echo /etc/systemd/system/dummy.service > /home/bob/dummy-service
+```
+
+**Task 2**:
+Find the file under /etc directory that contains the string 172.16.238.197. Save the answer using the absolute path in the file /home/bob/ip.
+
+**Answer**:
+
+```bash
+sudo grep -ir 172.16.238.197 /etc/ > /home/bob/ip
+```
+
+**Task 3**:
+Read the file /usr/share/man/man1/tail.1.gz and, without extracting it, redirect its contents to a file called /home/bob/pipes.
+
+**Answer**:
+
+```bash
+zcat /usr/share/man/man1/tail.1.gz | tee /home/bob/pipes
+#
+zcat /usr/share/man/man1/tail.1.gz > /home/bob/pipes
+```
+
+<h3 id="vi-editor">VI Editor</h3>
+
+> A guide to using the VI Editor in Linux, covering its modes, commands, and features for efficient text editing and coding.
+
+Explore the power of console-based text editors in Linux with a focus on the VI Editor. While the simple `cat` command is useful for small file operations, its limited functionality makes it impractical for handling extensive text manipulation or coding. This guide will walk you through using VI, one of the most robust editors available by default on nearly every Linux distribution.
+
+#### Getting Started with VI Editor
+
+The VI Editor is a powerful, console-based text editor perfect for editing files and writing code. To open a file for editing, simply invoke VI followed by the file name. For instance, to open a sample file from Michael's home directory, use the following command:
+
+```bash theme={null}
+[$] vi /home/michael/sample.txt
+This is the first line.
+Followed by the second line.
+Third line is very long compared to the previous two lines.
+Hello there!
+hello there!
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+"sample.txt" 5L, 139C
+1,1 All
+```
+
+When you open a file with VI, it starts in Command Mode and displays the file's existing content (if any). VI Editor operates primarily in three modes:
+
+1. **Command Mode** - Execute commands such as copying, pasting, deleting, and navigating.
+2. **Insert Mode** - Edit or add new text.
+3. **Last Line Mode** - Save, quit, or perform other file operations.
+
+#### Opening Files in Command Mode
+
+Every time you start VI, it opens in Command Mode. In this state, only commands are recognized. Navigate through the file using the arrow keys or by pressing `H` (left), `J` (down), `K` (up), and `L` (right). You may also use the mouse to select text.
+
+#### Switching to Insert Mode
+
+To make changes in your file, switch from Command Mode to Insert Mode by pressing lowercase `i`. In Insert Mode, a blinking cursor and the indicator `-- INSERT --` appear at the bottom of the screen, allowing you to add or modify text. Other keys such as `a`, `o`, `I`, `A`, or `O` may also be used to enter Insert Mode based on where you want to position the cursor.
+
+> **Tip:** To exit Insert Mode and return to Command Mode, simply press the `Esc` key.
+
+#### Working with VI Commands
+
+Once back in Command Mode, you can perform a variety of operations:
+
+- **Copying Text:** Place the cursor on a line and press `YY` to copy it. To paste the copied line above the target line, move the cursor appropriately and press `P`.
+
+  ```bash theme={null}
+  This is the first line.
+  Followed by the second line.
+  Third line is very long compared to the previous two lines.
+  Hello there!
+  hello there!
+  ~
+  ~
+  ~
+  "sample.txt" 5L, 139C 1,1 All
+  ```
+
+- **Saving and Deleting:**
+  - Save the file using uppercase `ZZ`.
+  - Delete a character by positioning on it and pressing `X`.
+  - Delete an entire line with `DD`.
+  - For multiple lines, use a command like `D3D` to delete three lines (replace `3` with any number).
+
+  Here's an example of deletion in Command Mode:
+
+  ```bash theme={null}
+  This is the first line.
+  Followed by the second line.
+  Third line is very long compared to the previous two lines.
+  Hello there!
+  hello there!
+  ~
+  ~
+  ~
+  ~
+  ~
+  "sample.txt" 5L, 139C      1,1         All
+  ```
+
+- **Undo and Redo Changes:**
+  - Press `U` to undo an unintended change.
+  - Use `Control-R` to redo a change that was undone.
+
+  ```bash theme={null}
+  This is the first line.
+  Followed by the second line.
+  Third line is very long compared to the previous two lines.
+  Hello there!
+  hello there!
+  ~
+  ~
+  ~
+  ~
+  ~
+  "sample.txt" 5L, 139C  1,1 All
+  ```
+
+#### Searching for Text
+
+VI provides efficient search capabilities. Use slash (`/`) to search downward from the current line or question mark (`?`) to search upward. Typing `/line` will move the cursor to the first occurrence of the search term. Press `n` for the next match downward, or `N` for the previous match upward.
+
+```bash theme={null}
+/line
+This is the first line.
+Followed by the second line.
+Third line is very long compared to the previous two lines.
+Hello there!
+hello there!
+~
+~
+~
+~
+~
+~/line
+```
+
+#### Last Line Mode: Saving and Quitting
+
+Switch to Last Line Mode by pressing colon (`:`) in Command Mode. This mode allows you to execute commands such as saving and quitting:
+
+- Save the changes with `:w`.
+- Quit the editor with `:q`.
+- Save and exit using `:wq`.
+- Force quit without saving using `:q!`.
+
+An example indicating saving changes in Last Line Mode is shown below:
+
+```bash theme={null}
+This is the first line.
+Followed by the second line.
+Third line is very long compared to the previous two lines.
+Hello there!
+hello there!
+I made some changes to this file.
+~
+~
+~
+~
+~
+:W
+```
+
+#### Enhancing VI with VIM
+
+VIM ("VI Improved") builds upon the core features of VI by providing additional enhancements such as autocomplete, spell checking, plugins, and syntax highlighting. Often, the `vi` command on modern Linux distributions is actually a symbolic link to VIM (for example, `/usr/bin/vim.basic`).
+
+To see the differences between VI and VIM, open a file in VIM and type `:h vi-differences` to view detailed comparisons.
+
+```bash theme={null}
+This is the first line.
+Followed by the second line.
+Third line is very long compared to the previous two lines.
+Hello there!
+hello there!
+I made some changes to this file.
+~
+~
+~
+~
+~
+~
+~
+?
+:w
+```
+
+![The image describes VIM as "VI Improved," highlighting features like completion, spell check, plugins, syntax highlighting, and more, with a "KodeKloud" logo.](https://kodekloud.com/kk-media/image/upload/v1752881161/notes-assets/images/Learning-Linux-Basics-Course-Labs-VI-Editor/frame_440.jpg)
+
+> **Tip:** For more detailed information on command usage and advanced features, refer to the [VIM documentation](https://www.vim.org/docs.php) or use the built-in help command within VIM.
+
+#### Practice Makes Perfect
+
+Now that you have a solid understanding of the VI Editor's modes and commands, it's time to practice. Experiment with switching between modes, executing commands, and utilizing VI's extensive feature set to streamline your text editing and coding workflow.
+
+![The image shows a text editor in "Insert Mode" with instructions for switching between modes using specific keys.](https://kodekloud.com/kk-media/image/upload/v1752881162/notes-assets/images/Learning-Linux-Basics-Course-Labs-VI-Editor/frame_350.jpg)

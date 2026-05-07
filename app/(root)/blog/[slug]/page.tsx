@@ -208,7 +208,7 @@ export default async function BlogPostPage({ params }: Props) {
       className="min-h-screen bg-(--surface-light) text-(--ink)"
     >
       <div className="mx-auto w-full max-w-6xl px-5 pt-24 pb-20 md:px-6 md:pt-36 md:pb-24 lg:px-8">
-        <div className="grid grid-cols-1 gap-10 md:gap-14 xl:grid-cols-[minmax(0,1fr)_17rem]">
+        <div className="grid grid-cols-1 gap-10 md:gap-14 xl:grid-cols-[minmax(0,1fr)_21rem]">
           <article className="min-w-0 xl:max-w-3xl">
             <BlogArticleHeader
               frontmatter={post.frontmatter}
@@ -292,11 +292,13 @@ export default async function BlogPostPage({ params }: Props) {
 
           {tocItems.length > 0 ? (
             <aside className="hidden xl:block">
-              <div className="sticky top-28 rounded-2xl border border-(--hairline-light) bg-white/70 p-5">
+              <div className="sticky top-28 flex max-h-[calc(100vh-8rem)] flex-col rounded-2xl border border-(--hairline-light) bg-white/70 p-6">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-(--ink-subtle)">
                   On this page
                 </p>
-                <BlogToc items={tocItems} />
+                <div className="min-h-0 overflow-y-auto pr-1">
+                  <BlogToc items={tocItems} />
+                </div>
               </div>
             </aside>
           ) : null}
