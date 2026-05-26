@@ -1,0 +1,371 @@
+---
+title: "The OSI Model and Networking Protocols Explained"
+date: "2026-05-25"
+description: "A layer-by-layer breakdown of the OSI model and the protocols that live inside it, with analogies that make the relationships between HTTP, DNS, TCP, IP, and more actually stick."
+tags:
+  - Networking
+  - Concepts
+draft: false
+notesFromKodeKloud: true
+---
+
+<h2 id="introduction">Introduction</h2>
+
+When I started studying networking seriously, I ran into a familiar problem. I could name protocols. I knew what HTTP was. I had used SSH a hundred times. But I could not explain _why_ those protocols existed or how they related to each other.
+
+The OSI model fixed that. It gave me a map.
+
+Once I understood which layer a protocol lived in, I understood its primary job. More importantly, I understood what it was _not_ responsible for. That distinction is what makes network troubleshooting coherent instead of random.
+
+This article walks through the OSI model and the protocols inside it, layer by layer, in the order that matters most for DevOps and infrastructure work.
+
+<h2 id="what-is-the-osi-model">What Is the OSI Model?</h2>
+
+The OSI Model (Open Systems Interconnection) is a conceptual framework that explains how data travels from one computer to another over a network.
+
+Think of it like a seven-story apartment building:
+
+- Each floor (layer) has a specific job.
+- The top floor is closest to the human user.
+- The bottom floor is closest to the physical cables and wires.
+
+When you send data, it travels **down** through the floors on your machine, crosses the network, and then travels **back up** through the floors on the receiving machine.
+
+Each layer only talks to the layer directly above or below it. Layer 4 does not need to know how Layer 1 physically moves bits; it only needs to know what Layer 3 delivers to it.
+
+| Layer | Name         | Primary Responsibility                    |
+| ----- | ------------ | ----------------------------------------- |
+| 7     | Application  | User-facing protocols (HTTP, DNS, SSH...) |
+| 6     | Presentation | Data format, encryption, compression      |
+| 5     | Session      | Opening and maintaining connections       |
+| 4     | Transport    | End-to-end delivery (TCP, UDP)            |
+| 3     | Network      | Routing and addressing (IP, ICMP)         |
+| 2     | Data Link    | Node-to-node transfer (Ethernet, MAC)     |
+| 1     | Physical     | Raw bits over cables or radio waves       |
+
+For day-to-day DevOps work, Layers 3, 4, and 7 come up most often. That is where the protocols you interact with every day actually live.
+
+<h2 id="application-layer">The Application Layer (Layer 7)</h2>
+
+This is the top floor. It interacts directly with the software you use: web browsers, email clients, terminal sessions, and IoT dashboards. Protocols at this layer are concerned with what the data _means_ to the application, not how it gets there.
+
+### HTTP and HTTPS
+
+**What they do:** Transfer web page data between browsers and servers. HTTPS wraps the exchange in TLS encryption.
+
+**Standard ports:** Port 80 (HTTP) / Port 443 (HTTPS)
+
+> **Analogy:** A waiter bringing food from the kitchen to your table. HTTP is the waiter. HTTPS is the waiter carrying the food inside a sealed, tamper-proof container.
+
+You will encounter these constantly, not only in browser traffic but in API calls, health check endpoints, webhook payloads, and container registries.
+
+---
+
+### DNS (Domain Name System)
+
+**What it does:** Translates human-readable names like `google.com` into numeric IP addresses that machines can route to.
+
+**Standard port:** Port 53
+
+> **Analogy:** Your phone's contacts app. You search for "Joan" and it finds the number for you. DNS finds the IP for a hostname.
+
+DNS is what makes every `curl`, `ping`, and browser request work without you having to memorize IP addresses. When something breaks and you cannot reach a host by name but _can_ reach it by IP, you have a DNS problem.
+
+---
+
+### FTP (File Transfer Protocol)
+
+**What it does:** Moves files between a client computer and a file server.
+
+**Standard ports:** Port 20 (data transfer) / Port 21 (command control)
+
+> **Analogy:** A shipping container service for bulk cargo. Reliable, purpose-built for moving large volumes, but not designed for interactive work.
+
+FTP is older and unencrypted. In modern environments it is largely replaced by SFTP (which runs over SSH) or object storage APIs. You will still find it in legacy infrastructure.
+
+---
+
+### SSH (Secure Shell)
+
+**What it does:** Creates a secure, encrypted connection to remotely manage servers. Everything sent over the connection (commands, output, and credentials) is encrypted.
+
+**Standard port:** Port 22
+
+> **Analogy:** An armored tunnel that lets you control a computer anywhere in the world. Nobody can see what passes through the tunnel.
+
+SSH is arguably the single most important protocol for DevOps work. Nearly every remote server interaction, from Ansible connections to Git operations over SSH to manual troubleshooting, uses it. Understanding port 22, key-based authentication, and `sshd_config` pays off immediately.
+
+---
+
+### SMTP (Simple Mail Transfer Protocol)
+
+**What it does:** Handles the sending and forwarding of emails between mail servers.
+
+**Standard ports:** Port 25 (server-to-server) / Port 587 (client submission, secure)
+
+> **Analogy:** The public post box where you drop off outgoing letters. SMTP is responsible for getting them to the right destination post office.
+
+In infrastructure work, SMTP comes up when configuring alerts and notifications: Prometheus Alertmanager, Grafana alerts, and application error emails all need to relay outbound mail through an SMTP server.
+
+---
+
+### IMAP (Internet Message Access Protocol)
+
+**What it does:** Retrieves email from a mail server and keeps messages synced across multiple devices. A copy stays on the server.
+
+**Standard ports:** Port 143 / Port 993 (encrypted)
+
+> **Analogy:** Viewing a photo gallery stored safely on a cloud service. The photos stay in the cloud and are accessible from any device.
+
+IMAP is the protocol behind every modern email client that syncs your inbox across phone, laptop, and web browser.
+
+---
+
+### POP3 (Post Office Protocol 3)
+
+**What it does:** Downloads emails to a single device and deletes them from the server.
+
+**Standard ports:** Port 110 / Port 995 (encrypted)
+
+> **Analogy:** Post delivered to your physical mailbox. Once you bring it inside, it is gone from the box. Nothing is kept in the cloud.
+
+POP3 is the older, simpler alternative to IMAP. It does not support multi-device sync by design. Once the message is downloaded, the server copy is removed.
+
+---
+
+### MQTT (Message Queuing Telemetry Transport)
+
+**What it does:** A lightweight publish-subscribe messaging protocol designed for resource-constrained IoT devices on low-bandwidth connections.
+
+**Standard ports:** Port 1883 / Port 8883 (encrypted)
+
+> **Analogy:** Sending a quick text message instead of making a video call. Minimal overhead, just enough to carry the signal.
+
+MQTT is built for sensors, microcontrollers, and embedded systems that cannot afford the overhead of HTTP. It uses a broker model: devices publish messages to topics, and subscribers receive them. It is common in home automation, industrial monitoring, and connected-device pipelines.
+
+---
+
+### NTP (Network Time Protocol)
+
+**What it does:** Synchronizes the internal clocks of all computers on a network to a shared time reference.
+
+**Standard port:** Port 123
+
+> **Analogy:** An orchestra conductor keeping every musician perfectly on beat. If one musician falls out of sync, the performance breaks down.
+
+Clock synchronization sounds mundane until something goes wrong. TLS certificate validation fails if clocks are out of sync. Distributed logs become impossible to correlate. Kubernetes node scheduling, database transactions, and authentication tokens all depend on accurate, consistent time.
+
+<h2 id="presentation-layer">The Presentation Layer (Layer 6)</h2>
+
+This layer translates data into a format the Application layer can understand. It handles encryption, decryption, compression, and file formatting. Think of it as the translator that sits between the network and the application: data arriving from Layer 5 may be compressed or encrypted, and this layer is responsible for converting it into something Layer 7 can actually use.
+
+### TLS / SSL (Transport Layer Security / Secure Sockets Layer)
+
+**What they do:** Encrypt data in transit to keep it private and protect it from tampering. TLS is the modern successor to SSL; SSL itself is deprecated, but the name persists in everyday usage.
+
+**Standard port:** None directly. TLS wraps other protocols, so the port belongs to the application protocol on top (port 443 for HTTPS, port 993 for IMAPS, and so on).
+
+> **Analogy:** A spy code that scrambles a letter before it is sent and decodes it only upon arrival at the intended recipient.
+
+TLS touches nearly everything in DevOps: HTTPS traffic, database connections, inter-service communication in Kubernetes, and certificate management. Understanding how TLS handshakes work, how to inspect certificates with `openssl s_client`, and how to manage certificate expiry is routine infrastructure work.
+
+---
+
+### JPEG / MPEG / GIF
+
+**What they do:** Define how images and video are compressed so they can travel across a network efficiently. These are encoding standards that live at the Presentation layer because they transform the format of data before it reaches the application.
+
+**Standard port:** None. These are data formats, not network protocols with dedicated ports.
+
+> **Analogy:** Vacuum-sealing a foam mattress into a compact bag to make it easier to ship. The mattress is still there; it just takes up far less space in transit.
+
+These formats are less directly relevant to infrastructure work, but they matter when configuring CDN caching rules, image optimization pipelines, and media delivery services.
+
+<h2 id="session-layer">The Session Layer (Layer 5)</h2>
+
+This layer sets up, manages, and terminates connections (sessions) between two devices. Where the Transport layer ensures packets arrive, the Session layer ensures the conversation itself is coordinated: who speaks first, how long the session stays open, and how it closes cleanly.
+
+### NetBIOS (Network Basic Input/Output System)
+
+**What it does:** Allows applications on separate computers to communicate over a local network by providing session establishment and name resolution services.
+
+**Standard ports:** Port 137 (name service) / Port 138 (datagram service) / Port 139 (session service)
+
+> **Analogy:** A receptionist who opens a phone line between two offices, keeps it active for the duration of the conversation, and hangs up only when both parties are finished.
+
+NetBIOS is largely a legacy protocol associated with Windows networking. It underpins older SMB (file sharing) implementations and Windows name resolution. You will encounter it when working in on-premises environments, Active Directory setups, or when troubleshooting Windows file share connectivity.
+
+<h2 id="transport-layer">The Transport Layer (Layer 4)</h2>
+
+This layer is responsible for end-to-end delivery. It ensures that data gets from the sending application to the receiving application reliably (TCP) or as fast as possible without a guaranteed handshake (UDP). Ports live here: TCP port 443, UDP port 53, and so on.
+
+### TCP (Transmission Control Protocol)
+
+**What it does:** Establishes a reliable, ordered connection between two hosts using a three-way handshake (SYN, SYN-ACK, ACK). Every segment is acknowledged; missing segments are retransmitted.
+
+**Standard port:** None directly. TCP is the carrier; the port number belongs to the application protocol running over it (HTTP on port 80, SSH on port 22, and so on).
+
+> **Analogy:** Registered mail that requires a signature on delivery. If the parcel goes missing, it is tracked down and resent.
+
+HTTP, HTTPS, SSH, and SMTP all run over TCP because they require guaranteed delivery. Understanding TCP connection states (SYN_SENT, ESTABLISHED, TIME_WAIT, CLOSE_WAIT) is useful when diagnosing why connections are hanging or ports appear unavailable.
+
+---
+
+### UDP (User Datagram Protocol)
+
+**What it does:** Sends data immediately without establishing a connection or confirming receipt. There is no handshake, no acknowledgement, and no retransmission. Speed is the priority.
+
+**Standard port:** None directly. Like TCP, the port belongs to the application protocol (DNS on port 53, NTP on port 123, and so on).
+
+> **Analogy:** Throwing newspapers onto front lawns from a moving bike. Fast and efficient, but no guarantee every paper lands on the right doorstep.
+
+DNS queries, NTP synchronization, and real-time media streaming all use UDP. When low latency matters more than perfect delivery, UDP is the right choice. Any reliability logic required is handled by the application layer above it.
+
+---
+
+### BGP (Border Gateway Protocol)
+
+**What it does:** Enables internet service providers and large autonomous networks to exchange routing information. BGP is how the global internet agrees on the best path between networks.
+
+**Standard port:** Port 179 (runs over TCP to ensure its routing updates are delivered reliably)
+
+> **Analogy:** Global air traffic control. Every country has its own airspace, and BGP is the international coordination system that routes both planes and packets through the best available paths.
+
+BGP is the protocol that holds the internet together. It is less relevant for day-to-day application work but becomes important in multi-cloud networking, VPN configuration with cloud providers, and any infrastructure that spans autonomous systems.
+
+<h2 id="network-layer">The Network Layer (Layer 3)</h2>
+
+This layer handles addressing and routing. It determines _which physical path_ data should take across networks. IP addresses live here. This is also where routers operate; they forward packets based on Layer 3 addresses.
+
+### IP (Internet Protocol)
+
+**What it does:** Formats data into packets and routes them across networks using IP addresses. Every device on a network has a unique IP address, either IPv4 (like `192.168.1.10`) or IPv6.
+
+**Standard port:** None. IP operates below the concept of ports.
+
+> **Analogy:** The addressing rules for postal envelopes. Every envelope must have a valid destination address. Without those rules, the postal system cannot function.
+
+IP is foundational. Every other protocol in this article relies on IP to move its data from source to destination. Understanding CIDR notation, subnets, and the difference between private and public IP ranges is essential for any infrastructure work.
+
+---
+
+### DHCP (Dynamic Host Configuration Protocol)
+
+**What it does:** Automatically assigns IP addresses, subnet masks, default gateways, and DNS servers to devices when they join a network.
+
+**Standard ports:** Port 67 (server) / Port 68 (client)
+
+> **Analogy:** A hotel reception desk handing you a room key when you check in. You do not pick your own room; the clerk assigns one from what is available.
+
+Without DHCP, every device on a network would need its IP configured manually. In DevOps environments, understanding DHCP versus static addressing matters for VM provisioning, container networking, and diagnosing why a newly joined host is unreachable.
+
+---
+
+### ICMP (Internet Control Message Protocol)
+
+**What it does:** Sends diagnostic messages and error reports between network devices. It is the protocol behind the `ping` command, and it is how routers report unreachable hosts or exceeded time-to-live values.
+
+**Standard port:** None. ICMP uses protocol numbers rather than port numbers.
+
+> **Analogy:** The dashboard warning lights in a car. When something fails (engine, oil, battery), the dashboard reports it. ICMP is how the network reports its own failures.
+
+`ping` and `traceroute` both use ICMP. When you run `ping 8.8.8.8`, you are sending an ICMP echo request and waiting for an echo reply. When a router cannot forward a packet, it sends an ICMP "destination unreachable" message back. Knowing how to read those responses is a core troubleshooting skill.
+
+<h2 id="data-link-layer">The Data Link Layer (Layer 2)</h2>
+
+This layer prepares packets for the physical wire or radio signal. It wraps IP packets into frames, assigns hardware MAC addresses for local delivery, and detects transmission errors. Where Layer 3 handles routing between networks, Layer 2 handles delivery within a single network segment.
+
+### Ethernet
+
+**What it does:** The standard protocol for wired local area networks. It governs how data frames are structured, transmitted, and addressed using MAC addresses over physical cables.
+
+**Standard port:** None. Ethernet operates below the concept of ports.
+
+> **Analogy:** The internal mailroom of an office building. It routes letters between desks on the same floor, not between buildings.
+
+Ethernet is what connects servers in a data centre rack to the top-of-rack switch. Understanding MAC addresses, VLANs, and Ethernet frame structure becomes relevant when configuring virtual network interfaces in hypervisors, debugging ARP tables, or troubleshooting connectivity inside a subnet.
+
+---
+
+### Wi-Fi (802.11)
+
+**What it does:** The protocol standard for wireless local area networks. It handles how devices communicate over radio frequencies without a physical cable.
+
+**Standard port:** None. Wi-Fi operates at Layer 2.
+
+> **Analogy:** A walkie-talkie system that lets people in the same building communicate freely without needing wires between them.
+
+Servers in production environments are almost always wired, so Wi-Fi is less directly relevant to core infrastructure work. It matters when managing developer workstations, IoT edge devices, or any environment where wireless client connectivity is part of the infrastructure.
+
+<h2 id="physical-layer">The Physical Layer (Layer 1)</h2>
+
+This is the ground floor. It handles the actual physical equipment and signals: electrical voltages on copper wire, light pulses in fiber-optic cables, or radio waves in wireless transmission. Everything above this layer depends on it moving raw binary data (1s and 0s) reliably between devices.
+
+### USB / Bluetooth / DSL
+
+**What they do:** Physical layer standards that specify how hardware connectors, copper wire, fiber-optic glass, and radio frequencies must behave to transmit bits from one point to another.
+
+**Standard port:** None. Physical layer standards operate below all port and address concepts.
+
+> **Analogy:** The copper inside a telephone wire or the glass fibers inside a fiber-optic cable. The signal is the message; the physical medium is simply the carrier.
+
+The Physical layer is rarely touched directly in software-focused DevOps work. It becomes relevant when designing physical network infrastructure, diagnosing cable faults, understanding bandwidth ceilings, or working with hardware provisioning in bare-metal environments.
+
+<h2 id="putting-it-together">Putting It Together</h2>
+
+Here is what a single browser request to `https://example.com` actually involves, mapped across all seven layers:
+
+1. **Layer 7 (DNS):** Your browser resolves `example.com` to an IP address via DNS on port 53.
+2. **Layer 7 (HTTPS):** Your browser prepares an HTTP request for the resolved address.
+3. **Layer 6 (TLS):** The HTTP request is encrypted using TLS before it leaves your machine. The server's certificate is verified.
+4. **Layer 5 (Session):** A session is established and maintained between your browser and the server for the duration of the connection.
+5. **Layer 4 (TCP):** The encrypted data is broken into numbered segments. TCP guarantees they all arrive at port 443 in the correct order, retransmitting any that go missing.
+6. **Layer 3 (IP):** Each segment is wrapped in an IP packet addressed to the destination IP. Routers forward the packets hop by hop along the path. If any hop fails, ICMP reports the error.
+7. **Layer 2 (Ethernet/Wi-Fi):** On each local network segment, frames are addressed using MAC addresses and delivered to the next hop.
+8. **Layer 1 (Physical):** Electrical signals, light pulses, or radio waves carry the raw bits across cables and wireless links.
+
+The return path is the reverse: the server's response travels down through its layers, crosses the network, and travels back up through your layers until the page renders.
+
+Every one of those steps is a distinct protocol, a distinct layer, a distinct job. Nothing above Layer 3 knows or cares how the physical bits moved. Nothing below Layer 7 knows or cares that the payload is HTML.
+
+That separation is what makes the model useful. When you are troubleshooting, it tells you exactly where to look.
+
+<h2 id="quick-reference">Quick Reference</h2>
+
+| Protocol              | Layer | Port(s)             | Primary Job                                  |
+| --------------------- | ----- | ------------------- | -------------------------------------------- |
+| HTTP                  | 7     | 80                  | Web page transfer                            |
+| HTTPS                 | 7     | 443                 | Encrypted web page transfer                  |
+| DNS                   | 7     | 53                  | Name to IP resolution                        |
+| FTP                   | 7     | 20, 21              | File transfer                                |
+| SSH                   | 7     | 22                  | Secure remote shell                          |
+| SMTP                  | 7     | 25, 587             | Sending email                                |
+| IMAP                  | 7     | 143, 993            | Email retrieval (synced)                     |
+| POP3                  | 7     | 110, 995            | Email retrieval (downloaded)                 |
+| MQTT                  | 7     | 1883, 8883          | Lightweight IoT messaging                    |
+| NTP                   | 7     | 123                 | Clock synchronization                        |
+| TLS / SSL             | 6     | None (wraps others) | Data encryption in transit                   |
+| JPEG / MPEG / GIF     | 6     | None                | Media compression and encoding               |
+| NetBIOS               | 5     | 137, 138, 139       | Local network session management             |
+| TCP                   | 4     | None (carrier)      | Reliable, ordered data delivery              |
+| UDP                   | 4     | None (carrier)      | Fast, connectionless data delivery           |
+| BGP                   | 4     | 179                 | Inter-network routing exchange               |
+| IP                    | 3     | None                | Packet addressing and routing                |
+| DHCP                  | 3     | 67, 68              | Dynamic IP address assignment                |
+| ICMP                  | 3     | None (protocol #1)  | Network diagnostics and error reporting      |
+| Ethernet              | 2     | None                | Wired local network framing (MAC addressing) |
+| Wi-Fi (802.11)        | 2     | None                | Wireless local network communication         |
+| USB / Bluetooth / DSL | 1     | None                | Physical signal transmission                 |
+
+<h2 id="final-reflection">Final Reflection</h2>
+
+Protocols stopped feeling like a memorization exercise once I had the OSI model as a reference frame. Each protocol has a _reason_ it lives at a particular layer. HTTP does not handle routing. IP does not handle encryption. ICMP does not transfer files. Each layer stays in its lane.
+
+For DevOps and infrastructure work, the practical takeaways are:
+
+- If a host is unreachable by name but reachable by IP, start at **DNS (Layer 7)**.
+- If a host is reachable by IP but a specific service is not responding, check **ports (Layer 4)** and the application protocol.
+- If packets are not routing correctly between networks, look at **IP routes and ICMP (Layer 3)**.
+- If time-sensitive systems (certificates, logs, auth tokens) are behaving strangely, verify **NTP**.
+
+The model does not tell you how to fix problems. It tells you where to look. That is more useful.

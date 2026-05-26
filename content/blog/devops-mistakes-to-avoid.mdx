@@ -1,0 +1,127 @@
+---
+title: "DevOps: 8 Mistakes to Avoid"
+date: "2026-05-22"
+description: "Common mistakes that slow down DevOps and cloud learners, and what to do instead. Written from experience, not from a textbook."
+tags:
+  - DevOps
+  - Concepts
+draft: true
+---
+
+I am a few months into a deliberate transition into DevOps. Before that, I spent years as a developer and project coordinator, working close to delivery without ever fully owning the infrastructure layer underneath it. What I've learned since starting this journey, through a structured course, building real projects, and documenting everything publicly, is that the path itself is full of traps that are easy to fall into and hard to notice until you're already stuck.
+
+These are the eight mistakes I've either made myself, come close to making, or watched others make. I'm writing this as a reference for anyone starting out, and as a reminder to myself as I keep going.
+
+---
+
+## Mistake 1: Focusing on tools instead of concepts
+
+The DevOps ecosystem is full of tools. New ones appear constantly, and there's always a tutorial telling you that learning the next popular one will make you hireable. The problem is that tools come and go. Concepts stay.
+
+You cannot learn every tool. And trying to chase them will keep you perpetually behind. What actually makes you effective, and employable, is understanding the concepts underneath the tools deeply enough that picking up a new tool is a matter of learning syntax, not rebuilding your mental model.
+
+Take CI/CD as an example. If you understand what a pipeline is, what stages and jobs do, how artifacts flow through the build process, how secrets are managed, and how to integrate with Docker registries, Kubernetes, or cloud providers, you can work with Jenkins, GitHub Actions, GitLab CI, or CircleCI. The interface changes. The problem being solved doesn't.
+
+The same applies to Infrastructure as Code. If you only know Terraform syntax, you're in trouble the moment a new employer uses Pulumi or CDK. But if you understand declarative infrastructure, state management, and idempotency, you can pick up any IaC tool. The concepts transfer. The syntax is just documentation.
+
+This extends to cloud providers too. AWS, Azure, and Google Cloud solve the same categories of problems. Storage is storage. Networking is networking. IAM is IAM. The buttons are named differently and the services have different branding, but if you understand what problem a service category is solving, you're never starting from scratch.
+
+Stop chasing tools and start understanding why they exist. That's what lets you have architectural discussions, make informed decisions, and adapt when the landscape shifts, which it always does.
+
+---
+
+## Mistake 2: Learning DevOps tools in isolation
+
+Knowing a list of tools is not the same as knowing how to use them together. This is one of the most common gaps I see in how DevOps is taught, and one of the most costly in practice.
+
+Companies don't need someone who knows Docker, and separately knows Terraform, and separately knows Kubernetes. They need someone who can build an end-to-end CI/CD pipeline that containerises an application, deploys it to a Kubernetes cluster, provisions the underlying infrastructure with Terraform, and includes proper monitoring. They need someone who can connect the dots.
+
+Every time you learn a new concept or tool, integrate it immediately with what you already know.
+
+Don't just learn Docker: build a containerised application and deploy it through a CI/CD pipeline. Don't just learn Terraform: use it to provision infrastructure on AWS, then deploy a Kubernetes cluster on top of that infrastructure. Don't just learn Prometheus: integrate it with a real application running in a real environment.
+
+The integrations are where the real learning happens. Individual tools are straightforward. Making them work together, handling the failures that come with that, and understanding why each piece is there. That's the skill.
+
+---
+
+## Mistake 3: Not doing projects, or starting too late
+
+Courses and tutorials have their place. But there's a pattern that wastes months: finishing one course, starting another, building nothing, and wondering why nothing sticks.
+
+Theory without practice is almost useless in DevOps. You can watch every video about Kubernetes networking and still be unable to debug a failing pod in a real cluster. The knowledge only becomes durable when you've had to apply it under some kind of real constraint: a project that doesn't have a pre-configured answer waiting for you.
+
+Start building projects as early as possible. Not after you finish learning everything. There is no "after you finish learning everything." You will always feel like you need to know more before you're ready to build. That feeling is not a signal to wait. It's a signal to start.
+
+Building things is how confidence develops. It's also how you accumulate the specific, concrete examples that make a portfolio credible and a technical interview conversation worth having. "I built X, ran into Y, and solved it by doing Z" is a different quality of answer than "I completed a course on X."
+
+---
+
+## Mistake 4: Chasing certifications as the primary strategy
+
+Certifications have real value. They can help you get through HR filters, validate that your knowledge meets a recognised standard, and signal commitment to learning. Some certifications are genuinely rigorous and require real problem-solving ability to pass.
+
+But a certification without hands-on skills is almost useless in practice. Companies care more about what you've built and what you can explain than what letters are on your CV. Treating certifications as the end goal, rather than as validation of skills you've already built, will keep you in a tutorial loop without ever developing real capability.
+
+The strategy that actually works: build projects first. Get hands-on experience. Then get certified as a way of formalising what you already know.
+
+What opens doors in interviews isn't the certification. It's the ability to have a technical discussion about how systems work together, to explain architectural decisions from projects you've personally built, and to answer questions grounded in real experience rather than exam preparation. The certification might get you the interview. What you've built is what gets you the job.
+
+---
+
+## Mistake 5: Being cheap with your education
+
+This one comes with nuance, but it's worth saying clearly: free resources are not always free. You pay either with money or with time, and time has a cost.
+
+There is genuinely excellent free content available. But free resources are typically scattered, inconsistent in quality, and missing the support structures, such as community, feedback, and structured progression, that help you learn faster and get unstuck when things go wrong. Piecing together a learning path from blog posts, YouTube videos, and documentation takes significantly longer than following a well-designed structured program.
+
+DevOps and cloud are premium skills. They increase your value regardless of your engineering background, and they command higher compensation at every level. The income difference between getting there in six months versus eighteen months is not small.
+
+If you can invest in quality education, do it. Structured programs are the most efficient path to your goal. Count the real cost of free: the time spent navigating scattered resources, the confidence delayed, the income not yet earned.
+
+---
+
+## Mistake 6: Learning only in sandbox environments
+
+Pre-configured lab environments are useful for getting started. But staying in them too long creates a false sense of readiness.
+
+Sandbox environments remove friction by design. The dependencies are already installed, the networking is pre-configured, the permissions are set up, and the failure modes are constrained. You follow the lab steps, things work, and you move on. What you don't build is the experience of setting up an environment from scratch, making decisions about configuration without being guided, or troubleshooting failures that weren't planned by whoever designed the exercise.
+
+Real environments are messier. A server that doesn't have the expected packages installed. A network configuration that doesn't match the tutorial. A permission error that happens because the service account wasn't set up correctly. These are the situations where real DevOps engineering happens, and sandbox environments never adequately prepare you for them.
+
+The solution is to supplement structured labs with environments you build yourself. Set up your own Linux VM. Configure your own networking. Install and manage your own services. Break things and fix them without a guided answer. The friction is the point.
+
+---
+
+## Mistake 7: Following a roadmap without context
+
+Most DevOps learning roadmaps tell you what to learn. Very few tell you how deeply to learn it, why you need it, when to use it, how it fits with everything else, or where the best place to learn it actually is.
+
+"Learn Kubernetes" as a roadmap item is nearly useless without context. Which parts of Kubernetes? Pods, services, and deployments are foundational. How Kubernetes networking works is essential for anyone deploying real applications. How to integrate Kubernetes with a CI/CD pipeline is what makes the knowledge practically applicable. How to add monitoring is what makes a deployment production-ready. These are four meaningfully different layers of the same topic, and a bullet point on a roadmap treats them all the same.
+
+A useful roadmap doesn't give you a list. It gives you a journey with clear milestones and a destination. It tells you what minimum viable understanding looks like at each stage, what you should be able to build before moving on, and how each piece connects to the wider system.
+
+When using a roadmap, treat it as a map rather than a checklist. Ask, for every item: why does this exist? What problem does it solve? What does it connect to? What does good understanding look like here before I move on? Those questions turn a list into a learning path.
+
+---
+
+## Mistake 8: Ignoring the importance of being visible
+
+Building skills in private is necessary. Building skills in public is what makes those skills visible to the people who can give you opportunities.
+
+Visibility doesn't require becoming a full-time content creator or posting daily. It requires consistently sharing what you're working on at a scale that feels manageable. A LinkedIn post about something you implemented. A blog article about a concept you had to work to understand. A portfolio that shows what you've built.
+
+There's a resistance to this that I understand. Self-promotion can feel performative, or like you're overclaiming expertise you don't fully have yet. But sharing what you're learning is not bragging. It's teaching, indirectly. Someone else is working through the same problem right now. Your imperfect, in-progress understanding is more useful to them than silence.
+
+What visibility actually does: it builds a body of evidence that recruiters and hiring managers can find. It differentiates you from candidates with similar technical backgrounds. It creates proof of your skills that exists independently of your CV. And it builds the communication habit that good DevOps engineers need: the ability to explain what you're doing and why to people who weren't in the room when you made the decision.
+
+---
+
+## Conclusion
+
+Most of these mistakes share a root cause: optimising for the appearance of progress rather than the substance of it. Collecting tool knowledge, accumulating certifications, finishing courses: these feel like forward motion, but they can substitute for the harder work of building real understanding, real projects, and a real track record.
+
+The framework that avoids most of these mistakes is simple, even if it isn't easy:
+
+Choose a structured, comprehensive program that teaches concepts alongside tools and shows you how they connect. Build projects throughout, not after. Get certified strategically: skills first, then validation. And share the journey publicly, at whatever scale you can sustain.
+
+The goal isn't to learn DevOps. It's to become someone who can do the work. Those are different targets, and which one you're aiming at determines almost everything about how you approach the learning.

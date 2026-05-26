@@ -1003,7 +1003,7 @@ cat: missing_file: No such file or directory
 
 #### Using Pipes to Link Commands
 
-Often, you might want to pass the output of one command directly to another without creating an intermediary file—that’s where piping comes into play.
+Often, you might want to pass the output of one command directly to another without creating an intermediary file, that’s where piping comes into play.
 
 The pipe operator (|) transfers the standard output from the command on its left to the standard input of the command on its right. For example:
 
@@ -1256,3 +1256,1059 @@ I made some changes to this file.
 Now that you have a solid understanding of the VI Editor's modes and commands, it's time to practice. Experiment with switching between modes, executing commands, and utilizing VI's extensive feature set to streamline your text editing and coding workflow.
 
 ![The image shows a text editor in "Insert Mode" with instructions for switching between modes using specific keys.](https://kodekloud.com/kk-media/image/upload/v1752881162/notes-assets/images/Learning-Linux-Basics-Course-Labs-VI-Editor/frame_350.jpg)
+
+<h2 id="networking">Networking</h2>
+
+### DNS
+
+#### The old way
+
+Imagine two computers on the same network, Computer A and Computer B, with IP addresses 192.168.1.10 and 192.168.1.11 respectively. To test connectivity, you can run a ping command using the IP address:
+
+```bash
+[~]$ ping 192.168.1.11
+Reply from 192.168.1.11: bytes=32 time=4ms TTL=117
+Reply from 192.168.1.11: bytes=32 time=4ms TTL=117
+```
+
+Suppose system B provides database services. Instead of remembering its IP address, you decide to assign it an alias (e.g., db). Initially, if you ping “db”, Computer A will not recognize the name. To resolve this, append an entry in system A’s `/etc/hosts` file mapping the IP address to the alias:
+
+```bash
+[~]$ cat >> /etc/hosts
+192.168.1.11 db
+```
+
+After adding the entry, the ping command uses the mapping from the hosts file:
+
+```bash
+[~]$ ping db
+PING db (192.168.1.11) 56(84) bytes of data.
+64 bytes from db (192.168.1.11): icmp_seq=1 ttl=64 time=0.052 ms
+64 bytes from db (192.168.1.11): icmp_seq=2 ttl=64 time=0.079 ms
+```
+
+Remember, the local `/etc/hosts` file is the definitive source of hostname-to-IP mappings for that system. The system does not verify whether system B’s actual hostname matches the alias you defined
+
+Every command, whether `ping`, `ssh`, or curl`first checks the local`/etc/hosts` file for IP address mappings. This process of translating a hostname to an IP address is known as **name resolution**.
+
+#### Transitioning to Centralized DNS
+
+In larger networks, managing host entries with individual `/etc/hosts` files becomes impractical, especially when IP addresses change frequently
+
+With a DNS server in place, all hosts are configured to query a single point for hostname resolution rather than relying solely on local files.
+
+To have all systems use the centralized DNS server (assumed to be at 192.168.1.100), update each system’s `/etc/resolv.conf` file:
+
+```bash
+[~]$ cat /etc/resolv.conf
+nameserver 192.168.1.100
+```
+
+Once set, if a hostname cannot be resolved locally, the system forwards the request to the DNS server.
+
+Local /etc/hosts entries remain effective for names that do not need to be shared network-wide. They take precedence over DNS records as configured in `/etc/nsswitch.conf`
+
+```bash
+[~]$ cat /etc/nsswitch.conf
+...
+hosts:          files dns
+...
+```
+
+If a hostname is not defined locally or on the DNS server, resolution will fail:
+
+```bash
+[~]$ ping www.facebook.com
+ping: www.facebook.com: Temporary failure in name resolution
+```
+
+To resolve external domains, you can set your internal DNS server to forward queries to a public nameserver such as Google’s 8.8.8.8, or adjust your system configuration accordingly.
+
+#### Public DNS Resolution and Domain Hierarchy
+
+When pinging external sites like www.facebook.com, you’ll notice the inclusion of top-level domains (TLDs), such as .com. Public DNS relies on fully qualified domain names (FQDNs) structured hierarchically.
+
+For example, consider Google. Its domain hierarchy is organized as follows:
+
+- The root (denoted by a dot)
+- Top-Level Domain (.com, .net, .org, etc.)
+- Subdomains (e.g., maps.google.com, mail.google.com)
+
+#### Search Domains
+
+Organizations often implement an internal hierarchical structure similar to public DNS. For instance, a company might use the domain mycompany.com with various subdomains for different services:
+
+- External website: www.mycompany.com
+- Email server: mail.mycompany.com
+- Storage: drive.mycompany.com
+- Payroll: pay.mycompany.com
+- Human Resources: hr.mycompany.com
+
+You can simplify local hostname resolution by configuring search domains in your `/etc/resolv.conf` file. This allows short names (e.g., “web”) to automatically be expanded to their fully qualified domain names (e.g., “web.mycompany.com”). For example:
+
+```bash
+[~]$ cat >> /etc/resolv.conf
+nameserver 192.168.1.100
+search mycompany.com
+```
+
+Now, when you run `ping web`, the system interprets `web` as `web.mycompany.com`:
+
+```bash
+[~]$ ping web
+PING web.mycompany.com (192.168.1.10) 56(84) bytes of data.
+64 bytes from web.mycompany.com (192.168.1.10): icmp_seq=1 ttl=64 time=0.052 ms
+64 bytes from web.mycompany.com (192.168.1.10): icmp_seq=2 ttl=64 time=0.079 ms
+```
+
+### Networking Basics
+
+Linux networking rests on a few core ideas: switching, routing, network interfaces, gateways, and routes. This section walks through how devices on the same LAN, or on different networks, find and reach each other.
+
+Imagine two devices, A and B (laptops, desktops, or VMs), that need to communicate. The first step is connecting both to a **switch**, which creates a localized network linking the hosts. Each machine needs a **network interface** (physical or virtual) to attach to that switch.
+
+#### Inspecting and configuring interfaces
+
+To list interfaces and their state, use `ip link`:
+
+```bash
+[~]$ ip link
+eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+```
+
+Assuming the network address is `192.168.1.0`, both devices receive IPs from that range. View or assign addresses with `ip addr`. After bringing `eth0` up, assign addresses on each host:
+
+```bash
+[~]$ ip addr add 192.168.1.10/24 dev eth0   # device A
+[~]$ ip addr add 192.168.1.11/24 dev eth0   # device B
+```
+
+With interfaces up and IPs set, the hosts can talk through the switch. A switch only supports traffic **within the same network**. Test connectivity with `ping`:
+
+```bash
+[~]$ ping 192.168.1.11
+Reply from 192.168.1.11: bytes=32 time=4ms TTL=117
+Reply from 192.168.1.11: bytes=32 time=4ms TTL=117
+```
+
+#### Routing between networks
+
+Now consider a second network (`192.168.2.0`) with devices C (`192.168.2.10`) and D (`192.168.2.11`). How does device B (`192.168.1.11`) reach device C (`192.168.2.10`)? That requires a **router**, a system with multiple interfaces, each on a different network. In this example the router might use `192.168.1.1` on the first LAN and `192.168.2.1` on the second, so it can forward packets between them.
+
+![Network routing between two subnets via a router](/network-routing.webp)
+
+When B sends traffic to C, it must know the **exit point** (the router). Think of the **gateway** as the door from the local network to other networks or the Internet; every host needs to know where that door is.
+
+View the kernel routing table with `route` or `ip route`:
+
+```bash
+[~]$ route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+```
+
+Without extra routes, B only reaches `192.168.1.0`. To reach `192.168.2.0`, add a route sending that subnet via the router on the local side:
+
+```bash
+[~]$ ip route add 192.168.2.0/24 via 192.168.1.1
+```
+
+Device C needs the mirror: traffic for `192.168.1.0` via `192.168.2.1`.
+
+> **Tip:** For Internet access (e.g. reaching hosts in ranges like `172.217.194.0`), connect the router to the Internet and add a **default route** on each device so unknown destinations go through the router.
+
+Example on a host in the `192.168.2.0` network:
+
+```bash
+[~]$ ip route add default via 192.168.2.1
+[~]$ ip route add 192.168.1.0/24 via 192.168.2.1
+```
+
+The routing table might then look like:
+
+```bash
+[~]$ route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+192.168.1.0     192.168.2.1     255.255.255.0   UG    0      0        0 eth0
+0.0.0.0         192.168.2.1     255.255.255.255 UG    0      0        0 eth0
+```
+
+`default` and destination `0.0.0.0` mean the same thing for the default route. An entry with `0.0.0.0` in the gateway column means no further gateway is needed for that route. In larger setups you might keep separate entries: one default gateway for the Internet and specific routes for internal subnets via other routers.
+
+If Internet access fails, inspect the routing table, especially the default gateway. You can correct a bad internal route, for example:
+
+```bash
+[~]$ ip route add 192.168.1.0/24 via 192.168.2.2
+[~]$ route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         192.168.2.1     0.0.0.0         UG    0      0        0 eth0
+192.168.1.0     192.168.2.2     255.255.255.0   UG    0      0        0 eth0
+```
+
+#### Essential commands
+
+| Command              | Purpose                            | Example                                     |
+| -------------------- | ---------------------------------- | ------------------------------------------- |
+| `ip link`            | Lists and modifies host interfaces | `[~]$ ip link`                              |
+| `ip addr`            | Shows IPs assigned to interfaces   | `[~]$ ip addr`                              |
+| `ip addr add`        | Assigns an IP to an interface      | `[~]$ ip addr add 192.168.1.10/24 dev eth0` |
+| `ip route` / `route` | Views the routing table            | `[~]$ route`                                |
+| `ip route add`       | Adds a routing table entry         | `ip route add default via 192.168.2.1`      |
+
+> **Note:** Changes from these commands are **temporary** and are lost after reboot. For persistence, update the appropriate network config (e.g. `/etc/network/interfaces` on Debian-based systems).
+
+With switching, addressing, gateways, and routes in place, you have a solid foundation for setting up and troubleshooting basic Linux networks. For deeper detail, see the [kernel networking documentation](https://www.kernel.org/doc/html/latest/networking/index.html).
+
+### Network troubleshooting
+
+A common scenario: you point a client at a repository server (`company-repo-01`) and get a connection timeout. The hostname may have been wrong at first; after fixing the URL, the error persists. Timeouts often trace back to one of these areas:
+
+- Local network interface down or misconfigured
+- DNS not resolving the hostname to the correct IP
+- Routing problems between subnets
+- Server-side issues (interface down, service not listening, firewall)
+
+> **Tip:** A practical workflow checks local connectivity, DNS resolution, remote reachability, the path through intermediate routers, then the target host itself.
+
+#### Step 1: Verify the local network interface
+
+Confirm the client’s interface is up. Use `ip link` and look for `UP` in the state (here, `enp1s0f1`):
+
+```bash
+[~]$ ip link
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+   link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp1s0f1: <BROADCAST,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+   link/ether 08:97:98:6e:55:4d brd ff:ff:ff:ff:ff:ff
+```
+
+With `enp1s0f1` in the `UP` state, local link-layer connectivity looks healthy.
+
+#### Step 2: Confirm DNS resolution
+
+Verify `company-repo-01` resolves to the expected address. `nslookup` queries the configured nameserver (here, `192.168.1.100`):
+
+```bash
+[~]$ nslookup company-repo-01
+Server:         192.168.1.100
+Address:        192.168.1.100#53
+
+Non-authoritative answer:
+Name:   company-repo-01
+Address: 192.168.2.5
+```
+
+The hostname maps to `192.168.2.5`, so name resolution is working on the client side.
+
+#### Step 3: Test remote connectivity
+
+Use `ping` to probe reachability to the resolved IP:
+
+```bash
+[~]$ ping company-repo-01
+PING company-repo-01 (192.168.2.5) 56(84) bytes of data.
+^C
+--- company-repo-01 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2034ms
+```
+
+Some networks block ICMP, but **100% packet loss** usually means something is wrong on the path or at the destination, not just a blocked echo reply.
+
+#### Step 4: Trace the network route
+
+`traceroute` shows each hop from the client toward the server and where replies stop:
+
+![Trace the newtork route](/network-troubleshooting-check-route.webp)
+
+- First router: `192.168.1.1` — responds
+- Second router: `192.168.2.1` — responds
+- Next hop toward `192.168.2.5` — times out
+
+Both routers answer, but traffic dies after the second hop. That points to a problem near the repository host (subnet routing, host interface, or service), not the client’s local link or DNS.
+
+#### Step 5: Diagnose the repository server
+
+On `company-repo-01`, check whether the service and network stack are healthy.
+
+**1. Confirm the HTTP service is listening on port 80:**
+
+```bash
+[company-repo-01 ~]$ netstat -an | grep 80 | grep -i LISTEN
+tcp6       0      0 :::80                   LISTEN
+```
+
+Port 80 is open and a web server is bound, so the application layer looks fine.
+
+**2. Inspect network interfaces:**
+
+```bash
+[company-repo-01 ~]$ ip link
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp1s0f1: <BROADCAST,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 1000
+    link/ether 08:97:98:34:52:12 brd ff:ff:ff:ff:ff:ff
+```
+
+The data interface `enp1s0f1` is **DOWN** even though multicast flags appear in the line, link state is what matters. Bring it up:
+
+```bash
+[company-repo-01 ~]$ ip link set dev enp1s0f1 up
+[company-repo-01 ~]$ ip link
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp1s0f1: <BROADCAST,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 08:97:98:34:52:12 brd ff:ff:ff:ff:ff:ff
+```
+
+With `enp1s0f1` up, the server can receive traffic on the LAN again, the likely root cause of the timeout.
+
+#### Final verification
+
+From the client, retry the repository URL (or `ping company-repo-01` if ICMP is allowed). Connectivity should succeed once DNS, routing, the server interface, and the listening service are all aligned.
+
+This pattern **client link → DNS → path → server interface → service** applies beyond repository hosts and is worth running in order whenever a host is reachable in theory but not in practice.
+
+<h2 id="security-file-permissions">Security and File Permissions</h2>
+
+Security in Linux employs user and password-based authentication mechanisms to control system access. Several tools and frameworks are available to manage authentication:
+
+- PAM (Pluggable Authentication Modules): Governs how programs and services handle authentication.
+- Network Security Tools: Utilities such as iptables and Firewalld regulate access to network services.
+- SSH (Secure Shell): Provides secure remote access over unsecured networks, with SSH hardening ensuring only authorized users can connect.
+- SELinux: Enforces security policies to isolate applications running on the same system.
+
+> There are numerous tools that exist to secure a Linux system, but this article focuses on basic access control, file ownership and permissions.
+
+### Linux Accounts
+
+#### User and Group Accounts
+
+Each user is associated with an account that holds critical details such as the username, password and a unique identifier (UID).
+
+Account details such as the home directory and default shell are stored in the `/etc/passwd` file:
+
+```bash
+[~]$ cat /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin/nologin
+bin:x:2:2:bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+bob:1000:1000:Bob Kingsley,,,:/home/bob:/bin/bash
+```
+
+Linux Groups enable the organisation of users based on roles or functions.
+
+Group-related information, including the unique group identifier (GID), is maintained in the `/etc/group` file. Consider a scenario with two developers, Bob and Michael, working on the same system. They can be grouped under a Linux group called “developers” to facilitate shared access to particular files and directories:
+
+```bash
+[~]$ cat /etc/group
+ssh:x:118:
+lpadmin:x:119:
+scanner:x:120:saned
+avahi:x:121:
+saned:x:122:
+color:x:123:
+geoclue:x:124:
+pulse:x:125:
+pulse-access:x:126:
+gdm:x:127:
+systemd-coredump:x:999:
+bob:x:1000:
+developers:x:1003:bob,michael
+```
+
+Each user account comprises a username, UID, a primary GID (typically matching the username), the home directory, and the default shell. To review detailed information about a specific user account and its group memberships, you can use the `id` command:
+
+```bash
+[~]$ id michael
+uid=1001(michael) gid=1001(michael) groups=1001(michael),1003(developers)
+```
+
+User accounts fall into different types:
+
+- **Regular User Account**: Represents an individual person requiring system access.
+- **Superuser Account**: The root account (UID 0) with full system privileges.
+- **System Accounts**: Created during OS installation for software and services; typically have UIDs under 100 (or between 500 and 1000) and usually lack dedicated home directories.
+- **Service Accounts**: Similar to system accounts, these are created for specific services such as NGINX.
+
+#### Switching Users and Privilege Escalation
+
+##### Using the `su` command
+
+The `su` (substitute user) command enables you to switch to another user, including the root account. For example, to switch to root:
+
+```bash
+[~]$ su -
+Password:
+root ~#
+```
+
+Alternatively, execute a specific command as another user using `su -c` (which requires the target user’s password):
+
+```bash
+[~]$ su -c "whoami"
+Password:
+root
+```
+
+Even though `su` is a useful utility, it is generally recommended to use `sudo` for enhanced security.
+
+##### Using the `sudo` command
+
+The sudo command allows trusted users to execute administrative commands using their own password. This method avoids the need to log in as root directly. For example:
+
+```bash
+[michael@ubuntu-server ~]$ sudo apt-get install nginx
+[sudo] password for michael:
+```
+
+The default `sudo` configuration is defined in the `/etc/sudoers` file, where administrators can configure specific privileges. For example, Bob may have full administrative rights while Sarah might be restricted to rebooting the system only:
+
+```bash
+[~]$ cat /etc/sudoers
+User privilege specification
+root    ALL=(ALL:ALL) ALL
+# Members of the admin group may gain root privileges
+%admin  ALL=(ALL) ALL
+# Allow members of group sudo to execute any command
+%sudo   ALL=(ALL:ALL) ALL
+# Allow Bob to run any command
+bob     ALL=(ALL:ALL) ALL
+# Allow Sarah to reboot the system
+sarah   localhost=/usr/bin/shutdown -r now
+# See sudoers(5) for more information on "#include" directives:
+#include directory /etc/sudoers.d
+```
+
+A common security practice is to set the root account to a no-login shell:
+
+```bash
+[~]$ grep -i ^root /etc/passwd
+root:x:0:0:root:/root:/usr/sbin/nologin
+```
+
+#### Understanding the sudoers File
+
+The sudoers file is organized as follows:
+
+- Lines beginning with a hash (#) are comments.
+- The first field specifies the user or group (groups are prefixed with `%`) that is granted sudo privileges.
+- The second field, typically set to `ALL`, indicates on which hosts these privileges apply.
+- The third field, within parentheses, defines the users or groups the command can be executed as—usually set to `ALL`.
+- The fourth field lists the allowed commands. This field can either be set to `ALL` for unrestricted access or limited to specific commands (e.g., permitting Sarah only to execute the reboot command).
+
+### Access Control Files
+
+There are key Linux access control files essential for system security and user access management.
+
+Located under the /etc directory, these files include:
+
+- `/etc/passwd` for user account details
+- `/etc/shadow` for secure password storage and password expiry information
+- `/etc/group` for managing group memberships
+
+> Always use built-in commands to modify these files rather than editing them directly with a text editor.
+
+> Although the /etc directory is world-readable by default, only the root user has permission to make modifications.
+
+#### The `/etc/passwd` file
+
+The `/etc/passwd` file contains vital information about each user on the system. It includes data such as the username, user ID (UID), group ID (GID), home directory, and the default shell. Note that this file does not store actual passwords; an x is present in the password field to indicate that encrypted passwords are located in the `/etc/shadow` file.
+
+For example, the following command retrieves Bob’s entry:
+
+```bash
+[~]$ grep -i ^bob /etc/passwd
+bob:x:1001:1001::/home/bob:/bin/bash
+```
+
+The structure of `/etc/passwd` is summarized as follows:
+
+```bash
+USERNAME:PASSWORD:UID:GID:GECOS:HOMEDIR:SHELL
+```
+
+Where:
+
+- **USERNAME**: The user’s login name.
+- **PASSWORD**: An x placeholder, indicating that the encrypted password is stored in /etc/shadow.
+- **UID**: The unique numeric user identifier.
+- **GID**: The primary group numerical identifier.
+- **GECOS**: An optional field for additional user information (e.g., full name).
+- **HOMEDIR**: The path to the user’s home directory.
+- **SHELL**: The user’s default shell (such as Bash).
+
+#### The `/etc/shadow` file
+
+The `/etc/shadow` file securely stores users’ encrypted passwords, along with critical account and password expiry information. Each field is colon-separated. Below is an example entry for user Bob:
+
+```bash
+[~]$ grep -i ^bob /etc/shadow
+bob:$6$h0u0tOt0$5JcuRxR7y72LLQk4Kdog7u09LsNFS0yZPkIC8pV9tgD0wXCHutYcWF/7.eJ3TfGfG0lj4JF63PyuPwKC18tJS.:18188:0:99999:7:::
+```
+
+The fields in `/etc/shadow` are arranged as follows:
+
+```bash
+USERNAME:PASSWORD:LASTCHANGE:MINAGE:MAXAGE:WARN:INACTIVE:EXPDATE
+```
+
+Where:
+
+- **USERNAME**: Matches the username from /etc/passwd.
+- **PASSWORD**: Contains the encrypted password. An asterisk (\*) or an empty value indicates that no password is set.
+- **LASTCHANGE**: The date (measured in days since January 1, 1970) when the password was last changed.
+- **MINAGE**: The minimum number of days required between password changes.
+- **MAXAGE**: The maximum number of days the password remains valid.
+- **WARN**: The number of days before password expiry that the user is warned.
+- **INACTIVE**: The number of days that elapse after password expiry during which the account remains active (if empty, this feature is disabled).
+- **EXPDATE**: The expiration date of the account (expressed as days since the Unix epoch); an empty field means the account does not expire.
+
+#### The `/etc/group` file
+
+The `/etc/group` file is used to define and manage user groups on the system. Its contents are colon-separated and outline important group details. Here’s an example entry:
+
+```bash
+[~]$ grep -i ^bob /etc/group
+developer:x:1001:bob,sara
+```
+
+The format of /etc/group is:
+
+```bash
+NAME:PASSWORD:GID:MEMBERS
+```
+
+Where:
+
+- **NAME**: The group name.
+- **PASSWORD**: Typically set to x, indicating that any real group password is stored elsewhere.
+- **GID**: The unique numeric group identifier.
+- **MEMBERS**: A comma-separated list of usernames that belong to the group.
+
+### User Management
+
+This section covers adding users, customizing account settings and managing groups.
+
+#### Creating a new user
+
+The primary command to add a new local user is `useradd`. System administrators typically use this command to add new users. For example, to create a new user named Bob, execute:
+
+```bash
+[~]$ useradd bob
+```
+
+This command creates Bob with a system-generated UID and GID. By default, Bob’s home directory is set to `/home/bob` (based on the system’s default configuration) and his login shell is set to `/bin/sh`.
+To set a password for Bob’s account, use the `passwd` command:
+
+```bash
+[~]$ passwd bob
+```
+
+> Both `useradd` and `passwd` commands must be executed with root privileges.
+
+After logging in, a user can confirm their current username by running the `whoami` command. Additionally, users can change their password at any time by simply running `passwd` without any additional arguments.
+
+#### `useradd` options
+
+The useradd command supports several options that allow you to customize the user creation process. Here are some commonly used options:
+
+- `-u`: Specify a custom UID.
+- `-g`: Specify the primary group via a custom GID.
+- `-d`: Define a custom home directory path.
+- `-s`: Set the default login shell.
+- `-c`: Add a comment (often used for a user description).
+- `-e`: Set the account expiration date.
+- `-G`: Add the new user to additional (secondary) groups.
+
+For example, to create Bob with a custom UID, GID, home directory, shell, and an account comment, use:
+
+```bash
+[~]$ useradd -u 1009 -g 1009 -d /home/robert -s /bin/bash -c "Mercury Project member" bob
+```
+
+#### User Deletion and Group Management
+
+To delete a user account, use the `userdel` command followed by the username:
+
+```bash
+[~]$ userdel bob
+```
+
+Managing groups is equally essential. Below are commands for adding and deleting groups:
+
+- **Adding a New Group**: Use the groupadd command. The -g option lets you specify a custom GID.
+
+  ```bash
+  [~]$ groupadd -g 1010 newgroup
+  ```
+
+- **Deleting a Group**: Use the groupdel command along with the group name.
+
+  ```bash
+  [~]$ groupdel newgroup
+  ```
+
+### File Permissions and Ownership
+
+#### Overview
+
+When listing files using the `ls -l` command, the first character in the output indicates the file type. For example:
+
+```bash
+$ ls -l bash-script.sh
+-rwxrwxr-x 1 bob bob 89 Mar 17 01:35 bash-script.sh
+```
+
+The characters following the file type (e.g., rwx) represent permissions grouped into three categories:
+
+| -   | rwx         | rwx         | rwx          |
+| --- | ----------- | ----------- | ------------ |
+|     | Owner > `u` | Group > `g` | Others > `o` |
+
+For each permission set:
+
+- `r` (read) permits reading the file or view directory's content.
+- `w` (write) allows modifying the file.
+- `x` (execute) grants the ability to run the file as a program or to access (cd into) a directory.
+
+![Linux File Permissions table](/linux-file-permissions.webp)
+
+#### Changing File Permissions with `chmod`
+
+Linux provides two modes to modify file permissions using the chmod command: symbolic mode and numeric mode.
+​
+
+##### Symbolic Mode
+
+In symbolic mode, you specify the target: `u` (user), `g` (group), or `o` (others). You then adjust permissions by using the `+` operator to add or the `-` operator to remove permissions. Here are some examples:
+
+```bash
+chmod u+rwX test-file
+chmod ugo+r test-file
+chmod o-rwx test-file
+```
+
+These options can be combined. For example, to grant full permissions to the owner, add read and execute permissions to the group, and remove all permissions for others:
+
+```bash
+chmod u+rwx,g+r-x,o-rwx test-file
+```
+
+##### Numeric Mode
+
+In numeric mode, you provide a three-digit octal number:
+
+- The first digit sets permissions for the owner.
+- The second digit sets permissions for the group.
+- The third digit sets permissions for others.
+
+```bash
+# grant read, write, and execute for everyone
+chmod 777 test-file
+
+# grant read and execute permissions for everyone
+chmod 555 test-file
+
+# grant read and write permissions to the owner and group, but no permissions for others
+chmod 660 test-file
+```
+
+#### Changing Ownership with `chown` and `chgrp`
+
+Ownership changes for files or directories are handled by the chown and chgrp commands.
+
+To change both the owner and group of a file, use:
+
+```bash
+chown owner:group file
+```
+
+```bash
+# update both the owner and group
+chown bob:developer test-file
+
+# only change the owner
+chown bob android.apk
+
+# only change the group
+chgrp android test-file
+```
+
+### SSH and SCP
+
+This section covers essential commands for secure remote access and file transfers using `SSH` and `SCP`.
+
+#### SSH
+
+SSH (Secure Shell) is a widely used protocol for remotely logging into and executing commands on another computer. By invoking SSH with the remote host’s IP address or hostname, you can securely connect to that machine.
+
+You may specify the username using the `user@` syntax or the `-l` flag. Ensure that the remote server has an SSH service running on port 22 and that you have proper authentication, either a valid username/password combination or an SSH key pair.
+
+```bash
+ssh <hostname_OR_IP_Address>
+ssh <user>@<hostname_OR_IP_Address>
+ssh -l <user> <hostname_OR_IP_Address>
+
+[bob@caleston-lp10 ~]$ ssh devapp01
+bob@devapp01's password:
+Last login: Tue Apr 7 20:08:58 2020 from 192.168.1.109
+
+[bob@devapp01 ~]$
+```
+
+In the example above, because the username is not explicitly mentioned, SSH attempts to log in using the current local user (“bob”). Upon connection, the system prompts you to enter the password for that account on the remote server.
+
+#### Passwordless SSH
+
+To avoid entering your password every time, you can configure passwordless authentication by using SSH key pairs. A key pair consists of:
+
+- Private Key: Kept secure on your client device.
+- Public Key: Shared and installed on your remote server.
+
+When the public key is added to the remote server’s `~/.ssh/authorized_keys` file, the system will grant access to any client possessing the corresponding private key.
+
+##### Generating the key pair
+
+On your client machine, generate a key pair using the following command. You can optionally secure your key with a passphrase, though note that you will be prompted to enter it every time the key is utilized.
+
+```bash
+[bob@caleston-lp10 ~]$ ssh-keygen -t rsa
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/bob/.ssh/id_rsa):
+/home/bob/.ssh/id_rsa already exists.
+Overwrite (y/n)? y
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/bob/.ssh/id_rsa.
+Your public key has been saved in /home/bob/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:PCRTdbxzzffzmi8uunjn5V/1LZCG0BvhVJYXBr9gYsE bob@caleston-lp10
+The key's randomart image is:
++---[RSA 2048]----+
+|          o oo   |
+|         +E=oo   |
+|        o O *..o. |
+|         =o .o..  |
+|        S O + .+  |
+|         . . *    |
+|          oo+     |
+|           oo.+.  |
+|          ..o+o   |
++----[SHA256]-----+
+```
+
+> In this process, the public key is stored in `/home/bob/.ssh/id_rsa.pub` (identified by the .pub extension), while the private key remains safe in `/home/bob/.ssh/id_rsa`.
+
+##### Copying the Public Key to the Remote Server
+
+To enable passwordless SSH login, copy your public key to the remote server using the ssh-copy-id command. This step authenticates you at least once with your password to install the key on the server.
+
+```bash
+[bob@caleston-lp10 ~]$ ssh-copy-id bob@devapp01
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/bob/.ssh/id_rsa.pub"
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+bob@devapp01's password:
+Number of key(s) added: 1
+
+Now try logging into the machine with: "ssh bob@devapp01"
+and verify that only the intended key(s) were added.
+```
+
+After completing these steps, you should be able to connect to the remote server without entering your password each time. Dave confirms that Bob’s public key is now installed in the authorized_keys file within the .ssh directory on the remote server.
+
+#### SCP
+
+SCP (Secure Copy) is a powerful tool for transferring files and directories securely over SSH. It operates much like the traditional Linux `cp` command but enables file transfer between your local machine and remote servers.
+
+##### Copying a file using SCP
+
+```bash
+[bob@caleston-lp10 ~]$ scp /home/bob/caleston-code.tar.gz devapp01:/home/bob
+bob@devapp01's password:
+caleston-code.tar.gz                             100% 2498KB  51MB/s  00:00
+```
+
+> Make sure you have the necessary write permissions on the destination directory to avoid errors.
+
+##### Copying directories with SCP
+
+When you need to transfer entire directories, include the `-r` option to copy recursively. To maintain original file ownership and permissions, add the `-p` flag.
+
+These SCP functionalities are highly beneficial when moving projects, such as migrating a Django application from your development environment to a production server.
+
+### IPTables: Introduction
+
+In complex environments featuring multiple clients and servers interconnected by various routers and switches, implementing robust network security is essential. You can secure the network using external firewall appliances or apply filtering rules directly on each server with tools like **iptables**, **firewalld** on Linux, or the built-in **firewalls** on Windows.
+
+This section will demonstrate how to configure local iptables rules on a Linux server to regulate network traffic.
+
+Consider the following Project Mercury environment setup:
+
+| Device             | IP Addresses   |
+| ------------------ | -------------- |
+| Client laptop      | 172.16.238.187 |
+| Application server | 172.16.238.10  |
+| Database server    | 172.16.238.11  |
+
+Without a firewall, all servers can communicate freely. We will enhance security by enforcing these rules:
+
+- Allow SSH access from your laptop to the application server.
+- Permit HTTP access (port 80) to the application server only from the client laptop, blocking other servers (e.g., devdb01).
+- Allow the application server to connect to the database server on port 5432 for database operations.
+- Grant the application server HTTP access to the software repository server (kailston-repo-01).
+- Block outgoing internet access from the application server.
+- Restrict the database server to accept connections on port 5432 solely from the application server.
+
+![The image illustrates a network setup with a client, application server, database server, and software repo server, highlighting connections and blocked HTTP access](/iptables-1.webp)
+
+#### Establishing SSH Connectivity
+
+Begin by establishing an SSH connection to the devapp01 server from your client. Once connected, you will use iptables to filter network traffic. On Red Hat and CentOS, iptables is installed by default. On Ubuntu, installation may be required:
+
+```bash
+[bob@devapp01 ~]$ sudo apt install iptables
+```
+
+After installation, list the default iptables rules with:
+
+```bash
+[bob@devapp01 ~]$ sudo iptables -L
+Chain INPUT (policy ACCEPT)
+target prot opt source destination
+
+Chain FORWARD (policy ACCEPT)
+target prot opt source destination
+
+Chain OUTPUT (policy ACCEPT)
+target prot opt source destination
+```
+
+Iptables uses three main chains, each serving a distinct purpose:
+
+- INPUT Chain: Manages incoming traffic. For instance, adding a rule here allows SSH connections from your client laptop.
+- OUTPUT Chain: Controls traffic originating from the server, including outbound connections like database queries.
+- FORWARD Chain: Typically used by network routers to forward traffic between devices. Standard Linux servers rarely use this chain.
+
+With no custom rules in place, the default policy is to accept all incoming and outgoing traffic:
+
+> A “chain” is essentially a list of rules. Each rule checks network packets and decides whether to accept or drop them based on defined conditions such as source IP, destination IP, port number, or protocol
+
+### IPTables: Securing the Environment
+
+This section demonstrates how to configure iptables rules to secure a development environment.
+
+#### Configuring SSH Access
+
+Begin by adding an incoming rule on the development server that permits SSH connections solely from the designated client. Execute the following command:
+
+```bash
+iptables -A INPUT -p tcp -s 172.16.238.187 --dport 22 -j ACCEPT
+```
+
+| Flag        | Value            | Meaning                                                                                  |
+| ----------- | ---------------- | ---------------------------------------------------------------------------------------- |
+| `-A INPUT`  | `INPUT`          | Appends a rule to the INPUT chain,<br /> which handles all incoming traffic.             |
+| `-p tcp`    | `tcp`            | Restricts the rule to the TCP protocol only.                                             |
+| `-s`        | `172.16.238.187` | Matches connections originating from <br /> this specific source IP (the client laptop). |
+| `--dport`   | `22`             | Targets the destination port 22, <br /> which is the standard SSH port.                  |
+| `-j ACCEPT` | `ACCEPT`         | Accepts the packet when all <br /> preceding conditions are satisfied.                   |
+
+After adding the rule, verify it by listing the iptables rules with:
+
+```bash
+iptables -L
+```
+
+##### Blocking Unauthorized SSH Attempts
+
+By default, if another client tries to access SSH without a specific allow rule, the connection would follow the default policy (typically accepting all connections). Since our requirement is to restrict SSH access to the specified client, add a rule that drops SSH traffic from all other sources:
+
+```bash
+iptables -A INPUT -p tcp --dport 22 -j DROP
+```
+
+```bash
+[bob@devapp01 ~]$ iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+ACCEPT     tcp  --  172.16.238.187      anywhere             tcp dpt:ssh
+DROP       tcp  --  anywhere             anywhere             tcp dpt:ssh
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+```
+
+> The order of these rules is critical because iptables processes rules sequentially. The client-specific ACCEPT rule is placed before the DROP rule, ensuring that SSH traffic from the designated client is allowed while all other SSH attempts are blocked.
+
+#### Configuring Outbound Traffic
+
+On the development application server, additional configurations are needed to manage outbound connections:
+
+- Allow connections to the DB server on port 5432.
+- Permit connections to the software repository server on port 80.
+- Drop general HTTP (port 80) and HTTPS (port 443) traffic to the Internet.
+- Explicitly allow HTTP access on port 80 from the client laptop.
+
+Add the following OUTPUT rules:
+
+```bash
+[bob@devapp01 ~]$ iptables -A OUTPUT -p tcp -d 172.16.238.11 --dport 5432 -j ACCEPT
+[bob@devapp01 ~]$ iptables -A OUTPUT -p tcp -d 172.16.238.15 --dport 80 -j ACCEPT
+[bob@devapp01 ~]$ iptables -A OUTPUT -p tcp --dport 443 -j DROP
+[bob@devapp01 ~]$ iptables -A OUTPUT -p tcp --dport 80 -j DROP
+```
+
+##### Allowing Specific HTTPS Traffic
+
+If you need to access a particular site using HTTPS from the devapp-01 server (e.g., to 172.16.238.100), the general DROP rule for port 443 would normally block this connection. To allow HTTPS access to this specific destination, insert an ACCEPT rule at the top of the OUTPUT chain:
+
+```bash
+[bob@devapp01 ~]$ iptables -I OUTPUT -p tcp -d 172.16.238.100 --dport 443 -j ACCEPT
+```
+
+The `-I` option inserts the rule at the top of the chain, making sure it takes precedence over the subsequent DROP rules.
+
+##### Deleting a Rule
+
+If you need to remove an iptables rule by its position (for example, deleting the rule at position 5 from the OUTPUT chain), use the `-D` option:
+
+```bash
+[bob@devapp01 ~]$ iptables -D OUTPUT 5
+```
+
+#### Securing the Database Server
+
+To ensure that only the development application server can access the PostgreSQL service on the database server (port 5432), configure the following rules on the DB server:
+
+```bash
+[bob@devdb01 ~]$ iptables -A INPUT -p tcp -s 172.16.238.10 --dport 5432 -j ACCEPT
+[bob@devdb01 ~]$ iptables -A INPUT -p tcp --dport 5432 -j DROP
+```
+
+Listing the iptables rules on the DB server should produce output similar to:
+
+```bash
+
+[bob@devdb01 ~]$ iptables -L
+Chain INPUT (policy ACCEPT)
+target prot opt source destination
+ACCEPT tcp -- 172.16.238.10 anywhere tcp dpt:5432
+DROP tcp -- anywhere anywhere tcp dpt:5432
+
+Chain FORWARD (policy ACCEPT)
+target prot opt source destination
+
+Chain OUTPUT (policy ACCEPT)
+target prot opt source destination
+```
+
+##### Summary of DB Server Security
+
+- Application Server Output Rule:
+  The development application server actively allows connections to the DB server on port 5432:
+  ```bash
+  iptables -A OUTPUT -p tcp -d 172.16.238.11 --dport 5432 -j ACCEPT
+  ```
+- Database Server Accept Rule:
+  An input rule on the DB server accepts connections originating from the application server on port 5432.
+- Database Server Drop Rule:
+  A subsequent rule then drops any other connection attempts on port 5432.
+
+This setup ensures that only the dev application server can establish a connection with the database server.
+
+##### Handling Return Traffic
+
+When the dev application server initiates a database connection, an ephemeral source port (for example, 44060) is assigned. Once the connection is established, the database server sends the return traffic back to this ephemeral port.
+
+Since the overall inbound traffic is accepted (except for explicitly dropped SSH connections), there is no need for additional rules to handle the returning traffic. You can confirm the connection with:
+
+```bash
+[bob@devdb01 ~]$ netstat -an | grep 5432
+tcp 0 0 172.16.238.10:44060 172.16.238.11:5432 ESTABLISHED
+```
+
+> Linux typically assigns ephemeral ports in the range of 32768 to 60999. This dynamic assignment facilitates proper handling of return traffic without manual configuration.
+
+### CRON Jobs
+
+Consider a practical example: you need to run the command `uptime` and redirect its output to the file `/tmp/system-report.txt` **every day at 9 p.m**. Running the command manually can be tedious, so a Cron job automates this process.
+
+The command to append the output is:
+
+```bash
+uptime >> /tmp/system-report.txt
+```
+
+#### Scheduling a CRON Job
+
+To schedule this task, login and edit the crontab:
+
+```bash
+[bob@caleston-lp01 ~]$ crontab -e
+```
+
+This command opens the crontab file in the default editor (typically VI). At the bottom of the file, add the following Cron job configuration:
+
+```bash
+0 21 * * * uptime >> /tmp/system-report.txt
+```
+
+> Avoid using sudo with the crontab command if you intend the task to run for yourself; using sudo would schedule the job for the root user.
+
+#### Understanding the CRON syntax
+
+For the schedule `0 21 * * *`, the first five fields specify when the task runs:
+
+| Field        | Value | Meaning                                            |
+| ------------ | ----- | -------------------------------------------------- |
+| Minute       | `0`   | The task runs at the 0th minute.                   |
+| Hour         | `21`  | The task runs at 9 p.m. (21:00 in 24-hour format). |
+| Day of Month | `*`   | Every day of the month.                            |
+| Month        | `*`   | Every month.                                       |
+| Day of Week  | `*`   | Every day of the week.                             |
+
+Here are some examples to help you better understand the scheduling syntax:
+
+| Description                                                                             | Schedule      |
+| --------------------------------------------------------------------------------------- | ------------- |
+| Run a job on February 19th at 8:10                                                      | `10 8 19 2 *` |
+| Run a job on February 19th at 8:10 <br /> only if it's a Monday (`1` represents Monday) | `10 8 19 2 1` |
+| Run a job every day at 8:10                                                             | `10 8 * * *`  |
+| Run a job every minute of every hour on all days                                        | `* * * * *`   |
+| Run a job every two minutes using step values                                           | `*/2 * * * *` |
+
+#### Listing and Verifying Cron Jobs
+
+To list all current Cron jobs for Michael, run:
+
+```bash
+[bob@caleston-lp01 ~]$ crontab -l
+```
+
+After scheduling, verify that the task ran as expected at 9 p.m. Check the output file using:
+
+```bash
+cat /tmp/system-report.txt
+```
+
+Also, you can inspect the system log file (typically located at `/var/log/syslog`). Look for an entry similar to:
+
+```bash
+21:00:00 up 20:15, 1 user, load average: 0.47, 0.50, 0.52
+```
+
+This confirms that the uptime command executed as scheduled.

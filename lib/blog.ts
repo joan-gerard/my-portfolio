@@ -62,7 +62,8 @@ export function isBlogPostFrontmatter(
   }
   if (
     o.seriesTotalParts !== undefined &&
-    (!Number.isInteger(o.seriesTotalParts) || (o.seriesTotalParts as number) < 1)
+    (!Number.isInteger(o.seriesTotalParts) ||
+      (o.seriesTotalParts as number) < 1)
   ) {
     return false;
   }
