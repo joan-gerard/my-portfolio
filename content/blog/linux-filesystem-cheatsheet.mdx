@@ -1,0 +1,267 @@
+---
+title: "Linux Filesystem & Paths: Cheatsheet"
+date: "2026-05-27"
+description: A folder-first Linux filesystem cheatsheet from Linux for Beginners — top-level FHS plus child directories and files grouped under each root path.
+tags:
+  - Linux
+  - Cheatsheet
+  - Filesystem
+draft: false
+notesFromKodeKloud: true
+---
+
+Companion cheatsheet for [Linux for Beginners](/blog/linux-for-beginners). Every path below appears in that article (lab examples included where they illustrate typical locations). Use it when you need a quick map of *where things live* on a Linux system.
+
+---
+
+<h2 id="fhs-overview">Filesystem Hierarchy (FHS) — Top Level</h2>
+
+| Path | Purpose | Notes from the course |
+| ---- | ------- | --------------------- |
+| `/` | Root of the entire filesystem | Often backed by a partition such as `/dev/sda3` |
+| `/bin` | Essential user binaries | `cp`, `mv`, `mkdir`, `date`; default shells like `/bin/bash`, `/bin/sh`, `/bin/sync` |
+| `/sbin` | Essential system binaries (often root-only) | `/sbin/init` → symlink to `/lib/systemd/systemd` |
+| `/boot` | Kernel, initramfs, bootloader files | Early boot sectors; EFI partition often mounted at `/boot/efi` |
+| `/dev` | Device files (block & character) | Created/managed by **udev**; e.g. `/dev/sda5`, `/dev/sdb1` |
+| `/etc` | System-wide configuration | Service configs, users, network, package repos |
+| `/home` | Home directories for regular users | Root’s home is `/root`, not under `/home` |
+| `/lib` | Shared libraries for `/bin` and `/sbin` | Includes `/lib/systemd/systemd` and unit files under `/lib/systemd/system/` |
+| `/lib64` | 64-bit shared libraries | Runtime dependencies for many programs |
+| `/media` | Auto-mount for removable media | Example mount: `/media/usb` |
+| `/mnt` | Manual / temporary mount point | Network shares during setup |
+| `/opt` | Third-party / optional software | Custom app deployments |
+| `/root` | Root user’s home directory | Referenced in `/etc/passwd` entries |
+| `/run` | Runtime state (PID files, sockets) | Often `tmpfs`; includes `/run/lock`, `/run/containerd/containerd.sock` |
+| `/tmp` | Temporary files | Cron output example: `/tmp/system-report.txt` |
+| `/usr` | Userland apps, libraries, docs | Most non-essential binaries and data |
+| `/var` | Variable data (logs, mail, spool) | First place to check when troubleshooting |
+
+---
+
+<h2 id="bin-folder">`/bin`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/bin/bash` | Common login shell in examples |
+| `/bin/sh` | Default shell in some `useradd` examples |
+| `/bin/sync` | Utility referenced in sample `/etc/passwd` entry |
+
+---
+
+<h2 id="sbin-folder">`/sbin`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/sbin/init` | PID 1 entry point on systemd hosts (symlink target shown in the course) |
+
+---
+
+<h2 id="boot-folder">`/boot`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/boot/efi` | EFI mount point used during boot |
+
+---
+
+<h2 id="dev-folder">`/dev`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/dev/sda3` | Partition mounted as `/` in `df` output |
+| `/dev/sda4` | Partition mounted as `/var` in `df` output |
+| `/dev/sda5` | Partition mounted as `/home`; also used in `udevadm` example |
+| `/dev/sdb1` | Example removable disk partition mounted at `/media/usb` |
+| `/dev/shm` | Shared memory mount (`tmpfs`) |
+
+---
+
+<h2 id="etc-folder">`/etc`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/etc/apt/sources.list` | APT repository definitions |
+| `/etc/group` | Group database |
+| `/etc/hosts` | Local hostname-to-IP mappings |
+| `/etc/network/interfaces` | Persistent network config example |
+| `/etc/nsswitch.conf` | Name service resolution order |
+| `/etc/passwd` | User account database |
+| `/etc/resolv.conf` | DNS nameservers and search domains |
+| `/etc/shadow` | Encrypted passwords and aging fields |
+| `/etc/sudoers` | Primary sudo policy file |
+| `/etc/sudoers.d` | Sudo policy drop-ins |
+| `/etc/systemd/system/` | Local/override systemd units |
+| `/etc/systemd/system/default.target` | Default boot target symlink |
+| `/etc/systemd/system/dummy.service` | Lab exercise path |
+| `/etc/systemd/system/project-mercury.service` | Custom service unit example |
+| `/etc/yum.repos.d` | YUM/DNF repository directory |
+
+---
+
+<h2 id="home-folder">`/home`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/home/bob` | User home used across user-management examples |
+| `/home/bob/.ssh/id_rsa` | SSH private key |
+| `/home/bob/.ssh/id_rsa.pub` | SSH public key |
+| `/home/bob/dummy-service` | File used to store found service path (lab) |
+| `/home/bob/ip` | File used to store grep result (lab) |
+| `/home/bob/pipes` | File used to store `zcat` output (lab) |
+| `/home/michael` | User home used in navigation/search examples |
+| `/home/michael/sample.txt` | Text editor example file |
+| `/home/michael/Africa/Egypt/Cairo/City.txt` | Nested sample file for `locate`/`find` |
+| `/home/michael/Asia/India/Mumbai/City.txt` | Nested sample file for `locate`/`find` |
+| `/home/robert` | Custom home path from `useradd -d` example |
+
+Shell dotfiles referenced in this section: `~/.profile`, `~/.bash_profile`, `~/.bashrc`, `~/.ssh/authorized_keys`.
+
+---
+
+<h2 id="lib-folder">`/lib`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/lib/systemd/systemd` | systemd binary (target of `/sbin/init`) |
+| `/lib/systemd/system/` | Vendor-provided unit files and targets |
+| `/lib/systemd/system/docker.service` | Example packaged service unit |
+| `/lib/systemd/system/graphical.target` | Graphical boot target |
+| `/lib/systemd/system/multi-user.target` | Multi-user boot target |
+
+---
+
+<h2 id="lib64-folder">`/lib64`</h2>
+
+`/lib64` is the standard 64-bit shared library directory. It is listed in the Linux for Beginners top-level filesystem table, but no deeper child paths are shown in that post.
+
+---
+
+<h2 id="media-folder">`/media`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/media/usb` | Example auto-mounted removable device path |
+
+---
+
+<h2 id="mnt-folder">`/mnt`</h2>
+
+`/mnt` is shown as a temporary/manual mount location in the Linux for Beginners filesystem table. No child paths are explicitly listed in the article.
+
+---
+
+<h2 id="opt-folder">`/opt`</h2>
+
+`/opt` is listed as the install location for third-party software in the top-level filesystem table. No child paths are explicitly listed in this article.
+
+---
+
+<h2 id="root-folder">`/root`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/root` | Root user home directory, shown in sample `/etc/passwd` entries |
+
+---
+
+<h2 id="run-folder">`/run`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/run` | Runtime state mount (`tmpfs`) |
+| `/run/lock` | Runtime lock files |
+| `/run/containerd/containerd.sock` | Containerd socket shown in `systemctl status` output |
+
+---
+
+<h2 id="tmp-folder">`/tmp`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/tmp/system-report.txt` | Cron job output file example |
+
+---
+
+<h2 id="usr-folder">`/usr`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/usr/bin` | Main location for user executables |
+| `/usr/bin/dockerd` | Docker daemon binary shown in service output |
+| `/usr/bin/project-mercury.sh` | Script run by the custom systemd service |
+| `/usr/bin/shutdown` | Command path used in sudoers example |
+| `/usr/bin/ssh-copy-id` | Command path shown in SSH key install output |
+| `/usr/bin/vim.basic` | VI/VIM symlink target example |
+| `/usr/sbin` | System binaries used by administrative/service accounts |
+| `/usr/sbin/nologin` | Non-login shell in sample `/etc/passwd` entries |
+| `/usr/games` | Games directory shown in sample `/etc/passwd` |
+| `/usr/share/man/man1/tail.1.gz` | Compressed man page used in `zcat` example |
+
+---
+
+<h2 id="var-folder">`/var`</h2>
+
+| Path | Purpose |
+| ---- | ------- |
+| `/var/cache/man` | Man-page cache |
+| `/var/log/syslog` | System log used for cron verification |
+| `/var/mail` | Mail spool path |
+| `/var/spool/lpd` | Print spool path |
+| `/var/spool/uucp` | UUCP spool path |
+| `/var/www` | Web content path shown for `www-data` |
+
+---
+
+<h2 id="extra-kernel-cgroup-paths">Extra Paths Referenced in Labs</h2>
+
+These paths are shown in command output and are useful context, though they are not top-level FHS roots:
+
+| Path | Why it appears |
+| ---- | -------------- |
+| `/devices/pci0000:00/0000:00:17.0/ata3/host2/target2:0:0/2:0:0:0/block/sda/sda5` | `udevadm info` kernel device tree output |
+| `/devices/platform/put4` | Kernel message path from `dmesg` sample |
+| `/system.slice/project-mercury.service` | cgroup path for custom service |
+| `/system.slice/docker.service` | cgroup path for Docker service |
+
+---
+
+<h2 id="tree-summary">Directory Tree (Simplified)</h2>
+
+```text
+/
+├── bin/          # essential user commands
+├── boot/         # kernel & bootloader (efi/)
+├── dev/          # device nodes (sda*, sdb*, …)
+├── etc/          # system configuration
+│   ├── apt/sources.list
+│   ├── group, passwd, shadow
+│   ├── hosts, resolv.conf, nsswitch.conf
+│   ├── network/interfaces
+│   ├── sudoers, sudoers.d/
+│   ├── systemd/system/   # units & default.target
+│   └── yum.repos.d/
+├── home/         # user home directories
+├── lib/          # libraries; systemd units
+│   └── systemd/system/
+├── lib64/
+├── media/        # auto-mounted removable media
+├── mnt/          # manual mounts
+├── opt/          # third-party software
+├── root/         # root’s home
+├── run/          # runtime state (tmpfs)
+├── sbin/         # init → systemd
+├── tmp/          # temporary files
+├── usr/
+│   ├── bin/      # most user commands
+│   ├── sbin/     # nologin, etc.
+│   ├── games/
+│   └── share/man/
+└── var/
+    ├── cache/man/
+    ├── log/syslog
+    ├── mail/
+    ├── spool/
+    └── www/
+```
+
+> **Tip:** On modern systems, `/bin`, `/sbin`, and `/lib` are often symlinks into `/usr/bin`, `/usr/sbin`, and `/usr/lib`. Layout and merge policies vary by distribution, so always verify on your target host.

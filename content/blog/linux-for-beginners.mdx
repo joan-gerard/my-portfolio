@@ -22,7 +22,7 @@ Because of this, Linux is not just helpful, it is foundational. The material beh
 - Navigating directory structures and files
 - No experience working with text editors (VI / Nano)
 - Different flavors of Linux
-- Errors during installation of apps and dependencies (rpm, apt. dkpg, yum)
+- Errors during installation of apps and dependencies (rpm, apt, dpkg, yum)
 - Issues with networking between VMs
 - Trouble with permissions and security on Linux
 - Lack of hands-on practice
@@ -53,7 +53,7 @@ When logging into the Shell, the very first directory would be the home director
 - Internal or Built-in Commands: echo, cd, pwd, set...
 - External Commands: mv, date, uptime, cp...
 
-To verify whether a command is internal or external, use the type command. For example, executing `type echo` shows that `echo` is a built-in command
+To verify whether a command is internal or external, use the type command. For example, executing `type echo` shows that `echo` is a built-in command.
 
 ### whatis and man commands
 
@@ -101,7 +101,7 @@ To change your default shell, use the chsh command.
 - Create a new environment variable
 
   ```bash
-  [~]$ export OFFICE=caleston¨
+  [~]$ export OFFICE=caleston
   ```
 
 - User profile scripts
@@ -153,7 +153,7 @@ What is a Kernel?
 
 - It is the major component of the OS
 - it is the core interface between a computer's hardware and its processes
-- it communicates between the two managing rss as efficiently as possible.
+- it communicates between the two, managing resources as efficiently as possible.
 
 <svg viewBox="0 0 720 320" width="100%" role="img" aria-label="Linux kernel interaction diagram">
   <defs>
@@ -301,7 +301,7 @@ A librarian ensures that students get books appropriate to their year level, enf
 
 The Linux Kernel is **monolithic**, which means that the Kernel carries out CPU scheduling, memory management and several other operations by itself.
 
-The Kernel is also **modular**, which means it can extend its capabilities thriugh the use of dynamically loaded Kernel modules
+The Kernel is also **modular**, which means it can extend its capabilities through the use of dynamically loaded Kernel modules
 
 #### Kernel Versions
 
@@ -315,7 +315,7 @@ Linux
 4.15.0-72-generic
 ```
 
-Where 4 is the Kernel Version, 15 is the Major Version, 0 the Minor Version, 72 the patch release and 'generic' the Distro Specifc Version
+Where 4 is the Kernel Version, 15 is the Major Version, 0 the Minor Version, 72 the patch release and 'generic' the Distro Specific Version
 
 #### Understanding Kernel and User Space
 
@@ -335,7 +335,7 @@ Memory management is divided into 2 primary areas:
 
 User space programs primarily work with data by performing operations on memory or disk. They communicate their needs through system calls to the kernel.
 
-![Kernal and User Space](/kernal-and-user-space.webp)
+![Kernel and User Space](/kernal-and-user-space.webp)
 
 <h3 id="working-with-hardware">Working With Hardware</h3>
 
@@ -820,7 +820,7 @@ DPKG and APT are package managers in Debian-based distributions.
 
 #### APT (Advanced Package Tool)
 
-APT (Advanced Package Tool) is a user-friendly front-end for DPKG, which means it acts as a "manager" or "translator" to make a package management easier.
+APT (Advanced Package Tool) is a user-friendly front-end for DPKG, which means it acts as a "manager" or "translator" to make package management easier.
 
 APT relies on software repositories defined in the sources file. The repository details are stored in:
 
@@ -946,7 +946,7 @@ The fifth line does not want to be printed
 
 <h3 id="io-redirection">IO Redirection</h3>
 
-This section delves into IO redirection in Linux and explain the concept of standard streams
+This section delves into IO redirection in Linux and explains the concept of standard streams.
 
 Every Linux command you run is automatically associated with three primary data streams:
 
@@ -997,13 +997,13 @@ To redirect only error messages to a file, prefix the redirection operator with 
 [~]$ cat error.txt
 cat: missing_file: No such file or directory
 
-# append error msg instead of overwritting
+# append error msg instead of overwriting
 [~]$ cat missing_file 2>> error.txt
 ```
 
 #### Using Pipes to Link Commands
 
-Often, you might want to pass the output of one command directly to another without creating an intermediary file, that’s where piping comes into play.
+Often, you might want to pass the output of one command directly to another without creating an intermediary file; that’s where piping comes into play.
 
 The pipe operator (|) transfers the standard output from the command on its left to the standard input of the command on its right. For example:
 
@@ -1289,7 +1289,7 @@ PING db (192.168.1.11) 56(84) bytes of data.
 
 Remember, the local `/etc/hosts` file is the definitive source of hostname-to-IP mappings for that system. The system does not verify whether system B’s actual hostname matches the alias you defined
 
-Every command, whether `ping`, `ssh`, or curl`first checks the local`/etc/hosts` file for IP address mappings. This process of translating a hostname to an IP address is known as **name resolution**.
+Every command, whether `ping`, `ssh`, or `curl`, first checks the local `/etc/hosts` file for IP address mappings. This process of translating a hostname to an IP address is known as **name resolution**.
 
 #### Transitioning to Centralized DNS
 
@@ -1520,11 +1520,11 @@ Some networks block ICMP, but **100% packet loss** usually means something is wr
 
 `traceroute` shows each hop from the client toward the server and where replies stop:
 
-![Trace the newtork route](/network-troubleshooting-check-route.webp)
+![Trace the network route](/network-troubleshooting-check-route.webp)
 
-- First router: `192.168.1.1` — responds
-- Second router: `192.168.2.1` — responds
-- Next hop toward `192.168.2.5` — times out
+- First router: `192.168.1.1`, responds
+- Second router: `192.168.2.1`, responds
+- Next hop toward `192.168.2.5`, times out
 
 Both routers answer, but traffic dies after the second hop. That points to a problem near the repository host (subnet routing, host interface, or service), not the client’s local link or DNS.
 
@@ -1538,6 +1538,8 @@ On `company-repo-01`, check whether the service and network stack are healthy.
 [company-repo-01 ~]$ netstat -an | grep 80 | grep -i LISTEN
 tcp6       0      0 :::80                   LISTEN
 ```
+
+Here, `-n` shows numeric addresses (hosts and ports) instead of resolving names, and `-a` includes all sockets, not only established connections. Piping to `grep LISTEN` keeps only services waiting for inbound connections.
 
 Port 80 is open and a web server is bound, so the application layer looks fine.
 
@@ -1703,7 +1705,7 @@ The sudoers file is organized as follows:
 - Lines beginning with a hash (#) are comments.
 - The first field specifies the user or group (groups are prefixed with `%`) that is granted sudo privileges.
 - The second field, typically set to `ALL`, indicates on which hosts these privileges apply.
-- The third field, within parentheses, defines the users or groups the command can be executed as—usually set to `ALL`.
+- The third field, within parentheses, defines the users or groups the command can be executed as, usually set to `ALL`.
 - The fourth field lists the allowed commands. This field can either be set to `ALL` for unrestricted access or limited to specific commands (e.g., permitting Sarah only to execute the reboot command).
 
 ### Access Control Files
@@ -1943,6 +1945,14 @@ chown bob android.apk
 # only change the group
 chgrp android test-file
 ```
+
+To change ownership for an entire directory tree (for example, application code deployed under `/opt`), use the `-R` (recursive) flag:
+
+```bash
+sudo chown -R mercury /opt/caleston-code
+```
+
+This applies the `mercury` user as owner to `/opt/caleston-code` and every file and subdirectory beneath it, which is typical after extracting a project archive or copying code so the service account can read and write the deployment without running as root.
 
 ### SSH and SCP
 
@@ -2230,6 +2240,27 @@ target prot opt source destination
 
 This setup ensures that only the dev application server can establish a connection with the database server.
 
+##### Verifying PostgreSQL is listening
+
+On the database server, confirm that PostgreSQL is bound and accepting connections:
+
+```bash
+[bob@devdb01 ~]$ sudo netstat -natulp | grep postgres | grep LISTEN
+```
+
+When you run that command, you're explicitly asking for:
+
+| Flag | Meaning                |
+| ---- | ---------------------- |
+| `-n` | numeric addresses      |
+| `-a` | all sockets            |
+| `-t` | TCP                    |
+| `-u` | UDP                    |
+| `-l` | listening sockets only |
+| `-p` | show PID/program name  |
+
+`sudo` is required for `-p` so `netstat` can read process names from the kernel. Filtering on `postgres` and `LISTEN` leaves only PostgreSQL sockets in the listening state, which is useful before you troubleshoot firewall rules or application connection errors.
+
 ##### Handling Return Traffic
 
 When the dev application server initiates a database connection, an ephemeral source port (for example, 44060) is assigned. Once the connection is established, the database server sends the return traffic back to this ephemeral port.
@@ -2312,3 +2343,751 @@ Also, you can inspect the system log file (typically located at `/var/log/syslog
 ```
 
 This confirms that the uptime command executed as scheduled.
+
+<h2 id="systemd">Service Management with SYSTEMD</h2>
+
+### Creating a SYSTEMD Service
+
+#### What is a service?
+
+A service in Linux is a **program that runs continuously in the background to handle specific system or network tasks without user interaction**. These programs are also known as **daemons**.
+
+Core Characteristics:
+
+- Background execution: They start automatically and run unseen by the user.
+- No user interface: They lack a standard graphical or text interface.
+- System management: They wait for specific requests, like incoming web traffic or hardware events.
+
+This section will detail how to manage services with `SYSTEMD` by building a service unit from scratch, by utilizing essential `SYSTEMD` utilities, such as `systemctl` and `journalctl`.
+
+Here are some common service requirements:
+
+- A shell script named `project-mercury.sh` located in `/usr/bin` must execute as a background service.
+- The service should be enabled to start automatically during boot.
+- The script launches a Python Django application that depends on a PostgreSQL database; therefore, PostgreSQL must be running prior to the application's start.
+- The service must run under a pre-created account called project_mercury rather than the default root user.
+- In case of application failure, the service should restart automatically, waiting 10 seconds between attempts.
+- The service must not restart automatically if it is manually stopped by an administrator.
+- All service events, including start, stop, and errors, must be logged for later analysis.
+- The service should adhere to the graphical.target since Bob’s system defaults to a graphical environment.
+
+The following steps build the unit file incrementally until it meets every requirement above.
+
+#### Step 1: Create a minimal service unit
+
+Create `/etc/systemd/system/project-mercury.service`. Because `project-mercury.sh` is a Bash script, run it through `/bin/bash` and use `ExecStart` to launch it in the background:
+
+```ini
+[Service]
+ExecStart=/bin/bash /usr/bin/project-mercury.sh
+```
+
+Start the service (use `sudo` when required):
+
+```bash
+sudo systemctl start project-mercury.service
+```
+
+Confirm it is running:
+
+```bash
+sudo systemctl status project-mercury.service
+```
+
+Example output:
+
+```plaintext
+● project-mercury.service
+   Loaded: loaded (/etc/systemd/system/project-mercury.service; static; vendor preset: enabled)
+   Active: active (running) Fri 2020-04-10 00:52:16 EDT; 6min ago
+ Main PID: 25041 (project-mercury.sh)
+   Tasks: 2 (limit: 4915)
+   CGroup: /system.slice/project-mercury.service
+           ├─6494 sleep 60
+           └─25041 /bin/bash /usr/bin/project-mercury.sh
+```
+
+Stop the service when you are done verifying:
+
+```bash
+sudo systemctl stop project-mercury.service
+```
+
+#### Step 2: Enable the service at boot
+
+Add an `[Install]` section so systemd starts the unit when the system reaches the graphical target (if it is your default environment):
+
+```ini
+[Service]
+ExecStart=/bin/bash /usr/bin/project-mercury.sh
+
+[Install]
+WantedBy=graphical.target
+```
+
+Enable it after saving the file:
+
+```bash
+sudo systemctl enable project-mercury.service
+```
+
+#### Step 3: Run under a dedicated user
+
+By default, services run as root. Add `User=project_mercury` so the script runs under the pre-created account:
+
+```ini
+[Service]
+ExecStart=/bin/bash /usr/bin/project-mercury.sh
+User=project_mercury
+
+[Install]
+WantedBy=graphical.target
+```
+
+> Using a dedicated service account limits what the process can do if it is compromised, which is a basic hardening practice.
+
+#### Step 4: Restart on failure only
+
+Use `Restart=on-failure` so systemd retries after crashes but does not bring the service back when an administrator stops it manually. `RestartSec=10` waits ten seconds between attempts:
+
+```ini
+[Service]
+ExecStart=/bin/bash /usr/bin/project-mercury.sh
+User=project_mercury
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=graphical.target
+```
+
+> systemd records start, stop, and failure events in the journal by default, so no extra logging directives are needed for the requirements listed above. Inspect them with `journalctl -u project-mercury.service`.
+
+#### Step 5: Depend on PostgreSQL
+
+The Django app needs PostgreSQL running first. Add a `[Unit]` section with metadata and `After=postgresql.service` so ordering is correct at boot:
+
+```ini
+[Unit]
+Description=Python Django for Project Mercury
+Documentation=http://wiki.caleston-dev.ca/reported
+After=postgresql.service
+
+[Service]
+ExecStart=/bin/bash /usr/bin/project-mercury.sh
+User=project_mercury
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=graphical.target
+```
+
+Reload systemd after every unit file change:
+
+```bash
+sudo systemctl daemon-reload
+```
+
+#### Final unit file
+
+Together, the sections above produce the complete service definition:
+
+```ini
+[Unit]
+Description=Python Django for Project Mercury
+Documentation=http://wiki.caleston-dev.ca/reported
+After=postgresql.service
+
+[Service]
+ExecStart=/bin/bash /usr/bin/project-mercury.sh
+User=project_mercury
+WorkingDirectory=/opt/caleston-code/mercuryProject
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=graphical.target
+```
+
+After placing the file under `/etc/systemd/system/`, run `daemon-reload`, then `enable` and `start` the unit. Use `systemctl status` and `journalctl` to confirm behavior under boot, manual stop, and simulated failure.
+
+### SYSTEMD Tools
+
+With `project-mercury.service` defined, day-to-day work shifts to two utilities: **`systemctl`** for managing units and targets, and **`journalctl`** for reading logs. Together they cover service lifecycle, boot targets, and troubleshooting.
+
+#### Managing services with systemctl
+
+`systemctl` is the primary command for starting, stopping, and inspecting services on systemd-based systems. The examples below use **Docker**; replace `docker` with any unit name (for example `project-mercury`).
+
+| Action                             | Command                    |
+| ---------------------------------- | -------------------------- |
+| Start                              | `systemctl start docker`   |
+| Stop                               | `systemctl stop docker`    |
+| Restart (stop then start)          | `systemctl restart docker` |
+| Reload config without full restart | `systemctl reload docker`  |
+| Enable at boot                     | `systemctl enable docker`  |
+| Disable at boot                    | `systemctl disable docker` |
+| Show status                        | `systemctl status docker`  |
+
+Examples:
+
+```bash
+[~]$ systemctl start docker
+[~]$ systemctl stop docker
+[~]$ systemctl restart docker
+[~]$ systemctl reload docker
+[~]$ systemctl enable docker
+[~]$ systemctl disable docker
+[~]$ systemctl status docker
+```
+
+A healthy service reports **active (running)**:
+
+```text
+● docker.service - Docker Application Container Engine
+   Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sat 2020-03-21 00:45:22 EDT; 43s ago
+     Docs: https://docs.docker.com
+ Main PID: 23340 (dockerd)
+    Tasks: 18
+   CGroup: /system.slice/docker.service
+           └─23340 /usr/bin/dockerd -H fd:// --container=/run/containerd/containerd.sock
+
+Mar 21 00:45:21 bob-Bionic dockerd[23340]: time="2020-03-21T00:45:21.628503806-04:00" level=warning msg="Your kernel does not ...
+Mar 21 00:45:22 bob-Bionic systemd[1]: Started Docker Application Container Engine.
+```
+
+Other common `Active` values:
+
+- **inactive (dead)**: the unit is stopped
+- **activating** / **deactivating**: transitional states during start or stop
+- **failed**: start or runtime error; check the unit file and logs
+
+Whenever you edit a unit file on disk, reload systemd so it picks up changes:
+
+```bash
+[~]$ systemctl daemon-reload
+```
+
+To edit a unit in a drop-in or replace the full file interactively:
+
+```bash
+[~]$ systemctl edit project-mercury.service --full
+```
+
+Saving through `systemctl edit` applies changes immediately; you do not need a separate `daemon-reload` afterward.
+
+#### Working with system targets
+
+Targets group units into boot states (the systemd equivalent of runlevels). You already used `graphical.target` for Project Mercury; the same commands apply system-wide.
+
+View the default target:
+
+```bash
+[~]$ systemctl get-default
+```
+
+Change it (for example to multi-user, non-graphical mode):
+
+```bash
+[~]$ systemctl set-default multi-user.target
+```
+
+List units systemd has loaded or attempted to load:
+
+```bash
+[~]$ systemctl list-units --all
+```
+
+Sample output:
+
+```text
+UNIT
+network.target
+nss-lookup.target
+paths.target
+remote-fs.target
+rescue.target
+shutdown.target
+LOAD      ACTIVE   SUB      JOB       DESCRIPTION
+loaded    active   active   -         Network
+loaded    active   active   -         Host and Network Name Lookup
+loaded    inactive dead     -         Paths
+loaded    inactive dead     -         Remote File Systems
+loaded    inactive dead     -         Rescue Mode
+loaded    inactive dead     -         Shutdown
+```
+
+Omit `--all` to see only active units:
+
+```bash
+[~]$ systemctl list-units
+```
+
+#### Querying logs with journalctl
+
+`journalctl` reads the systemd journal. With no options it streams the full log from oldest to newest; in practice you filter by unit or time range.
+
+Logs for a specific service:
+
+```bash
+[~]$ journalctl -u docker.service
+```
+
+Example output:
+
+```text
+-- Logs begin at Fri 2020-03-13 19:47:51 EDT, end at Sat 2020-03-21 02:29:48 EDT. --
+Mar 19 17:43:21 systemd[1]: Starting Docker Application Container Engine...
+Mar 19 17:43:22 dockerd[2590]: level=info msg="Starting up"
+Mar 19 17:43:22 dockerd[2590]: level=warning msg="[graphdriver] WARNING"
+Mar 19 17:43:23 dockerd[2590]: level=info msg="Docker daemon" commit=63
+Mar 19 17:43:23 systemd[1]: Started Docker Application Container Engine.
+```
+
+For Project Mercury, use `journalctl -u project-mercury.service` after start, stop, or failure events. Filtered journal output is often the fastest way to see misconfigured `ExecStart` paths, permission errors, or dependency ordering problems.
+
+![systemd tools overview: systemctl for unit and target management, journalctl for journal logs](https://kodekloud.com/kk-media/image/upload/v1752881143/notes-assets/images/Learning-Linux-Basics-Course-Labs-SYSTEMD-Tools/frame_70.jpg)
+
+**Summary:** `systemctl` drives service and target lifecycle; `journalctl` explains what happened when something fails. The Project Mercury unit from the previous section is one concrete example; the same workflow applies to Docker, databases, and any other daemon on the system.
+
+<h2 id="storage-in-linux">Storage in Linux</h2>
+
+### Disk Partitions
+
+#### Block Devices
+
+A block device denotes a hardware component used for data storage and is typically represented as a file in the `/dev` directory. Devices such as traditional spinning hard disks and solid-state disks (SSD) are common examples. Data on these devices is accessed in fixed-size blocks.
+
+You can list the block devices on your system using the `lsblk` command. Additionally, using `ls -l` in the `/dev` directory and filtering for lines starting with “b” helps you identify block files.
+
+```bash
+$ lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda      8:0    0 119.2G 0 disk
+├─sda1   8:1    0   100M 0 part /boot/efi
+├─sda2   8:2    0  72.5G 0 part /media/MM/Data
+└─sda3   8:3    0  46.6G 0 part /
+
+$ ls -l /dev/ | grep "^b"
+brw-rw----  1 root disk  8,  0 Mar 19 17:43 sda
+brw-rw----  1 root disk  8,  1 Mar 19 17:42 sda1
+```
+
+Each block device is assigned a major and minor number:
+
+- The **major number** (8 in this case) identifies the type of block device (commonly associated with SCSI devices, hence the “sd” prefix).
+- The **minor numbers** differentiate among individual physical or logical devices, such as the whole disk and its partitions.
+
+#### Partitions
+
+In the example above, the SSD disk is divided into three partitions:
+
+- `sda3` is used as the root partition.
+- `sda2` (72.5GB) is mounted at /media/MM/Data and is typically used for storing backup data.
+- `sda1` is mounted at /boot/efi to store boot loader files needed during system startup.
+
+> It is possible to use a disk without partitioning; however, partitioning is generally recommended because it offers improved flexibility and organization.
+
+The `fdisk` command lists the partition table but also allows you to create or delete partitions. Running `fdisk -l /dev/sda` provides detailed information such as partition type, disk size in bytes, and sector details.
+
+```bash
+$ sudo fdisk -l /dev/sda
+Disk /dev/sda: 119.2 GiB, 1280355676160 bytes, 250069680 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: 7CABF26E-9723-4406-ZEA1-C2B9B6270A23
+
+Device        Start       End   Sectors Size Type
+/dev/sda1     2048    206847   204800 100M EFI System
+/dev/sda2   239616  150194175 149954560 71.5G Linux filesystem
+/dev/sda3   150194176 247955455 97761280 46.6G Linux filesystem
+```
+
+#### Partitioning Schemes
+
+There are three primary types of disk partitions:
+
+- **Primary Partition**: Used for booting an operating system. Traditionally, disks could have a maximum of four primary partitions.
+- **Extended Partition**: Acts as a container for logical partitions; it cannot be used directly.
+- **Logical Partition**: Created within an extended partition to bypass the four primary partition limitation.
+
+A partitioning scheme, or partition table, defines how these partitions are organized on a disk. GPT (GUID Partition Table) supports an almost unlimited number of partitions, often limited only by the operating system, such as RHEL’s limit of 128 partitions per disk, and eliminates the 2TB disk size restriction.
+
+#### Creating a New Partition with GPT
+
+The `gdisk` command allows you to create a new partition.
+
+```bash
+$ gdisk /dev/sdb
+GPT fdisk (gdisk) version 1.0.1
+
+Partition table scan:
+MBR: protective
+BSD: not present
+APM: not present
+GPT: present
+
+Found valid GPT with protective MBR; using GPT.
+Command (? for help):
+```
+
+To add a new partition, press `n` and follow the interactive prompts:
+
+```bash
+Command (? for help): n
+Partition number (1-128, default 1): 1
+First sector (34-419430006, default = 2048) or {+-}size{KMGT}: 2048
+Information: Moved requested sector from 34 to 2048 in order to align on 2048-sector boundaries.
+Use 'l' on the experts' menu to adjust alignment
+Last sector (2048-419430006, default = 419430006)
+Current type is 'Linux filesystem'
+Hex code or GUID (L to show codes, Enter = 8300):
+Changed type of partition to 'Linux filesystem'
+Command (? for help):
+```
+
+> Partition size can be typed in the Last Sector question. Size formats are `+500M`, `+20G`, etc
+
+After providing the partition details and confirming with the default hex code (8300 for Linux filesystem), finalize the changes by writing the new partition table to disk. Press `W` at the prompt:
+
+```bash
+Command (? for help): W
+Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING PARTITIONS!!
+
+Do you want to proceed? (Y/N): Y
+OK; writing new GUID partition table (GPT) to /dev/sdb.
+The operation has completed successfully.
+```
+
+The new partition `/dev/sdb1` is now available. Verify the partition creation using `lsblk` or `fdisk -l`.
+
+### File Systems
+
+After partitioning divides a disk into segments of usable space, the Linux kernel still treats these partitions as **raw disk** areas. To read and write data, you must create a file system that defines the storage structure and then mount that file system to a directory.
+
+The extended family (`ext2`, `ext3`, `ext4`) is common on Linux. The table below compares their main characteristics:
+
+| Feature              | EXT2                            | EXT3 | EXT4      |
+| -------------------- | ------------------------------- | ---- | --------- |
+| Max file size        | 2 TB                            | 2 TB | 16 TB     |
+| Max volume size      | 4 TB                            | 4 TB | 1 exabyte |
+| Journaling           | No (long <br /> crash recovery) | Yes  | Yes       |
+| Journal checksum     | N/A                             | N/A  | Yes       |
+| Compression          | Yes                             | N/A  | N/A       |
+| Linux permissions    | Yes                             | N/A  | N/A       |
+| Backwards compatible | N/A                             | Yes  | Yes       |
+
+Ext4 further enhances Ext2 and Ext3 capabilities and is one of the most popular general-purpose file systems today; it supports files up to 16 TB and volumes as large as 1 exabyte. Additionally, ext4 (as well as ext3) offers backward compatibility: a file system created with ext4 can be mounted as ext3 or ext2, and an ext3 file system can be mounted as ext2.
+
+#### Creating and Mounting an ext4 File System
+
+Use the `mkfs.ext4` command to format the device.
+
+```bash
+[~]$ mkfs.ext4 /dev/sdb1
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (32768 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+[~]$ mkdir /mnt/ext4
+[~]$ mount /dev/sdb1 /mnt/ext4
+```
+
+#### Verifying the Mounted File System
+
+You can confirm that the file system is mounted correctly by using the mount command combined with grep:
+
+```bash
+[~]$ mount | grep /dev/sdb1
+/dev/sdb1 on /mnt/ext4 type ext4 (rw,relatime,data=ordered)
+```
+
+#### Configuring Automatic Mounting at Boot
+
+To automatically mount the file system during system boot, add an entry to the `/etc/fstab` file. This enables persistent mounting and ensures the file system is available after a reboot. For example:
+
+```bash
+# /etc/fstab: static file system information.
+#
+# Use 'blkid' to print the universally unique identifier for a
+# device; this may be used with UUID= as a more robust way to name devices
+# that works even if disks are added and removed. See fstab(5).
+/dev/sda1  /  ext4  defaults,relatime,errors=panic  0  1
+```
+
+Add an entry by either modifying `/etc/fstab` or with a command:
+
+```bash
+echo "/dev/sdb1 /mnt/ext4 ext4 rw 0 0" >> /etc/fstab
+```
+
+In the fstab entry:
+
+| Field | Meaning                                                               | Example                          |
+| ----- | --------------------------------------------------------------------- | -------------------------------- |
+| 1     | Device or filesystem to mount                                         | `/dev/sda1`                      |
+| 2     | Directory where the file system is mounted                            | `/`                              |
+| 3     | File system type                                                      | `ext4`                           |
+| 4     | Mount options (e.g. `rw` for read-write)                              | `defaults,relatime,errors=panic` |
+| 5     | Whether `dump` backs up this file system (often `0`)                  | `0`                              |
+| 6     | Boot-time `fsck` order (`0` = skip; `1` is usually reserved for root) | `1`                              |
+
+> use `sudo blkid /dev/vdd` to verify the type of filesystem created
+
+### DAS, NAS and SAN
+
+This section provides an overview of DAS, NAS, and SAN external storage technologies essential for enterprise-grade environments.
+
+There are three commonly used external storage technologies:
+
+- Direct-Attached Storage (DAS)
+- Network-Attached Storage (NAS)
+- Storage Area Network (SAN)
+
+#### Direct-Attached Storage (DAS)
+
+Direct-Attached Storage (DAS) connects storage devices directly to a host system. The operating system recognizes these devices as block devices, allowing for excellent performance with minimal latency because there is no network or firewall overhead.
+
+DAS is particularly well-suited for small businesses and environments where storage does not need to be shared among multiple servers. However, its direct attachment means scalability is limited, making it less ideal for larger, enterprise environments that demand shared and flexible storage solutions.
+
+#### Network-Attached Storage (NAS)
+
+Network-Attached Storage (NAS) is ideal for mid-to-large businesses that require shared file storage accessible over a network. NAS devices are physically separate from the computing hosts, and data is transferred via a network connection. Even if the physical distance is minimal (such as devices within the same rack in a data center), the data still travels through network infrastructure.
+
+NAS typically functions as an NFS (Network File System) server, exporting storage as directories or shares that can be accessed simultaneously by multiple hosts. Its design supports centralized shared storage with high availability and good performance, particularly with high-speed Ethernet connectivity. NAS is well-suited for web servers, application servers, and non-production database environments. It is important to note that installing an operating system directly on a NAS device is generally not recommended.
+
+#### Storage Area Network (SAN)
+
+Storage Area Network (SAN) provides block storage designed for enterprises running mission-critical applications that demand high throughput and low latency. In a SAN system, storage is allocated to hosts as Logical Unit Numbers (LUNs), which represent sections of a shared storage pool presented as logical disks to the server.
+
+When a host system detects a SAN device, it appears as a raw disk where partitions and file systems can be created, much like any other block device. SAN systems typically use Fibre Channel Protocol (FCP) for high-speed data transfer, though Ethernet-based solutions do exist. A Host Bus Adapter (HBA) installed in the server (usually via a PCI slot) connects to Fibre Channel switches, ensuring that SAN environments can deliver superior performance and reliability.
+
+### NFS Filesystem
+
+Unlike block devices that manage data in blocks, NFS stores data as individual files, offering a unique file-centric approach to network storage.
+
+NFS utilizes a server-client model to share directories seamlessly across the network. For instance, consider a software repository server that maintains a directory at `/software/repos`. By **exporting** this directory using NFS, employee laptops can access its contents as if the files were stored locally, even though they reside on the server.
+
+> In NFS terminology, **exporting** refers to the process of sharing a directory with client systems.
+
+On the NFS server, directory sharing is managed through the exports configuration file located at `/etc/exports`. This file specifies which clients are permitted to access the shared directories.
+
+```bash
+/software/repos 10.61.35.201 10.61.35.202 10.61.35.203
+```
+
+The above snippet shows a basic export configuration. Instead of listing individual IP addresses, you could also specify network ranges or use a wildcard (\*) if you want to allow access from any client. Note that in many environments a firewall sits between the server and its clients, requiring specific ports to be opened for NFS traffic.
+
+After updating the /etc/exports file on the server, apply the changes and share the directories using the exportfs command. To export all the mounts defined in the exports file, use:
+
+```bash
+exportfs -a
+```
+
+Alternatively, to manually export a directory to a specific client, you can run:
+
+```bash
+exportfs -o 10.61.35.201:/software/repos
+```
+
+Once the directory is exported on the server, you can mount it on the client machine. To mount the shared directory (for example, to the local directory `/mnt/software/repos`), use the following command, ensuring that you specify the NFS server’s IP (or hostname) followed by the exported directory separated by a colon:
+
+```bash
+mount 10.61.112.101:/software/repos /mnt/software/repos
+```
+
+With these steps, the NFS share should now be successfully mounted on the client system, enabling seamless file access from the server.
+
+### Logic Volume Manager (LVM)
+
+The Logical Volume Manager (LVM) is a powerful tool that enables you to group multiple physical volumes (disks or partitions) into a single volume group (VG). From the volume group, you can then allocate one or more logical volumes (LVs).
+
+> One of LVM’s most significant advantages is its ability to resize logical volumes dynamically, provided there is sufficient free space in the volume group. This feature is especially useful for systems with changing storage requirements.
+
+#### Steps
+
+**Prerequisites**
+
+Ensure that the LVM2 package is installed on your system. Use the command below to install LVM2:
+
+```bash
+apt-get install lvm2
+```
+
+**Step 1: Create a Physical Volume**
+
+The initial step in configuring LVM is to identify available disks or partitions and create physical volumes (PVs) from them. A physical volume represents the disk or partition in LVM.
+For example, to create a physical volume on the device path `/dev/sdb`, execute:
+
+```bash
+pvcreate /dev/sdb
+```
+
+Expected output:
+
+```bash
+Physical volume "/dev/sdb" successfully created
+```
+
+**Step 2: Create a Volume Group**
+
+Once the physical volume is established, create a volume group (VG) that will host your logical volumes. In this example, the VG is named `caleston_vg` and includes `/dev/sdb`:
+
+```bash
+vgcreate caleston_vg /dev/sdb
+```
+
+Expected output:
+
+```bash
+Volume group "caleston_vg" successfully created
+```
+
+To display details about the physical volume, run:
+
+```bash
+pvdisplay
+```
+
+Sample output:
+
+```bash
+--- Physical volume ---
+PV Name /dev/sdb
+VG Name caleston_vg
+PV Size 20.00 GiB / not usable 3.00 MiB
+Allocatable yes
+PE Size 4.00 MiB
+Total PE 5119
+Free PE 5119
+Allocated PE 0
+PV UUID iDCXIN-En2h-5IlJ-Yjqv-GcsR-gDfV-zaf66E
+```
+
+For further information about the volume group, use:
+
+```bash
+vgdisplay
+```
+
+Sample output:
+
+```bash
+--- Volume group ---
+VG Name caleston_vg
+System ID LVM2-XXXXXX
+Format lvm2
+Metadata Areas 1
+Metadata Sequence No 1
+VG Access read/write
+VG Status resizable
+MAX LV 0
+Cur LV 0
+Open LV 0
+Max PV 0
+Cur PV 1
+Act PV 1
+VG Size 20.00 GiB
+PE Size 4.00 MiB
+Total PE 5119
+Alloc PE / Size 0 / 0
+Free PE / Size 5119 / 20.00 GiB
+VG UUID VzmIAn-9cEl5bA-lVtm-wHKX-KQaObR
+```
+
+**Step 3: Create a Logical Volume**
+
+After establishing the volume group, create a logical volume (LV). In this example, we create a 1GB LV named `vol1` within the `caleston_vg` volume group:
+
+```bash
+lvcreate -L 1G -n vol1 caleston_vg
+```
+
+Expected output:
+
+```bash
+Logical volume "vol1" created.
+```
+
+To verify that the LV was created successfully, list all logical volumes:
+
+```bash
+lvs
+```
+
+Sample output:
+
+```bash
+LV VG Attr LSize Pool
+vol1 caleston_vg -wi-a----- 1.00g
+```
+
+**Step 4: Create and Mount a Filesystem**
+
+With your logical volume in place, the next step is to create a filesystem on it. In this example, we create an ext4 filesystem on `/dev/caleston_vg/vol1`:
+
+```bash
+mkfs.ext4 /dev/caleston_vg/vol1
+```
+
+After the filesystem is created, mount it to a directory (e.g., /mnt/vol1) to make it accessible:
+
+```bash
+mount -t ext4 /dev/caleston_vg/vol1 /mnt/vol1
+```
+
+**Step 5: Resize the Logical Volume and Filesystem**
+
+Sometimes you may need to expand the logical volume while it remains mounted. Begin by verifying that there is sufficient free space in the volume group:
+
+```bash
+vgs
+```
+
+Sample output:
+
+```bash
+VG           #PV #LV #SN Attr   VSize  VFree
+caleston_vg   1  1   1   0 wz--n- 20.00g 19.00g
+```
+
+If there is enough free space, extend the logical volume by an additional 1GB:
+
+```bash
+lvresize -L +1G /dev/caleston_vg/vol1
+```
+
+Expected output:
+
+```bash
+Logical volume vol1 successfully resized.
+```
+
+> At this stage, even after resizing the logical volume, the filesystem will still report its original size (1GB) when using the `df` command because only the LV has been extended. It is essential to also resize the filesystem with the `resize2fs` command.
+
+Resize the filesystem using:
+
+```bash
+resize2fs /dev/caleston_vg/vol1
+```
+
+The output will indicate that the filesystem has been resized. Finally, verify the new filesystem size:
+
+```bash
+df -hP /mnt/vol1
+```
+
+Sample output:
+
+```bash
+Filesystem                      Size  Used Avail Use% Mounted on
+/dev/mapper/caleston_vg-vol1     2.0G  1.6M  1.9G   1% /mnt/vol1
+​
+```
+
+> It’s important to note that the logical volume can be accessed through two different paths: `/dev/caleston_vg/vol1` and `/dev/mapper/caleston_vg-vol1`. Both paths refer to the same logical volume, so you can use either interchangeably in your commands and configurations.
