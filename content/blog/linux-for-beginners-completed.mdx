@@ -1,0 +1,52 @@
+---
+title: "I Just Finished the Linux for Beginners Course: Here's What I Took Away"
+date: "2026-06-01"
+description: "Reflections on completing the Linux for Beginners course: what surprised me, what my developer background already covered, and why this feels like the right foundation for everything DevOps next."
+tags:
+  - Linux
+  - DevOps
+  - Reflection
+draft: false
+---
+
+I finished the Linux for Beginners course this week. It's one of those courses I knew I needed to do properly rather than skim, and I'm glad I sat with it. These are my honest impressions.
+
+## Coming in with some prior context
+
+I've been a developer for several years. That background doesn't make you a Linux expert, but it does mean certain parts of the course aren't starting from zero.
+
+Networking concepts like IP addressing, DNS resolution, and how routing works between machines were already reasonably familiar territory. Not at a deep infrastructure level, but enough that the explanations landed quickly and I could focus on the Linux-specific implementation rather than rebuilding the underlying mental model from scratch.
+
+The same was true for the filesystem. Understanding why `/etc` holds configuration, why `/var` is where logs live, or why `/tmp` gets cleaned on reboot. These made immediate sense because I've spent years working in environments built on top of these conventions. You absorb them through proximity even when nobody explicitly teaches them.
+
+File permissions followed the same pattern. The idea that files have owners, groups, and a set of read/write/execute flags wasn't new. What the course added was precision: I finally sat down and properly understood the octal notation, how `umask` works, and the difference between a hard link and a symbolic link beyond just knowing one has a target path and one doesn't.
+
+So the early chapters moved quickly. Not because I was rushing, but because recognition is a different cognitive load than learning from scratch. I was filling in gaps rather than building from the ground up.
+
+## Where things got genuinely interesting
+
+Then came the sections I had much thinner context for, and that's where the course really earned its keep.
+
+**IPTables** was one of those topics I had vaguely heard about without ever engaging with properly. Learning how Linux uses it to filter, accept, drop, and redirect network packets at the kernel level, and actually writing rules to control which traffic gets through, felt like a real unlock. It's not abstract once you're configuring chains and seeing exactly what happens to traffic that doesn't match a rule. There's something satisfying about understanding how a firewall works at that level of detail rather than just knowing a firewall "exists somewhere in the stack."
+
+**SYSTEMD and service management** was the other area that genuinely surprised me. Creating a custom `.service` unit file, defining how a process should start, what it should do when it crashes, what other services it depends on, and then controlling it with `systemctl`. This is one of those things that always seemed like arcane sysadmin territory. It isn't. It's a well-designed system once you understand the unit file syntax and how targets work. The moment I ran `systemctl enable` on a service I had written myself and watched it start automatically on boot, the whole boot sequence discussion from earlier in the course clicked into place.
+
+These weren't just academic exercises. They're the kind of skills that would have saved me hours of confusion in past projects where I was debugging a service that wasn't starting, or trying to understand why traffic wasn't reaching a container.
+
+## What the course actually gave me
+
+The best way I can describe it: the course connected the dots between things I knew in isolation.
+
+I knew processes existed. Now I understand how the kernel schedules them, how they inherit environments from parent processes, and how SYSTEMD sits above all of that managing their lifecycle. I knew disks had partitions. Now I understand the difference between a partition, a filesystem, and a mount point, and how LVM layers on top of all of that to give you flexibility that raw partitions can't. I knew SSH existed. Now I understand how the key exchange works, how to harden a server by disabling password authentication, and why the specific settings in `sshd_config` matter.
+
+None of this is deep specialisation. But it's the foundation that makes deeper work possible.
+
+## What comes next
+
+My DevOps learning path has a clear shape from here. Docker, Kubernetes, Terraform, CI/CD pipelines: all of them run on Linux. Container images are Linux environments. Kubernetes nodes are Linux machines. When something breaks in a deployment and you need to go from the application layer down to the OS to understand what's happening, the course I just finished is what gives you the vocabulary and the tools to do that.
+
+The immediate next step is Shell Scripts for Beginners. That's a natural continuation from where Linux fundamentals leaves off. I now understand the shell, the filesystem, process management, and service configuration. Shell scripting is what lets you combine all of that into something automated and reusable: scheduled backups, multi-server patching, system health checks, log analysis. The things that turn manual Linux knowledge into actual operational capability.
+
+I don't think you can learn DevOps seriously without owning your Linux fundamentals. Not because you need to become a kernel developer, but because every layer above it assumes this knowledge. Networking troubleshooting, storage management, service configuration, permission errors: these surface constantly in DevOps workflows, and being able to handle them without getting stuck is what separates people who can own infrastructure from people who can only follow a tutorial.
+
+The Linux for Beginners course is exactly what I needed at exactly this point. Shell scripting is the next logical step, and after that, the bigger DevOps tools are waiting.

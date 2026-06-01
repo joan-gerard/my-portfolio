@@ -25,6 +25,7 @@ const LINKS: NavLinkItem[] = [
   { label: "Work", kind: "section", section: "work" },
   { label: "Experience", kind: "section", section: "experience" },
   { label: "Challenge", kind: "route", href: "/devops-100-days" },
+  { label: "Learn", kind: "route", href: "/learn" },
   { label: "Blog", kind: "route", href: "/blog" },
 ];
 

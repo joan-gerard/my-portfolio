@@ -1,0 +1,103 @@
+---
+title: "Linux Package Management"
+description: "Linux distributions, RPM, YUM, DPKG, APT, and how to install, update, and remove software reliably."
+draft: false
+---
+
+
+<h3 id="package-management-introduction">Introduction</h3>
+
+Before diving into specific package managers, it's worth understanding what a Linux distribution actually is. A distro is a complete OS built by bundling the core Linux kernel with software, tools, and a package manager.
+
+#### What makes up a Distro?
+
+A good way to think about it: a distribution is like a "pre-packaged meal" where the kernel is the main ingredient, but each chef (the distro creator) adds different sides and seasonings:
+
+- Linux Kernel: The core engine that talks to your hardware.
+- Package Manager: The tool used to install and update software (like the App Store).
+- Desktop Environment: The visual interface (windows, taskbars, and menus).
+- Default Apps: Pre-installed software like a web browser (Firefox) or office suite (LibreOffice).
+
+#### Debian-based vs. Red Hat-based
+
+Most Linux systems fall into one of two families. They differ primarily in philosophy, package format, and target audience:
+
+| Feature         | Debian-based                                                     | Red Hat-based                                                      |
+| --------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Philosophy      | Strictly community-driven; focuses on free open-source software. | Commercial focus; built for enterprise stability and paid support. |
+| Package Format  | Uses `.deb` files.                                               | Uses `.rpm` files.                                                 |
+| Tools           | APT (high-level) and `dpkg` (low-level).                         | DNF or YUM (high-level) and RPM (low-level).                       |
+| Popular Distros | Ubuntu, Linux Mint, Kali Linux, Pop!\_OS.                        | Fedora, RHEL, Rocky Linux, AlmaLinux.                              |
+| Support         | Community-led (forums, wikis, and volunteers).                   | Professional (paid 24/7 corporate support from Red Hat).           |
+
+<h3 id="rpm-and-yum">RPM and YUM</h3>
+
+On Red Hat-based systems, you'll work with two tools: RPM for direct package operations, and YUM as the higher-level manager that handles dependency resolution automatically. Here's how each works:
+
+#### RPM (Red Hat Package Manager)
+
+| Mode         | Command                                                                                                                                               |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Installation | `rpm -ivh telnet.rpm`<br /><br />`-i`: Install the package<br />`-v`: Verbose mode for detailed output.<br />`-h`: Display the installation progress. |
+| Uninstalling | `rpm -e telnet.rpm`                                                                                                                                   |
+| Upgrade      | `rpm -Uvh telnet.rpm`<br /><br />Note the uppercase `U`                                                                                               |
+| Query        | `rpm -q telnet.rpm`                                                                                                                                   |
+| Verifying    | `rpm -Vf <path to file>`<br /><br />Note the uppercase `V`                                                                                            |
+
+> One important limitation of **RPM** is that it does not automatically resolve package dependencies. This shortcoming is addressed by a higher-level package manager known as **YUM**
+
+#### YUM (Yellowdog Updater Modified)
+
+Repository configurations live in `.repo` files under `/etc/yum.repos.d`. YUM reads these to know where to look for packages; repositories can be local or remote.
+
+##### YUM Installation Process
+
+When you run `yum install`, YUM does a full transaction check before downloading anything:
+
+- It verifies if the package is already installed.
+- It searches the enabled repositories in /etc/yum.repos.d for the package.
+- It checks for any missing or outdated dependencies.
+
+##### Common YUM Commands
+
+| Task                      | Command             | Use Case                                                     |
+| ------------------------- | ------------------- | ------------------------------------------------------------ |
+| List repositories         | `yum repolist`      | Display all configured repositories                          |
+| Identify package source   | `yum provides scp`  | Find which package provides a specific command (e.g., `scp`) |
+| Remove a package          | `yum remove httpd`  | Uninstall a package from the system                          |
+| Update a specific package | `yum update telnet` | Upgrade a package (e.g., Telnet)                             |
+| Update all packages       | `yum update`        | Upgrade all installed packages                               |
+
+<h3 id="dpkg-and-apt">DPKG and APT</h3>
+
+On the Debian side, DPKG is the low-level tool that handles individual `.deb` packages, while APT is the high-level interface most people actually use day-to-day.
+
+#### DPKG (Debian Package Manager)
+
+| Task                      | Command                  |
+| ------------------------- | ------------------------ |
+| Install or update package | `dpkg -i telnet.deb`     |
+| Remove package            | `dpkg -r telnet`         |
+| List package details      | `dpkg -l telnet`         |
+| Check package status      | `dpkg -s telnet`         |
+| Verify the package        | `dpkg -p <path to file>` |
+
+#### APT (Advanced Package Tool)
+
+APT builds on DPKG and adds dependency resolution, repository management, and a cleaner interface. It's what you'll realistically use most on Ubuntu or any Debian-based system. Repository sources are defined in:
+
+```bash
+/etc/apt/sources.list
+```
+
+**Common APT Commands**
+
+Here are the commands I reach for most often:
+| Task | Command | Description |
+| --- | --- | --- |
+| Update repositories | `apt update` | Refresh the package repository information |
+| Upgrade packages | `apt upgrade` | Upgrade installed packages to the latest version in the repository |
+| Install a package | `apt install telnet` | Install a package (e.g., Telnet) and resolve dependencies automatically |
+| Remove a package | `apt remove telnet` | Remove an installed package |
+| Search for a package | `apt search telnet` | Search for a package within the repository |
+

@@ -1,0 +1,425 @@
+---
+title: "Storage in Linux"
+description: "Block devices, disk partitioning, filesystems, mounting, NFS, and logical volume management (LVM)."
+draft: false
+---
+
+
+### Disk Partitions
+
+#### Block Devices
+
+Storage in Linux starts with block devices: physical disks and SSDs that appear as files under `/dev`. Data is accessed in fixed-size blocks, hence the name. Two useful commands for inspecting them:
+
+```bash
+$ lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda      8:0    0 119.2G 0 disk
+├─sda1   8:1    0   100M 0 part /boot/efi
+├─sda2   8:2    0  72.5G 0 part /media/MM/Data
+└─sda3   8:3    0  46.6G 0 part /
+
+$ ls -l /dev/ | grep "^b"
+brw-rw----  1 root disk  8,  0 Mar 19 17:43 sda
+brw-rw----  1 root disk  8,  1 Mar 19 17:42 sda1
+```
+
+Each block device has a major and minor number:
+
+- The **major number** (8 in this case) identifies the type of block device (commonly associated with SCSI devices, hence the “sd” prefix).
+- The **minor numbers** differentiate among individual physical or logical devices, such as the whole disk and its partitions.
+
+#### Partitions
+
+In this example the SSD has three partitions:
+
+- `sda3` is used as the root partition.
+- `sda2` (72.5GB) is mounted at /media/MM/Data and is typically used for storing backup data.
+- `sda1` is mounted at /boot/efi to store boot loader files needed during system startup.
+
+> You can use a disk without partitioning, but partitioning is generally recommended for the flexibility and organization it provides.
+
+`fdisk -l` lists the partition table with full detail: disk size in bytes, sector layout, partition types, and more:
+
+```bash
+$ sudo fdisk -l /dev/sda
+Disk /dev/sda: 119.2 GiB, 1280355676160 bytes, 250069680 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: 7CABF26E-9723-4406-ZEA1-C2B9B6270A23
+
+Device        Start       End   Sectors Size Type
+/dev/sda1     2048    206847   204800 100M EFI System
+/dev/sda2   239616  150194175 149954560 71.5G Linux filesystem
+/dev/sda3   150194176 247955455 97761280 46.6G Linux filesystem
+```
+
+#### Partitioning Schemes
+
+MBR (the older standard) supports three partition types:
+
+- **Primary Partition**: Used for booting an operating system. Traditionally, disks could have a maximum of four primary partitions.
+- **Extended Partition**: Acts as a container for logical partitions; it cannot be used directly.
+- **Logical Partition**: Created within an extended partition to bypass the four primary partition limitation.
+
+GPT (GUID Partition Table) is the modern standard. It supports up to 128 partitions per disk and removes the old 2 TB size limit, making it the right choice for any new setup.
+
+#### Creating a New Partition with GPT
+
+Use `gdisk` to create partitions on a GPT disk:
+
+```bash
+$ gdisk /dev/sdb
+GPT fdisk (gdisk) version 1.0.1
+
+Partition table scan:
+MBR: protective
+BSD: not present
+APM: not present
+GPT: present
+
+Found valid GPT with protective MBR; using GPT.
+Command (? for help):
+```
+
+Press `n` to add a new partition and follow the prompts:
+
+```bash
+Command (? for help): n
+Partition number (1-128, default 1): 1
+First sector (34-419430006, default = 2048) or {+-}size{KMGT}: 2048
+Information: Moved requested sector from 34 to 2048 in order to align on 2048-sector boundaries.
+Use 'l' on the experts' menu to adjust alignment
+Last sector (2048-419430006, default = 419430006)
+Current type is 'Linux filesystem'
+Hex code or GUID (L to show codes, Enter = 8300):
+Changed type of partition to 'Linux filesystem'
+Command (? for help):
+```
+
+> Partition size can be typed in the Last Sector question. Size formats are `+500M`, `+20G`, etc
+
+After specifying the size and type, write the changes to disk with `W`:
+
+```bash
+Command (? for help): W
+Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING PARTITIONS!!
+
+Do you want to proceed? (Y/N): Y
+OK; writing new GUID partition table (GPT) to /dev/sdb.
+The operation has completed successfully.
+```
+
+The new partition `/dev/sdb1` is now available. Confirm with `lsblk` or `fdisk -l`.
+
+### File Systems
+
+Partitioning gives you raw space, but before you can store files you need to create a file system on top of it. The ext family is the most common choice on Linux. Here’s how the three versions compare:
+
+| Feature              | EXT2                            | EXT3 | EXT4      |
+| -------------------- | ------------------------------- | ---- | --------- |
+| Max file size        | 2 TB                            | 2 TB | 16 TB     |
+| Max volume size      | 4 TB                            | 4 TB | 1 exabyte |
+| Journaling           | No (long <br /> crash recovery) | Yes  | Yes       |
+| Journal checksum     | N/A                             | N/A  | Yes       |
+| Compression          | Yes                             | N/A  | N/A       |
+| Linux permissions    | Yes                             | N/A  | N/A       |
+| Backwards compatible | N/A                             | Yes  | Yes       |
+
+Ext4 is the most capable of the three and is the default on most Linux systems today. One nice property: the ext4 driver is backward compatible, meaning it can also mount ext3 and ext2 filesystems.
+
+#### Creating and Mounting an ext4 File System
+
+Format the partition with ext4 and mount it:
+
+```bash
+[~]$ mkfs.ext4 /dev/sdb1
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (32768 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+[~]$ mkdir /mnt/ext4
+[~]$ mount /dev/sdb1 /mnt/ext4
+```
+
+#### Verifying the Mounted File System
+
+Confirm the mount:
+
+```bash
+[~]$ mount | grep /dev/sdb1
+/dev/sdb1 on /mnt/ext4 type ext4 (rw,relatime,data=ordered)
+```
+
+#### Configuring Automatic Mounting at Boot
+
+To make the mount persist across reboots, add an entry to `/etc/fstab`:
+
+```bash
+# /etc/fstab: static file system information.
+#
+# Use 'blkid' to print the universally unique identifier for a
+# device; this may be used with UUID= as a more robust way to name devices
+# that works even if disks are added and removed. See fstab(5).
+/dev/sda1  /  ext4  defaults,relatime,errors=panic  0  1
+```
+
+Add the entry with:
+
+```bash
+echo "/dev/sdb1 /mnt/ext4 ext4 rw 0 0" >> /etc/fstab
+```
+
+In the fstab entry:
+
+| Field | Meaning                                                               | Example                          |
+| ----- | --------------------------------------------------------------------- | -------------------------------- |
+| 1     | Device or filesystem to mount                                         | `/dev/sda1`                      |
+| 2     | Directory where the file system is mounted                            | `/`                              |
+| 3     | File system type                                                      | `ext4`                           |
+| 4     | Mount options (e.g. `rw` for read-write)                              | `defaults,relatime,errors=panic` |
+| 5     | Whether `dump` backs up this file system (often `0`)                  | `0`                              |
+| 6     | Boot-time `fsck` order (`0` = skip; `1` is usually reserved for root) | `1`                              |
+
+> Use `sudo blkid /dev/vdd` to check the filesystem type on a device.
+
+### DAS, NAS and SAN
+
+At some point you’ll move beyond a single disk inside a server. Enterprise environments use shared storage that multiple servers can access, and there are three main approaches:
+
+- Direct-Attached Storage (DAS)
+- Network-Attached Storage (NAS)
+- Storage Area Network (SAN)
+
+#### Direct-Attached Storage (DAS)
+
+DAS connects storage directly to a single host. The OS treats it as a local block device, which means great performance and minimal latency; there’s no network involved. The downside is that it can’t be shared between servers, so it’s best suited for standalone machines or small setups.
+
+#### Network-Attached Storage (NAS)
+
+NAS serves file storage over the network. Multiple hosts can access the same share simultaneously, making it a natural fit for web servers, application servers, and shared storage environments. NAS devices typically act as NFS servers and are managed separately from the compute hosts. One thing to note: installing an OS directly on a NAS isn’t recommended.
+
+#### Storage Area Network (SAN)
+
+SAN takes a different approach: it provides block storage over a dedicated high-speed network. The server sees the storage as a raw disk (via a Logical Unit Number, or LUN) and manages partitioning and filesystems itself, just like a local disk. SANs typically use Fibre Channel Protocol (FCP) for maximum throughput, connected via Host Bus Adapters (HBAs). The result is the highest performance and reliability of the three options, at the cost of complexity and price.
+
+### NFS Filesystem
+
+NFS (Network File System) is the most common way to share a directory from one Linux server to other machines on the network. Clients mount the exported directory and interact with it just like a local folder, even though the files actually live on the server. For example, a software repository at `/software/repos` can be shared so that every machine in the office mounts and reads from it directly.
+
+> In NFS terminology, **exporting** means making a directory available to client systems.
+
+On the server side, `/etc/exports` lists what gets shared and who can access it:
+
+```bash
+/software/repos 10.61.35.201 10.61.35.202 10.61.35.203
+```
+
+Individual IPs, network ranges, or a wildcard (`*`) are all valid in this file. Keep in mind that most environments have a firewall between server and clients, so NFS ports need to be open.
+
+After updating `/etc/exports`, apply the changes with `exportfs`:
+
+```bash
+exportfs -a
+```
+
+To export a specific directory to a single client manually:
+
+```bash
+exportfs -o 10.61.35.201:/software/repos
+```
+
+On the client, mount the share like any other filesystem; specify the server IP and the exported path, separated by a colon:
+
+```bash
+mount 10.61.112.101:/software/repos /mnt/software/repos
+```
+
+After mounting, the client can read and write the NFS share as if it were a local directory.
+
+### Logical Volume Manager (LVM)
+
+LVM is one of those tools that feels complicated at first but becomes indispensable once you understand it. The idea is simple: pool physical disks into a **volume group**, then carve that pool into **logical volumes** that behave like regular partitions, but you can resize them live while they’re still mounted.
+
+> The killer feature: logical volumes can grow dynamically as long as there’s free space in the volume group, with no downtime required.
+
+#### Steps
+
+**Prerequisites**
+
+Make sure the LVM2 package is installed:
+
+```bash
+apt-get install lvm2
+```
+
+**Step 1: Create a Physical Volume**
+
+Create a physical volume on an available disk or partition:
+
+```bash
+pvcreate /dev/sdb
+```
+
+Expected output:
+
+```bash
+Physical volume "/dev/sdb" successfully created
+```
+
+**Step 2: Create a Volume Group**
+
+Create a volume group from the physical volume:
+
+```bash
+vgcreate caleston_vg /dev/sdb
+```
+
+Expected output:
+
+```bash
+Volume group "caleston_vg" successfully created
+```
+
+Inspect the physical volume:
+
+```bash
+pvdisplay
+```
+
+Sample output:
+
+```bash
+--- Physical volume ---
+PV Name /dev/sdb
+VG Name caleston_vg
+PV Size 20.00 GiB / not usable 3.00 MiB
+Allocatable yes
+PE Size 4.00 MiB
+Total PE 5119
+Free PE 5119
+Allocated PE 0
+PV UUID iDCXIN-En2h-5IlJ-Yjqv-GcsR-gDfV-zaf66E
+```
+
+And the volume group:
+
+```bash
+vgdisplay
+```
+
+Sample output:
+
+```bash
+--- Volume group ---
+VG Name caleston_vg
+System ID LVM2-XXXXXX
+Format lvm2
+Metadata Areas 1
+Metadata Sequence No 1
+VG Access read/write
+VG Status resizable
+MAX LV 0
+Cur LV 0
+Open LV 0
+Max PV 0
+Cur PV 1
+Act PV 1
+VG Size 20.00 GiB
+PE Size 4.00 MiB
+Total PE 5119
+Alloc PE / Size 0 / 0
+Free PE / Size 5119 / 20.00 GiB
+VG UUID VzmIAn-9cEl5bA-lVtm-wHKX-KQaObR
+```
+
+**Step 3: Create a Logical Volume**
+
+Create a logical volume from the pool:
+
+```bash
+lvcreate -L 1G -n vol1 caleston_vg
+```
+
+Expected output:
+
+```bash
+Logical volume "vol1" created.
+```
+
+List logical volumes to confirm:
+
+```bash
+lvs
+```
+
+Sample output:
+
+```bash
+LV VG Attr LSize Pool
+vol1 caleston_vg -wi-a----- 1.00g
+```
+
+**Step 4: Create and Mount a Filesystem**
+
+Format the logical volume with a filesystem and mount it:
+
+```bash
+mkfs.ext4 /dev/caleston_vg/vol1
+```
+
+```bash
+mount -t ext4 /dev/caleston_vg/vol1 /mnt/vol1
+```
+
+**Step 5: Resize the Logical Volume and Filesystem**
+
+One of the main reasons to use LVM is online resize. First, check available space in the volume group:
+
+```bash
+vgs
+```
+
+Sample output:
+
+```bash
+VG           #PV #LV #SN Attr   VSize  VFree
+caleston_vg   1  1   1   0 wz--n- 20.00g 19.00g
+```
+
+Extend the logical volume:
+
+```bash
+lvresize -L +1G /dev/caleston_vg/vol1
+```
+
+Expected output:
+
+```bash
+Logical volume vol1 successfully resized.
+```
+
+> After extending the LV, `df` still shows the original size because the filesystem itself hasn’t been resized yet. Resize it with `resize2fs`:
+
+```bash
+resize2fs /dev/caleston_vg/vol1
+```
+
+Verify the new size:
+
+```bash
+df -hP /mnt/vol1
+```
+
+Sample output:
+
+```bash
+Filesystem                      Size  Used Avail Use% Mounted on
+/dev/mapper/caleston_vg-vol1     2.0G  1.6M  1.9G   1% /mnt/vol1
+​
+```
+
+> The logical volume is accessible via two equivalent paths: `/dev/caleston_vg/vol1` and `/dev/mapper/caleston_vg-vol1`. They refer to the same device, so you can use either one interchangeably.

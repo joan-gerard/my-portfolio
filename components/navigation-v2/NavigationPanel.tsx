@@ -78,6 +78,12 @@ const NavigationPanel = ({
         />
         <NavLink
           setIsOpen={setIsOpen}
+          text="learn"
+          href="/learn"
+          isActive={pathname.startsWith("/learn")}
+        />
+        <NavLink
+          setIsOpen={setIsOpen}
           text="blog"
           href="/blog"
           isActive={pathname.startsWith("/blog")}

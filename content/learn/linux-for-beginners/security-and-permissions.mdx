@@ -1,0 +1,773 @@
+---
+title: "Security and File Permissions"
+description: "Linux file permissions, ownership, access control lists, SSH hardening, and sudo configuration."
+draft: false
+---
+
+
+Linux security is a broad topic, but this section of the course focuses on the fundamentals that matter most day-to-day: authentication, user accounts, and file permissions. Several tools and frameworks come into play:
+
+- PAM (Pluggable Authentication Modules): Governs how programs and services handle authentication.
+- Network Security Tools: Utilities such as iptables and Firewalld regulate access to network services.
+- SSH (Secure Shell): Provides secure remote access over unsecured networks, with SSH hardening ensuring only authorized users can connect.
+- SELinux: Enforces security policies to isolate applications running on the same system.
+
+> There are many tools for securing a Linux system, but this section focuses on the essentials: access control, file ownership, and permissions.
+
+### Linux Accounts
+
+#### User and Group Accounts
+
+Linux is a multi-user OS by design, so every person or service that needs access gets its own account. Each account holds details like the username, a unique identifier (UID), and a password.
+
+The home directory and default shell for each user are stored in `/etc/passwd`:
+
+```bash
+[~]$ cat /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin/nologin
+bin:x:2:2:bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+bob:1000:1000:Bob Kingsley,,,:/home/bob:/bin/bash
+```
+
+Groups let you organize users by role. Group membership and GIDs are stored in `/etc/group`. For example, two developers (Bob and Michael) could both belong to a `developers` group, which then gets shared access to relevant files:
+
+```bash
+[~]$ cat /etc/group
+ssh:x:118:
+lpadmin:x:119:
+scanner:x:120:saned
+avahi:x:121:
+saned:x:122:
+color:x:123:
+geoclue:x:124:
+pulse:x:125:
+pulse-access:x:126:
+gdm:x:127:
+systemd-coredump:x:999:
+bob:x:1000:
+developers:x:1003:bob,michael
+```
+
+To inspect a user’s UID, primary GID, and all group memberships:
+
+```bash
+[~]$ id michael
+uid=1001(michael) gid=1001(michael) groups=1001(michael),1003(developers)
+```
+
+There are a few distinct account types on a Linux system:
+
+- **Regular User Account**: Represents an individual person requiring system access.
+- **Superuser Account**: The root account (UID 0) with full system privileges.
+- **System Accounts**: Created during OS installation for software and services; typically have UIDs under 100 (or between 500 and 1000) and usually lack dedicated home directories.
+- **Service Accounts**: Similar to system accounts, these are created for specific services such as NGINX.
+
+#### Switching Users and Privilege Escalation
+
+##### Using the `su` command
+
+The `su` command lets you switch to another user account entirely, including root:
+
+```bash
+[~]$ su -
+Password:
+root ~#
+```
+
+To run a single command as another user without a full session switch:
+
+```bash
+[~]$ su -c "whoami"
+Password:
+root
+```
+
+That said, `sudo` is the preferred approach in most environments; it’s more auditable and avoids sharing root’s password.
+
+##### Using the `sudo` command
+
+`sudo` lets trusted users run privileged commands using their own password. You never need to share or know the root password:
+
+```bash
+[michael@ubuntu-server ~]$ sudo apt-get install nginx
+[sudo] password for michael:
+```
+
+Who can run what with `sudo` is defined in `/etc/sudoers`. You can give users full root access or restrict them to specific commands:
+
+```bash
+[~]$ cat /etc/sudoers
+User privilege specification
+root    ALL=(ALL:ALL) ALL
+# Members of the admin group may gain root privileges
+%admin  ALL=(ALL) ALL
+# Allow members of group sudo to execute any command
+%sudo   ALL=(ALL:ALL) ALL
+# Allow Bob to run any command
+bob     ALL=(ALL:ALL) ALL
+# Allow Sarah to reboot the system
+sarah   localhost=/usr/bin/shutdown -r now
+# See sudoers(5) for more information on "#include" directives:
+#include directory /etc/sudoers.d
+```
+
+A standard hardening step is disabling direct root login by setting it to a no-login shell:
+
+```bash
+[~]$ grep -i ^root /etc/passwd
+root:x:0:0:root:/root:/usr/sbin/nologin
+```
+
+#### Understanding the sudoers File
+
+The structure of each sudoers entry breaks down like this:
+
+- Lines beginning with a hash (#) are comments.
+- The first field specifies the user or group (groups are prefixed with `%`) that is granted sudo privileges.
+- The second field, typically set to `ALL`, indicates on which hosts these privileges apply.
+- The third field, within parentheses, defines the users or groups the command can be executed as, usually set to `ALL`.
+- The fourth field lists the allowed commands. This field can either be set to `ALL` for unrestricted access or limited to specific commands (e.g., permitting Sarah only to execute the reboot command).
+
+### Access Control Files
+
+Three files under `/etc` are central to Linux access control:
+
+- `/etc/passwd` for user account details
+- `/etc/shadow` for secure password storage and password expiry information
+- `/etc/group` for managing group memberships
+
+> Always use the dedicated commands to modify these files rather than editing them directly with a text editor.
+
+> The `/etc` directory is world-readable by default, but only root can modify these files.
+
+#### The `/etc/passwd` file
+
+The `/etc/passwd` file stores per-user details: username, UID, GID, home directory, and default shell. It does not store actual passwords; an `x` in the password field means the real (hashed) password lives in `/etc/shadow`.
+
+To see a specific user's entry:
+
+```bash
+[~]$ grep -i ^bob /etc/passwd
+bob:x:1001:1001::/home/bob:/bin/bash
+```
+
+Each line follows this format:
+
+```bash
+USERNAME:PASSWORD:UID:GID:GECOS:HOMEDIR:SHELL
+```
+
+Where:
+
+- **USERNAME**: The user’s login name.
+- **PASSWORD**: An x placeholder, indicating that the encrypted password is stored in /etc/shadow.
+- **UID**: The unique numeric user identifier.
+- **GID**: The primary group numerical identifier.
+- **GECOS**: An optional field for additional user information (e.g., full name).
+- **HOMEDIR**: The path to the user’s home directory.
+- **SHELL**: The user’s default shell (such as Bash).
+
+#### The `/etc/shadow` file
+
+`/etc/shadow` holds the hashed passwords and password expiry data. Here’s what Bob’s entry looks like:
+
+```bash
+[~]$ grep -i ^bob /etc/shadow
+bob:$6$h0u0tOt0$5JcuRxR7y72LLQk4Kdog7u09LsNFS0yZPkIC8pV9tgD0wXCHutYcWF/7.eJ3TfGfG0lj4JF63PyuPwKC18tJS.:18188:0:99999:7:::
+```
+
+The colon-separated fields break down like this:
+
+```bash
+USERNAME:PASSWORD:LASTCHANGE:MINAGE:MAXAGE:WARN:INACTIVE:EXPDATE
+```
+
+Where:
+
+- **USERNAME**: Matches the username from /etc/passwd.
+- **PASSWORD**: Contains the encrypted password. An asterisk (\*) or an empty value indicates that no password is set.
+- **LASTCHANGE**: The date (measured in days since January 1, 1970) when the password was last changed.
+- **MINAGE**: The minimum number of days required between password changes.
+- **MAXAGE**: The maximum number of days the password remains valid.
+- **WARN**: The number of days before password expiry that the user is warned.
+- **INACTIVE**: The number of days that elapse after password expiry during which the account remains active (if empty, this feature is disabled).
+- **EXPDATE**: The expiration date of the account (expressed as days since the Unix epoch); an empty field means the account does not expire.
+
+#### The `/etc/group` file
+
+`/etc/group` defines the groups on the system. Each line is colon-separated:
+
+```bash
+[~]$ grep -i ^bob /etc/group
+developer:x:1001:bob,sara
+```
+
+The fields are:
+
+```bash
+NAME:PASSWORD:GID:MEMBERS
+```
+
+Where:
+
+- **NAME**: The group name.
+- **PASSWORD**: Typically set to x, indicating that any real group password is stored elsewhere.
+- **GID**: The unique numeric group identifier.
+- **MEMBERS**: A comma-separated list of usernames that belong to the group.
+
+### User Management
+
+Creating and managing users is straightforward once you know the right commands. Here’s a walkthrough of the most common operations.
+
+#### Creating a new user
+
+Use `useradd` to create a new user:
+
+```bash
+[~]$ useradd bob
+```
+
+This creates the account with a system-assigned UID and GID. The default home directory is `/home/bob` and the default shell is `/bin/sh`.
+Set the account's password with:
+
+```bash
+[~]$ passwd bob
+```
+
+> Both `useradd` and `passwd` commands must be executed with root privileges.
+
+A logged-in user can run `whoami` to confirm their identity and `passwd` (without arguments) to change their own password.
+
+#### `useradd` options
+
+`useradd` supports several options for customizing the account:
+
+- `-u`: Specify a custom UID.
+- `-g`: Specify the primary group via a custom GID.
+- `-d`: Define a custom home directory path.
+- `-s`: Set the default login shell.
+- `-c`: Add a comment (often used for a user description).
+- `-e`: Set the account expiration date.
+- `-G`: Add the new user to additional (secondary) groups.
+
+Combining options:
+
+```bash
+[~]$ useradd -u 1009 -g 1009 -d /home/robert -s /bin/bash -c "Mercury Project member" bob
+```
+
+#### User Deletion and Group Management
+
+To remove a user account:
+
+```bash
+[~]$ userdel bob
+```
+
+Group management follows the same pattern:
+
+- **Adding a New Group**: Use the groupadd command. The -g option lets you specify a custom GID.
+
+  ```bash
+  [~]$ groupadd -g 1010 newgroup
+  ```
+
+- **Deleting a Group**: Use the groupdel command along with the group name.
+
+  ```bash
+  [~]$ groupdel newgroup
+  ```
+
+### File Permissions and Ownership
+
+#### Overview
+
+Permissions in Linux are visible right from `ls -l`. The first character shows the file type, followed by three sets of permission bits:
+
+```bash
+$ ls -l bash-script.sh
+-rwxrwxr-x 1 bob bob 89 Mar 17 01:35 bash-script.sh
+```
+
+Those permission bits are grouped into three sets:
+
+| -   | rwx         | rwx         | rwx          |
+| --- | ----------- | ----------- | ------------ |
+|     | Owner > `u` | Group > `g` | Others > `o` |
+
+Each set has the same three bits:
+
+- `r` (read) permits reading the file or view directory's content.
+- `w` (write) allows modifying the file.
+- `x` (execute) grants the ability to run the file as a program or to access (cd into) a directory.
+
+![Linux File Permissions table](/linux-file-permissions.webp)
+
+#### Changing File Permissions with `chmod`
+
+`chmod` has two modes: symbolic (human-readable) and numeric (octal). Both do the same thing, just expressed differently.
+​
+
+##### Symbolic Mode
+
+In symbolic mode, you specify who (`u` for user, `g` for group, `o` for others) and then add or remove specific bits:
+
+```bash
+chmod u+rwX test-file
+chmod ugo+r test-file
+chmod o-rwx test-file
+```
+
+You can combine multiple targets in one command:
+
+```bash
+chmod u+rwx,g+r-x,o-rwx test-file
+```
+
+##### Numeric Mode
+
+In numeric mode, each digit (0–7) represents a combination of read (4), write (2), and execute (1):
+
+- The first digit sets permissions for the owner.
+- The second digit sets permissions for the group.
+- The third digit sets permissions for others.
+
+```bash
+# grant read, write, and execute for everyone
+chmod 777 test-file
+
+# grant read and execute permissions for everyone
+chmod 555 test-file
+
+# grant read and write permissions to the owner and group, but no permissions for others
+chmod 660 test-file
+```
+
+#### Changing Ownership with `chown` and `chgrp`
+
+`chown` changes file ownership and `chgrp` changes the group.
+
+The general syntax for `chown`:
+
+```bash
+chown owner:group file
+```
+
+```bash
+# update both the owner and group
+chown bob:developer test-file
+
+# only change the owner
+chown bob android.apk
+
+# only change the group
+chgrp android test-file
+```
+
+To apply ownership recursively across an entire directory tree, use `-R`:
+
+```bash
+sudo chown -R mercury /opt/caleston-code
+```
+
+This is a pattern you’ll use frequently after deploying code: set the owner to the service account so the application can read and write its files without running as root.
+
+### SSH and SCP
+
+SSH and SCP are two tools I reach for constantly in practice: SSH for connecting to remote servers, SCP for moving files between them.
+
+#### SSH
+
+SSH (Secure Shell) lets you log into and run commands on a remote machine over an encrypted connection. It’s the standard way to access Linux servers remotely.
+
+You can specify the username with the `user@hostname` syntax or the `-l` flag. The remote server needs SSH running on port 22, and you need valid credentials: either a password or an SSH key pair.
+
+```bash
+ssh <hostname_OR_IP_Address>
+ssh <user>@<hostname_OR_IP_Address>
+ssh -l <user> <hostname_OR_IP_Address>
+
+[bob@caleston-lp10 ~]$ ssh devapp01
+bob@devapp01's password:
+Last login: Tue Apr 7 20:08:58 2020 from 192.168.1.109
+
+[bob@devapp01 ~]$
+```
+
+When no username is specified, SSH uses your current local username. On connection, it prompts for that account’s password on the remote machine.
+
+#### Passwordless SSH
+
+Typing a password every time gets old fast. The better approach is SSH key authentication, which lets you log in without a password at all. A key pair has two parts:
+
+- Private Key: Kept secure on your client device.
+- Public Key: Shared and installed on your remote server.
+
+When the public key is added to the remote server’s `~/.ssh/authorized_keys` file, the system will grant access to any client possessing the corresponding private key.
+
+##### Generating the key pair
+
+Generate a key pair on your client machine. You can protect it with a passphrase (you’ll be prompted for it each time the key is used), or leave it empty for fully passwordless access:
+
+```bash
+[bob@caleston-lp10 ~]$ ssh-keygen -t rsa
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/bob/.ssh/id_rsa):
+/home/bob/.ssh/id_rsa already exists.
+Overwrite (y/n)? y
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/bob/.ssh/id_rsa.
+Your public key has been saved in /home/bob/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:PCRTdbxzzffzmi8uunjn5V/1LZCG0BvhVJYXBr9gYsE bob@caleston-lp10
+The key's randomart image is:
++---[RSA 2048]----+
+|          o oo   |
+|         +E=oo   |
+|        o O *..o. |
+|         =o .o..  |
+|        S O + .+  |
+|         . . *    |
+|          oo+     |
+|           oo.+.  |
+|          ..o+o   |
++----[SHA256]-----+
+```
+
+> The public key is saved to `/home/bob/.ssh/id_rsa.pub` and the private key to `/home/bob/.ssh/id_rsa`. Keep the private key secure; never share it.
+
+##### Copying the Public Key to the Remote Server
+
+Copy the public key to the remote server using `ssh-copy-id`. You’ll authenticate with your password this one time to install the key:
+
+```bash
+[bob@caleston-lp10 ~]$ ssh-copy-id bob@devapp01
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/bob/.ssh/id_rsa.pub"
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+bob@devapp01's password:
+Number of key(s) added: 1
+
+Now try logging into the machine with: "ssh bob@devapp01"
+and verify that only the intended key(s) were added.
+```
+
+After this, connecting to the server no longer requires a password. The public key is now listed in the server's `~/.ssh/authorized_keys` file.
+
+#### SCP
+
+SCP (Secure Copy) works like `cp` but over SSH; you can copy files to or from remote servers using the same credentials and key pairs you use for SSH.
+
+##### Copying a file using SCP
+
+```bash
+[bob@caleston-lp10 ~]$ scp /home/bob/caleston-code.tar.gz devapp01:/home/bob
+bob@devapp01's password:
+caleston-code.tar.gz                             100% 2498KB  51MB/s  00:00
+```
+
+> Make sure you have the necessary write permissions on the destination directory to avoid errors.
+
+##### Copying directories with SCP
+
+When you need to transfer entire directories, include the `-r` option to copy recursively. To preserve original modification times, access times, and permissions, add the `-p` flag.
+
+These options are useful whenever you’re deploying code or moving files between environments, for example when migrating a project from development to production.
+
+### IPTables: Introduction
+
+Once you’re working with multi-server environments, you need a way to control what traffic is allowed in and out of each machine. On Linux, that’s where `iptables` comes in. You can use external firewall appliances, but applying rules directly on the server with **iptables** or **firewalld** is common in practice.
+
+The course walks through configuring iptables rules on a Linux server to regulate traffic in and out.
+
+Consider the following Project Mercury environment setup:
+
+| Device             | IP Addresses   |
+| ------------------ | -------------- |
+| Client laptop      | 172.16.238.187 |
+| Application server | 172.16.238.10  |
+| Database server    | 172.16.238.11  |
+
+Without any firewall rules, every server can reach every other server freely. The goal here is to lock that down:
+
+- Allow SSH access from your laptop to the application server.
+- Permit HTTP access (port 80) to the application server only from the client laptop, blocking other servers (e.g., devdb01).
+- Allow the application server to connect to the database server on port 5432 for database operations.
+- Grant the application server HTTP access to the software repository server (caleston-repo-01).
+- Block outgoing internet access from the application server.
+- Restrict the database server to accept connections on port 5432 solely from the application server.
+
+![The image illustrates a network setup with a client, application server, database server, and software repo server, highlighting connections and blocked HTTP access](/iptables-1.webp)
+
+#### Establishing SSH Connectivity
+
+Begin by establishing an SSH connection to the devapp01 server from your client. Once connected, you will use iptables to filter network traffic. On Red Hat and CentOS, iptables is installed by default. On Ubuntu, installation may be required:
+
+```bash
+[bob@devapp01 ~]$ sudo apt install iptables
+```
+
+After installation, list the default iptables rules with:
+
+```bash
+[bob@devapp01 ~]$ sudo iptables -L
+Chain INPUT (policy ACCEPT)
+target prot opt source destination
+
+Chain FORWARD (policy ACCEPT)
+target prot opt source destination
+
+Chain OUTPUT (policy ACCEPT)
+target prot opt source destination
+```
+
+`iptables` organizes rules into three main chains:
+
+- INPUT Chain: Manages incoming traffic. For instance, adding a rule here allows SSH connections from your client laptop.
+- OUTPUT Chain: Controls traffic originating from the server, including outbound connections like database queries.
+- FORWARD Chain: Typically used by network routers to forward traffic between devices. Standard Linux servers rarely use this chain.
+
+With no rules configured, the default policy is to accept all traffic:
+
+> A “chain” is essentially a list of rules. Each rule checks network packets and decides whether to accept or drop them based on defined conditions such as source IP, destination IP, port number, or protocol
+
+### IPTables: Securing the Environment
+
+Now let’s actually configure the rules to secure the environment.
+
+#### Configuring SSH Access
+
+Start by allowing SSH connections only from the designated client IP:
+
+```bash
+iptables -A INPUT -p tcp -s 172.16.238.187 --dport 22 -j ACCEPT
+```
+
+| Flag        | Value            | Meaning                                                                                  |
+| ----------- | ---------------- | ---------------------------------------------------------------------------------------- |
+| `-A INPUT`  | `INPUT`          | Appends a rule to the INPUT chain,<br /> which handles all incoming traffic.             |
+| `-p tcp`    | `tcp`            | Restricts the rule to the TCP protocol only.                                             |
+| `-s`        | `172.16.238.187` | Matches connections originating from <br /> this specific source IP (the client laptop). |
+| `--dport`   | `22`             | Targets the destination port 22, <br /> which is the standard SSH port.                  |
+| `-j ACCEPT` | `ACCEPT`         | Accepts the packet when all <br /> preceding conditions are satisfied.                   |
+
+Verify by listing the current rules:
+
+```bash
+iptables -L
+```
+
+##### Blocking Unauthorized SSH Attempts
+
+Without a matching ALLOW rule, other clients would still get through on the default policy. Block all other SSH attempts:
+
+```bash
+iptables -A INPUT -p tcp --dport 22 -j DROP
+```
+
+```bash
+[bob@devapp01 ~]$ iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+ACCEPT     tcp  --  172.16.238.187      anywhere             tcp dpt:ssh
+DROP       tcp  --  anywhere             anywhere             tcp dpt:ssh
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+```
+
+> The order of these rules is critical because iptables processes rules sequentially. The client-specific ACCEPT rule is placed before the DROP rule, ensuring that SSH traffic from the designated client is allowed while all other SSH attempts are blocked.
+
+#### Configuring Outbound Traffic
+
+Next, control what the application server can reach outbound:
+
+- Allow connections to the DB server on port 5432.
+- Permit connections to the software repository server on port 80.
+- Drop general HTTP (port 80) and HTTPS (port 443) traffic to the Internet.
+- Explicitly allow HTTP access on port 80 from the client laptop.
+
+Add the following OUTPUT rules:
+
+```bash
+[bob@devapp01 ~]$ iptables -A OUTPUT -p tcp -d 172.16.238.11 --dport 5432 -j ACCEPT
+[bob@devapp01 ~]$ iptables -A OUTPUT -p tcp -d 172.16.238.15 --dport 80 -j ACCEPT
+[bob@devapp01 ~]$ iptables -A OUTPUT -p tcp --dport 443 -j DROP
+[bob@devapp01 ~]$ iptables -A OUTPUT -p tcp --dport 80 -j DROP
+```
+
+##### Allowing Specific HTTPS Traffic
+
+If you need to allow HTTPS to one specific destination while the general DROP rule is in place, insert an ACCEPT rule at the top of the chain so it takes precedence:
+
+```bash
+[bob@devapp01 ~]$ iptables -I OUTPUT -p tcp -d 172.16.238.100 --dport 443 -j ACCEPT
+```
+
+The `-I` flag inserts the rule at the top, so it’s evaluated before the DROP rule.
+
+##### Deleting a Rule
+
+To remove a rule by its position in the chain:
+
+```bash
+[bob@devapp01 ~]$ iptables -D OUTPUT 5
+```
+
+#### Securing the Database Server
+
+On the database server, allow connections on port 5432 only from the application server, and drop everything else:
+
+```bash
+[bob@devdb01 ~]$ iptables -A INPUT -p tcp -s 172.16.238.10 --dport 5432 -j ACCEPT
+[bob@devdb01 ~]$ iptables -A INPUT -p tcp --dport 5432 -j DROP
+```
+
+Verifying the DB server rules should show:
+
+```bash
+
+[bob@devdb01 ~]$ iptables -L
+Chain INPUT (policy ACCEPT)
+target prot opt source destination
+ACCEPT tcp -- 172.16.238.10 anywhere tcp dpt:5432
+DROP tcp -- anywhere anywhere tcp dpt:5432
+
+Chain FORWARD (policy ACCEPT)
+target prot opt source destination
+
+Chain OUTPUT (policy ACCEPT)
+target prot opt source destination
+```
+
+##### Summary of DB Server Security
+
+- Application Server Output Rule:
+  The development application server actively allows connections to the DB server on port 5432:
+  ```bash
+  iptables -A OUTPUT -p tcp -d 172.16.238.11 --dport 5432 -j ACCEPT
+  ```
+- Database Server Accept Rule:
+  An input rule on the DB server accepts connections originating from the application server on port 5432.
+- Database Server Drop Rule:
+  A subsequent rule then drops any other connection attempts on port 5432.
+
+This setup ensures that only the dev application server can establish a connection with the database server.
+
+##### Verifying PostgreSQL is listening
+
+On the database server, confirm that PostgreSQL is bound and accepting connections:
+
+```bash
+[bob@devdb01 ~]$ sudo netstat -natulp | grep postgres | grep LISTEN
+```
+
+When you run that command, you're explicitly asking for:
+
+| Flag | Meaning                |
+| ---- | ---------------------- |
+| `-n` | numeric addresses      |
+| `-a` | all sockets            |
+| `-t` | TCP                    |
+| `-u` | UDP                    |
+| `-l` | listening sockets only |
+| `-p` | show PID/program name  |
+
+`sudo` is required for `-p` so `netstat` can read process names from the kernel. Filtering on `postgres` and `LISTEN` leaves only PostgreSQL sockets in the listening state, which is useful before you troubleshoot firewall rules or application connection errors.
+
+##### Handling Return Traffic
+
+When the dev application server initiates a database connection, an ephemeral source port (for example, 44060) is assigned. Once the connection is established, the database server sends the return traffic back to this ephemeral port.
+
+Since the overall inbound traffic is accepted (except for explicitly dropped SSH connections), there is no need for additional rules to handle the returning traffic. You can confirm the connection with:
+
+```bash
+[bob@devdb01 ~]$ netstat -an | grep 5432
+tcp 0 0 172.16.238.10:44060 172.16.238.11:5432 ESTABLISHED
+```
+
+> Linux typically assigns ephemeral ports in the range of 32768 to 60999. This dynamic assignment facilitates proper handling of return traffic without manual configuration.
+
+### CRON Jobs
+
+CRON is the Linux scheduler: it lets you run commands automatically on a timed schedule. A simple example: log system uptime to a file every day at 9 PM instead of doing it manually.
+
+The command you want to run:
+
+```bash
+uptime >> /tmp/system-report.txt
+```
+
+#### Scheduling a CRON Job
+
+To schedule it, edit your crontab:
+
+```bash
+[bob@caleston-lp01 ~]$ crontab -e
+```
+
+This opens the crontab in your default editor. Add the schedule at the bottom:
+
+```bash
+0 21 * * * uptime >> /tmp/system-report.txt
+```
+
+> Don’t run `crontab -e` with `sudo` unless you want the job to run as root; it schedules the job for whichever user you’re running the command as.
+
+#### Understanding the CRON syntax
+
+The five fields in a cron expression map to:
+
+| Field        | Value | Meaning                                            |
+| ------------ | ----- | -------------------------------------------------- |
+| Minute       | `0`   | The task runs at the 0th minute.                   |
+| Hour         | `21`  | The task runs at 9 p.m. (21:00 in 24-hour format). |
+| Day of Month | `*`   | Every day of the month.                            |
+| Month        | `*`   | Every month.                                       |
+| Day of Week  | `*`   | Every day of the week.                             |
+
+A few more examples to make the syntax concrete:
+
+| Description                                                                             | Schedule      |
+| --------------------------------------------------------------------------------------- | ------------- |
+| Run a job on February 19th at 8:10                                                      | `10 8 19 2 *` |
+| Run a job on February 19th at 8:10 <br /> only if it's a Monday (`1` represents Monday) | `10 8 19 2 1` |
+| Run a job every day at 8:10                                                             | `10 8 * * *`  |
+| Run a job every minute of every hour on all days                                        | `* * * * *`   |
+| Run a job every two minutes using step values                                           | `*/2 * * * *` |
+
+#### Listing and Verifying Cron Jobs
+
+To see all scheduled jobs for the current user:
+
+```bash
+[bob@caleston-lp01 ~]$ crontab -l
+```
+
+After the scheduled time, verify the job ran by checking the output file:
+
+```bash
+cat /tmp/system-report.txt
+```
+
+You can also check the system log for confirmation:
+
+```bash
+21:00:00 up 20:15, 1 user, load average: 0.47, 0.50, 0.52
+```
+
+That entry confirms the job ran at the scheduled time.
+

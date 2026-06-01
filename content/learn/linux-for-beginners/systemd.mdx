@@ -1,0 +1,313 @@
+---
+title: "Service Management with SYSTEMD"
+description: "SYSTEMD architecture, unit files, service lifecycle commands, journalctl, and creating custom services."
+draft: false
+---
+
+
+### Creating a SYSTEMD Service
+
+#### What is a service?
+
+A service in Linux is a **program that runs continuously in the background** to handle system or network tasks without any user interaction. These are also called **daemons**.
+
+Core characteristics:
+
+- Background execution: they start automatically and run unseen.
+- No user interface: no GUI or interactive shell.
+- Event-driven: they wait for specific requests, like incoming web traffic or hardware events.
+
+This section builds a systemd service unit from scratch, using `systemctl` and `journalctl` along the way.
+
+The scenario used throughout this section is the Project Mercury service. Here are its requirements:
+
+- A shell script named `project-mercury.sh` located in `/usr/bin` must execute as a background service.
+- The service should be enabled to start automatically during boot.
+- The script launches a Python Django application that depends on a PostgreSQL database; therefore, PostgreSQL must be running prior to the application's start.
+- The service must run under a pre-created account called project_mercury rather than the default root user.
+- In case of application failure, the service should restart automatically, waiting 10 seconds between attempts.
+- The service must not restart automatically if it is manually stopped by an administrator.
+- All service events, including start, stop, and errors, must be logged for later analysis.
+- The service should adhere to the graphical.target since Bob’s system defaults to a graphical environment.
+
+The steps below build the unit file incrementally, adding one piece at a time until every requirement is satisfied.
+
+#### Step 1: Create a minimal service unit
+
+Create `/etc/systemd/system/project-mercury.service`. Since `project-mercury.sh` is a Bash script, run it via `/bin/bash`:
+
+```ini
+[Service]
+ExecStart=/bin/bash /usr/bin/project-mercury.sh
+```
+
+Start it to verify it works:
+
+```bash
+sudo systemctl start project-mercury.service
+```
+
+Confirm it is running:
+
+```bash
+sudo systemctl status project-mercury.service
+```
+
+Example output:
+
+```plaintext
+● project-mercury.service
+   Loaded: loaded (/etc/systemd/system/project-mercury.service; static; vendor preset: enabled)
+   Active: active (running) Fri 2020-04-10 00:52:16 EDT; 6min ago
+ Main PID: 25041 (project-mercury.sh)
+   Tasks: 2 (limit: 4915)
+   CGroup: /system.slice/project-mercury.service
+           ├─6494 sleep 60
+           └─25041 /bin/bash /usr/bin/project-mercury.sh
+```
+
+Stop it once verified:
+
+```bash
+sudo systemctl stop project-mercury.service
+```
+
+#### Step 2: Enable the service at boot
+
+Add an `[Install]` section that ties the unit to the graphical target, so systemd starts it automatically at boot:
+
+```ini
+[Service]
+ExecStart=/bin/bash /usr/bin/project-mercury.sh
+
+[Install]
+WantedBy=graphical.target
+```
+
+Then enable it:
+
+```bash
+sudo systemctl enable project-mercury.service
+```
+
+#### Step 3: Run under a dedicated user
+
+By default, services run as root. Adding `User=project_mercury` drops privileges to the dedicated service account:
+
+```ini
+[Service]
+ExecStart=/bin/bash /usr/bin/project-mercury.sh
+User=project_mercury
+
+[Install]
+WantedBy=graphical.target
+```
+
+> Running services as a dedicated non-root account is a basic hardening practice; it limits the blast radius if the process is ever compromised.
+
+#### Step 4: Restart on failure only
+
+`Restart=on-failure` tells systemd to restart the service if it crashes, but not if it’s stopped manually with `systemctl stop`. `RestartSec=10` adds a 10-second cooldown between restart attempts:
+
+```ini
+[Service]
+ExecStart=/bin/bash /usr/bin/project-mercury.sh
+User=project_mercury
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=graphical.target
+```
+
+> systemd journals all service events automatically, so no extra logging config is needed. Check them with `journalctl -u project-mercury.service`.
+
+#### Step 5: Depend on PostgreSQL
+
+The Django app depends on PostgreSQL being up first. The `[Unit]` section lets you set that ordering:
+
+```ini
+[Unit]
+Description=Python Django for Project Mercury
+Documentation=http://wiki.caleston-dev.ca/reported
+After=postgresql.service
+
+[Service]
+ExecStart=/bin/bash /usr/bin/project-mercury.sh
+User=project_mercury
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=graphical.target
+```
+
+Always reload systemd after editing a unit file:
+
+```bash
+sudo systemctl daemon-reload
+```
+
+#### Final unit file
+
+Putting it all together, the complete unit file looks like this:
+
+```ini
+[Unit]
+Description=Python Django for Project Mercury
+Documentation=http://wiki.caleston-dev.ca/reported
+After=postgresql.service
+
+[Service]
+ExecStart=/bin/bash /usr/bin/project-mercury.sh
+User=project_mercury
+WorkingDirectory=/opt/caleston-code/mercuryProject
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=graphical.target
+```
+
+After placing the file under `/etc/systemd/system/`, run `daemon-reload`, then `enable` and `start` the unit. Use `systemctl status` and `journalctl` to verify it behaves correctly at boot, after a manual stop, and after a simulated failure.
+
+### SYSTEMD Tools
+
+Once a unit is in place, the two tools you’ll use constantly are **`systemctl`** (for managing units and targets) and **`journalctl`** (for reading logs). Together they cover the full service lifecycle and most troubleshooting scenarios.
+
+#### Managing services with systemctl
+
+`systemctl` is the main tool for managing services. The examples below use Docker as a stand-in; replace it with any unit name:
+
+| Action                             | Command                    |
+| ---------------------------------- | -------------------------- |
+| Start                              | `systemctl start docker`   |
+| Stop                               | `systemctl stop docker`    |
+| Restart (stop then start)          | `systemctl restart docker` |
+| Reload config without full restart | `systemctl reload docker`  |
+| Enable at boot                     | `systemctl enable docker`  |
+| Disable at boot                    | `systemctl disable docker` |
+| Show status                        | `systemctl status docker`  |
+
+Examples:
+
+```bash
+[~]$ systemctl start docker
+[~]$ systemctl stop docker
+[~]$ systemctl restart docker
+[~]$ systemctl reload docker
+[~]$ systemctl enable docker
+[~]$ systemctl disable docker
+[~]$ systemctl status docker
+```
+
+A healthy service shows **active (running)**:
+
+```text
+● docker.service - Docker Application Container Engine
+   Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sat 2020-03-21 00:45:22 EDT; 43s ago
+     Docs: https://docs.docker.com
+ Main PID: 23340 (dockerd)
+    Tasks: 18
+   CGroup: /system.slice/docker.service
+           └─23340 /usr/bin/dockerd -H fd:// --container=/run/containerd/containerd.sock
+
+Mar 21 00:45:21 bob-Bionic dockerd[23340]: time="2020-03-21T00:45:21.628503806-04:00" level=warning msg="Your kernel does not ...
+Mar 21 00:45:22 bob-Bionic systemd[1]: Started Docker Application Container Engine.
+```
+
+Other common `Active` values:
+
+- **inactive (dead)**: the unit is stopped
+- **activating** / **deactivating**: transitional states during start or stop
+- **failed**: start or runtime error; check the unit file and logs
+
+After editing any unit file on disk:
+
+```bash
+[~]$ systemctl daemon-reload
+```
+
+To edit a unit interactively (using a drop-in override or replacing the full file):
+
+```bash
+[~]$ systemctl edit project-mercury.service --full
+```
+
+Saving via `systemctl edit` applies changes immediately; no separate `daemon-reload` needed.
+
+#### Working with system targets
+
+Targets group related units into boot states, the systemd equivalent of runlevels. The commands you used for `graphical.target` apply to any target system-wide.
+
+To check the current default:
+
+```bash
+[~]$ systemctl get-default
+```
+
+To switch to non-graphical multi-user mode:
+
+```bash
+[~]$ systemctl set-default multi-user.target
+```
+
+To see all units systemd has loaded or tried to load:
+
+```bash
+[~]$ systemctl list-units --all
+```
+
+Sample output:
+
+```text
+UNIT
+network.target
+nss-lookup.target
+paths.target
+remote-fs.target
+rescue.target
+shutdown.target
+LOAD      ACTIVE   SUB      JOB       DESCRIPTION
+loaded    active   active   -         Network
+loaded    active   active   -         Host and Network Name Lookup
+loaded    inactive dead     -         Paths
+loaded    inactive dead     -         Remote File Systems
+loaded    inactive dead     -         Rescue Mode
+loaded    inactive dead     -         Shutdown
+```
+
+Without `--all`, only active units are shown:
+
+```bash
+[~]$ systemctl list-units
+```
+
+#### Querying logs with journalctl
+
+`journalctl` reads the systemd journal. On its own it dumps the full log; in practice you always filter by unit or time.
+
+To see logs for a specific service:
+
+```bash
+[~]$ journalctl -u docker.service
+```
+
+Example output:
+
+```text
+-- Logs begin at Fri 2020-03-13 19:47:51 EDT, end at Sat 2020-03-21 02:29:48 EDT. --
+Mar 19 17:43:21 systemd[1]: Starting Docker Application Container Engine...
+Mar 19 17:43:22 dockerd[2590]: level=info msg="Starting up"
+Mar 19 17:43:22 dockerd[2590]: level=warning msg="[graphdriver] WARNING"
+Mar 19 17:43:23 dockerd[2590]: level=info msg="Docker daemon" commit=63
+Mar 19 17:43:23 systemd[1]: Started Docker Application Container Engine.
+```
+
+For any service you’re debugging, `journalctl -u <service>` is usually the first place to look. It quickly surfaces misconfigured `ExecStart` paths, permission errors, and dependency ordering problems.
+
+![systemd tools overview: systemctl for unit and target management, journalctl for journal logs](https://kodekloud.com/kk-media/image/upload/v1752881143/notes-assets/images/Learning-Linux-Basics-Course-Labs-SYSTEMD-Tools/frame_70.jpg)
+
+**Summary:** `systemctl` drives the service lifecycle; `journalctl` tells you what went wrong. The Project Mercury unit is just one example; this same workflow applies to any daemon on the system.
+

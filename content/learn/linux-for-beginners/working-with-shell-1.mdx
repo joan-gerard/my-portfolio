@@ -1,0 +1,108 @@
+---
+title: "Working with the Shell — Part 1"
+description: "Shell basics, home directory, command types, shell flavours, Bash features, environment variables, and prompt customisation."
+draft: false
+---
+
+
+### What is a Shell?
+
+The shell is a program that lets you interact with the operating system through text. You type a command, press enter, and the shell passes it to the OS, then returns the result. It sounds simple, and it is, but once you're comfortable with it, the shell becomes an incredibly powerful tool.
+
+### Home directory
+
+When you log in, you land in your home directory, typically `/home/<username>`. It's your personal workspace on the system, where your files, configurations, and scripts live.
+
+### Command types
+
+- Internal or Built-in Commands: echo, cd, pwd, set...
+- External Commands: mv, date, uptime, cp...
+
+You can check whether a command is built-in or external using the `type` command. Running `type echo`, for example, confirms that `echo` is a shell built-in. This matters when writing scripts, since built-ins behave slightly differently from external programs.
+
+### whatis and man commands
+
+- **whatis** offers a brief overview of the command
+- **man** provides detailed information including usage examples, options and related data.
+
+### Shell types
+
+- Bourne Shell (sh)
+- C Shell (csh or tcsh)
+- Korn Shell (ksh)
+- Z Shell (zsh)
+- Bourne again Shell (bash)
+
+To check which shell you're currently using:
+
+```bash
+[~]$ echo $SHELL
+/bin/bash
+```
+
+To switch to a different default shell, use the `chsh` command:
+
+    ```bash
+    [~]$ chsh
+    ```
+
+### Bash Shell Features
+
+- Bash auto-completion
+- `alias` command
+
+  ```bash
+  [~]$ alias dt=date
+  ```
+
+- `history` command to view a list of previously executed commands, making it easier to reuse them
+- Environment variables
+
+  ```bash
+  [~]$ echo $SHELL
+  [~]$ env
+  ```
+
+- Create a new environment variable
+
+  ```bash
+  [~]$ export OFFICE=caleston
+  ```
+
+- User profile scripts
+
+  Profile scripts like `~/.profile`, `~/.bash_profile`, and `~/.bashrc` run automatically when you log in, setting up your environment. Any variable, alias, or configuration you add here persists across sessions.
+
+  ```bash
+  echo 'export MY_VARIABLE="example_value"' >> ~/.profile
+  ```
+
+  This appends the `export` statement to `~/.profile`, making `MY_VARIABLE` available every time you open a new session.
+
+  To add an alias, like `ll` for `ls -l`:
+
+  ```bash
+  echo 'alias ll="ls -l"' >> ~/.profile
+  ```
+
+### Customising the Bash Prompt
+
+The default Bash prompt is fairly minimal, but you can customize it to show useful context like the date, username, hostname, and current directory. The prompt is controlled by the `PS1` environment variable. To see what yours is set to:
+
+```bash
+[~]$ echo $PS1
+[\W]$
+
+# \W = Present Working Directory
+# $ = Prompt Symbol
+```
+
+To customise it, reassign `PS1` directly:
+
+```Bash
+[~]$ PS1="[ \d \t \u@\h:\w ] $ "
+[Thu Mar 12 22:12:54 bob@caleston:~ ] $
+```
+
+![list of options to update PS1](/linux-update-ps1.png)
+

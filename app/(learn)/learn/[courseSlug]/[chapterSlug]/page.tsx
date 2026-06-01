@@ -1,49 +1,45 @@
-import { BlogArticleHeader } from "@/components/blog/BlogArticleHeader";
 import { BlogSourceDisclaimer } from "@/components/blog/BlogSourceDisclaimer";
 import { BlogToc } from "@/components/blog/BlogToc";
 import { BlogTocMobile } from "@/components/blog/BlogTocMobile";
-import { blogMdxComponents } from "@/components/mdx/blog-mdx-components";
-import { CtaButton } from "@/components/utils";
+import { LearnChapterNav } from "@/components/learn/LearnChapterNav";
 import {
-  getPostSlugs,
-  getReadingMinutesFromMdxSource,
-  loadPost,
-  type BlogPostFrontmatter,
-} from "@/lib/blog";
+  LearnSidebarDesktop,
+  LearnSidebarMobile,
+} from "@/components/learn/LearnSidebar";
+import { blogMdxComponents } from "@/components/mdx/blog-mdx-components";
+import { Reveal, SectionBadge } from "@/components/utils";
+import {
+  generateLearnStaticParams,
+  getReadingMinutes,
+  loadChapterWithNav,
+} from "@/lib/learn";
 import type { Metadata } from "next";
 import { compileMDX } from "next-mdx-remote/rsc";
 import { notFound } from "next/navigation";
-import { FiArrowLeft } from "react-icons/fi";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 
 type Props = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ courseSlug: string; chapterSlug: string }>;
 };
 
 export function generateStaticParams() {
-  return getPostSlugs().map((slug) => ({ slug }));
+  return generateLearnStaticParams();
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const post = loadPost(slug);
-  if (!post) {
-    return { title: "Post not found" };
-  }
-  const fm = post.frontmatter;
+  const { courseSlug, chapterSlug } = await params;
+  const data = loadChapterWithNav(courseSlug, chapterSlug);
+  if (!data) return { title: "Chapter not found" };
   return {
-    title: `${fm.title} | Blog`,
-    description: fm.description,
+    title: `${data.frontmatter.title} — ${data.course.title} | Learn`,
+    description: data.frontmatter.description,
   };
 }
 
 /**
- * Prose styling for the rendered MDX body on a light Portoz-style surface.
- *
- * Uses the site's design tokens (`--ink`, `--ink-muted`, `--hairline-light`,
- * `--accent-mid`) so the article reads like part of the Portoz case-study
- * page family rather than the old indigo/zinc palette.
+ * Tailwind-docs-style prose for the rendered MDX body.
+ * Keeps the same design-token vocabulary as the blog article pages.
  */
 const articleBodyClassName =
   "max-w-none overflow-x-auto text-[var(--ink-muted)] " +
@@ -120,18 +116,18 @@ function extractTocItems(mdxSource: string): TocItem[] {
   return items;
 }
 
-export default async function BlogPostPage({ params }: Props) {
-  const { slug } = await params;
-  const post = loadPost(slug);
-  if (!post) {
-    notFound();
-  }
+export default async function ChapterPage({ params }: Props) {
+  const { courseSlug, chapterSlug } = await params;
+  const data = loadChapterWithNav(courseSlug, chapterSlug);
+  if (!data) notFound();
 
-  const readingMinutes = getReadingMinutesFromMdxSource(post.content);
-  const tocItems = extractTocItems(post.content);
+  const { course, content: mdxSource, frontmatter, previous, next } = data;
 
-  const { content } = await compileMDX<BlogPostFrontmatter>({
-    source: post.content,
+  const readingMinutes = getReadingMinutes(mdxSource);
+  const tocItems = extractTocItems(mdxSource);
+
+  const { content } = await compileMDX({
+    source: mdxSource,
     options: {
       parseFrontmatter: false,
       mdxOptions: {
@@ -142,56 +138,90 @@ export default async function BlogPostPage({ params }: Props) {
     components: blogMdxComponents,
   });
 
+  const chapterIndex = course.chapters.findIndex(
+    (ch) => ch.slug === chapterSlug,
+  );
+
   return (
     <main
       data-section-theme="light"
-      className="min-h-screen bg-(--surface-light) text-(--ink)"
+      className="min-h-screen bg-[var(--surface-light)] text-[var(--ink)]"
     >
-      <div className="mx-auto w-full max-w-6xl px-5 pt-24 pb-20 md:px-6 md:pt-36 md:pb-24 lg:px-8">
-        <div className="grid grid-cols-1 gap-10 md:gap-14 xl:grid-cols-[minmax(0,1fr)_21rem]">
-          <article className="min-w-0 xl:max-w-3xl">
-            <BlogArticleHeader
-              frontmatter={post.frontmatter}
-              readingMinutes={readingMinutes}
-            />
+      <div className="mx-auto w-full max-w-[88rem] px-5 pt-24 pb-20 md:px-6 md:pt-28 md:pb-24 lg:px-8">
+        <div className="flex gap-8 xl:gap-12">
+          {/* Left sidebar — desktop */}
+          <LearnSidebarDesktop
+            course={course}
+            activeChapterSlug={chapterSlug}
+          />
 
-            <BlogSourceDisclaimer
-              isFromKodeKloud={post.frontmatter.notesFromKodeKloud}
-            />
+          {/* Main content + right TOC */}
+          <div className="flex-1 min-w-0">
+            <div className="grid grid-cols-1 gap-10 md:gap-14 xl:grid-cols-[minmax(0,1fr)_20rem]">
+              <article className="min-w-0">
+                {/* Article header */}
+                <header className="mb-8 flex flex-col gap-4 md:mb-10 md:gap-6">
+                  <Reveal>
+                    <SectionBadge tone="light">
+                      Chapter {chapterIndex + 1} of {course.chapters.length}
+                    </SectionBadge>
+                  </Reveal>
 
-            <div className={articleBodyClassName}>{content}</div>
+                  <Reveal>
+                    <h1 className="text-balance text-3xl font-extrabold leading-[1.08] tracking-tight text-[var(--ink)] md:text-5xl">
+                      {frontmatter.title}
+                    </h1>
+                  </Reveal>
 
-            <footer className="mt-16 border-t border-(--hairline-light) pt-8 md:mt-24 md:pt-12">
+                  <Reveal>
+                    <p className="text-sm text-[var(--ink-muted)] md:text-base">
+                      {readingMinutes} min read
+                    </p>
+                  </Reveal>
 
-              <CtaButton
-                href="/blog"
-                surface="light"
-                variant="outline"
-                showArrow={false}
-              >
-                <span className="inline-flex items-center gap-2">
-                  <FiArrowLeft className="text-base" aria-hidden />
-                  Back to blog
-                </span>
-              </CtaButton>
-            </footer>
-          </article>
+                  <BlogSourceDisclaimer
+                    isFromKodeKloud={course.notesFromKodeKloud}
+                  />
+                </header>
 
-          {tocItems.length > 0 ? (
-            <aside className="hidden xl:block">
-              <div className="sticky top-28 flex max-h-[calc(100vh-8rem)] flex-col rounded-2xl border border-(--hairline-light) bg-white/70 p-6">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-(--ink-subtle)">
-                  On this page
-                </p>
-                <div className="min-h-0 overflow-y-auto pr-1">
-                  <BlogToc items={tocItems} />
-                </div>
-              </div>
-            </aside>
-          ) : null}
+                {/* Body */}
+                <div className={articleBodyClassName}>{content}</div>
+
+                {/* Chapter nav footer */}
+                <LearnChapterNav
+                  courseSlug={courseSlug}
+                  courseTitle={course.title}
+                  previous={previous}
+                  next={next}
+                />
+              </article>
+
+              {/* Right TOC — desktop */}
+              {tocItems.length > 0 ? (
+                <aside className="hidden xl:block">
+                  <div className="sticky top-28 flex max-h-[calc(100vh-8rem)] flex-col rounded-2xl border border-[var(--hairline-light)] bg-white/70 p-6">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-subtle)]">
+                      On this page
+                    </p>
+                    <div className="min-h-0 overflow-y-auto pr-1">
+                      <BlogToc items={tocItems} />
+                    </div>
+                  </div>
+                </aside>
+              ) : null}
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Mobile TOC (floating button) — reuses blog component */}
       <BlogTocMobile items={tocItems} />
+
+      {/* Mobile sidebar (floating menu button) */}
+      <LearnSidebarMobile
+        course={course}
+        activeChapterSlug={chapterSlug}
+      />
     </main>
   );
 }

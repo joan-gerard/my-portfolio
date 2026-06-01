@@ -1,0 +1,320 @@
+---
+title: "Networking"
+description: "Network interfaces, IP addressing, routing, DNS resolution, and practical troubleshooting tools."
+draft: false
+---
+
+
+### DNS
+
+#### The old way
+
+To understand DNS, it helps to start from how hostname resolution worked before DNS existed. Say you have two computers on the same network: Computer A (192.168.1.10) and Computer B (192.168.1.11). You can ping B by IP directly:
+
+```bash
+[~]$ ping 192.168.1.11
+Reply from 192.168.1.11: bytes=32 time=4ms TTL=117
+Reply from 192.168.1.11: bytes=32 time=4ms TTL=117
+```
+
+If B is a database server, you’d rather call it `db` than remember its IP. The quick fix is adding an entry to `/etc/hosts`:
+
+```bash
+[~]$ cat >> /etc/hosts
+192.168.1.11 db
+```
+
+After adding that entry, `ping db` works:
+
+```bash
+[~]$ ping db
+PING db (192.168.1.11) 56(84) bytes of data.
+64 bytes from db (192.168.1.11): icmp_seq=1 ttl=64 time=0.052 ms
+64 bytes from db (192.168.1.11): icmp_seq=2 ttl=64 time=0.079 ms
+```
+
+The local `/etc/hosts` file is authoritative for that system; the OS doesn’t verify whether the alias you wrote matches the remote machine’s actual hostname.
+
+Every command, whether `ping`, `ssh`, or `curl`, first checks `/etc/hosts` for a hostname mapping before going anywhere else. This translation from hostname to IP is called **name resolution**.
+
+#### Transitioning to Centralized DNS
+
+Managing `/etc/hosts` entries on every machine gets unmanageable at scale, especially when IP addresses change frequently.
+
+A DNS server solves this: all hosts point to one central place for name resolution.
+
+To point a system at the DNS server, update `/etc/resolv.conf`:
+
+```bash
+[~]$ cat /etc/resolv.conf
+nameserver 192.168.1.100
+```
+
+Once set, any hostname that can’t be resolved locally gets forwarded to the DNS server.
+
+Local `/etc/hosts` entries still work for names that don’t need to be shared across the network. The lookup order is controlled by `/etc/nsswitch.conf`:
+
+```bash
+[~]$ cat /etc/nsswitch.conf
+...
+hosts:          files dns
+...
+```
+
+If a name isn’t found anywhere in that lookup chain, resolution fails:
+
+```bash
+[~]$ ping www.facebook.com
+ping: www.facebook.com: Temporary failure in name resolution
+```
+
+To reach external domains, configure your internal DNS server to forward unknown queries to a public nameserver like Google’s 8.8.8.8.
+
+#### Public DNS Resolution and Domain Hierarchy
+
+When you ping external sites like www.facebook.com, you’re dealing with fully qualified domain names (FQDNs). Public DNS is organized as a hierarchy of domains:
+
+Take Google as an example:
+
+- The root (denoted by a dot)
+- Top-Level Domain (.com, .net, .org, etc.)
+- Subdomains (e.g., maps.google.com, mail.google.com)
+
+#### Search Domains
+
+Companies typically set up internal DNS with their own domain and subdomains for different services:
+
+- External website: www.mycompany.com
+- Email server: mail.mycompany.com
+- Storage: drive.mycompany.com
+- Payroll: pay.mycompany.com
+- Human Resources: hr.mycompany.com
+
+Adding a `search` entry to `/etc/resolv.conf` lets you use short hostnames that automatically get expanded to their full form. For example:
+
+```bash
+[~]$ cat >> /etc/resolv.conf
+nameserver 192.168.1.100
+search mycompany.com
+```
+
+Now `ping web` automatically resolves to `web.mycompany.com`:
+
+```bash
+[~]$ ping web
+PING web.mycompany.com (192.168.1.10) 56(84) bytes of data.
+64 bytes from web.mycompany.com (192.168.1.10): icmp_seq=1 ttl=64 time=0.052 ms
+64 bytes from web.mycompany.com (192.168.1.10): icmp_seq=2 ttl=64 time=0.079 ms
+```
+
+### Networking Basics
+
+Networking was the section of the course I found most grounding; it explains what’s actually happening when two machines talk to each other. The core concepts are switching, routing, interfaces, and gateways.
+
+Picture two devices, A and B, that need to talk to each other. They connect to a **switch**, which links them at the local network level. Each device needs a **network interface** (either physical or virtual) to attach to that switch.
+
+#### Inspecting and configuring interfaces
+
+To list interfaces and their state, use `ip link`:
+
+```bash
+[~]$ ip link
+eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+```
+
+Assuming the network is `192.168.1.0`, both devices get IPs in that range. Use `ip addr` to view or assign addresses:
+
+```bash
+[~]$ ip addr add 192.168.1.10/24 dev eth0   # device A
+[~]$ ip addr add 192.168.1.11/24 dev eth0   # device B
+```
+
+With both interfaces up and IPs assigned, they can reach each other through the switch. Note that a switch only handles traffic **within the same network**. Verify with `ping`:
+
+```bash
+[~]$ ping 192.168.1.11
+Reply from 192.168.1.11: bytes=32 time=4ms TTL=117
+Reply from 192.168.1.11: bytes=32 time=4ms TTL=117
+```
+
+#### Routing between networks
+
+Now suppose there’s a second network (`192.168.2.0`) with devices C and D. How does B reach C? That requires a **router**, a system with interfaces on both networks. In this example, the router sits at `192.168.1.1` on the first LAN and `192.168.2.1` on the second, forwarding packets between them.
+
+![Network routing between two subnets via a router](/network-routing.webp)
+
+For B to reach C, it needs to know its exit point. The **gateway** is that door out of the local network; every host that wants to reach other networks needs to have one configured.
+
+View the kernel routing table with `route` or `ip route`:
+
+```bash
+[~]$ route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+```
+
+Without any extra routes, B can only reach `192.168.1.0`. To reach `192.168.2.0`, add a route pointing that subnet via the router:
+
+```bash
+[~]$ ip route add 192.168.2.0/24 via 192.168.1.1
+```
+
+Device C needs the same in reverse: a route for `192.168.1.0` via `192.168.2.1`.
+
+> **Tip:** For Internet access (e.g. reaching hosts in ranges like `172.217.194.0`), connect the router to the Internet and add a **default route** on each device so unknown destinations go through the router.
+
+Example on a host in the `192.168.2.0` network:
+
+```bash
+[~]$ ip route add default via 192.168.2.1
+[~]$ ip route add 192.168.1.0/24 via 192.168.2.1
+```
+
+The routing table might then look like:
+
+```bash
+[~]$ route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+192.168.1.0     192.168.2.1     255.255.255.0   UG    0      0        0 eth0
+0.0.0.0         192.168.2.1     255.255.255.255 UG    0      0        0 eth0
+```
+
+`default` and `0.0.0.0` as destination both mean the same thing: the default route. When you see `0.0.0.0` in the gateway column, it means packets for that destination are sent directly without going through a router. In larger environments you’d typically keep a default route for Internet traffic and add specific routes for internal subnets.
+
+If Internet access stops working, inspect the routing table and check the default gateway. For example, to correct a misconfigured internal route:
+
+```bash
+[~]$ ip route add 192.168.1.0/24 via 192.168.2.2
+[~]$ route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         192.168.2.1     0.0.0.0         UG    0      0        0 eth0
+192.168.1.0     192.168.2.2     255.255.255.0   UG    0      0        0 eth0
+```
+
+#### Essential commands
+
+| Command              | Purpose                            | Example                                     |
+| -------------------- | ---------------------------------- | ------------------------------------------- |
+| `ip link`            | Lists and modifies host interfaces | `[~]$ ip link`                              |
+| `ip addr`            | Shows IPs assigned to interfaces   | `[~]$ ip addr`                              |
+| `ip addr add`        | Assigns an IP to an interface      | `[~]$ ip addr add 192.168.1.10/24 dev eth0` |
+| `ip route` / `route` | Views the routing table            | `[~]$ route`                                |
+| `ip route add`       | Adds a routing table entry         | `ip route add default via 192.168.2.1`      |
+
+> **Note:** Changes from these commands are **temporary** and are lost after reboot. For persistence, update the appropriate network config (e.g. `/etc/network/interfaces` on Debian-based systems).
+
+With switching, addressing, gateways, and routes in place, you have a solid foundation for setting up and troubleshooting basic Linux networks. For deeper detail, see the [kernel networking documentation](https://www.kernel.org/doc/html/latest/networking/index.html).
+
+### Network troubleshooting
+
+Here’s a scenario I found really useful for building a mental model of network troubleshooting: you point a client at a repository server (`company-repo-01`) and get a connection timeout. Even after fixing the hostname, the error persists. Timeouts like this usually come down to one of these areas:
+
+- Local network interface down or misconfigured
+- DNS not resolving the hostname to the correct IP
+- Routing problems between subnets
+- Server-side issues (interface down, service not listening, firewall)
+
+> **Tip:** A practical workflow checks local connectivity, DNS resolution, remote reachability, the path through intermediate routers, then the target host itself.
+
+#### Step 1: Verify the local network interface
+
+Confirm the client’s interface is up. Use `ip link` and look for `UP` in the state (here, `enp1s0f1`):
+
+```bash
+[~]$ ip link
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+   link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp1s0f1: <BROADCAST,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+   link/ether 08:97:98:6e:55:4d brd ff:ff:ff:ff:ff:ff
+```
+
+With `enp1s0f1` in the `UP` state, local link-layer connectivity looks healthy.
+
+#### Step 2: Confirm DNS resolution
+
+Verify `company-repo-01` resolves to the expected address. `nslookup` queries the configured nameserver (here, `192.168.1.100`):
+
+```bash
+[~]$ nslookup company-repo-01
+Server:         192.168.1.100
+Address:        192.168.1.100#53
+
+Non-authoritative answer:
+Name:   company-repo-01
+Address: 192.168.2.5
+```
+
+The hostname maps to `192.168.2.5`, so name resolution is working on the client side.
+
+#### Step 3: Test remote connectivity
+
+Use `ping` to probe reachability to the resolved IP:
+
+```bash
+[~]$ ping company-repo-01
+PING company-repo-01 (192.168.2.5) 56(84) bytes of data.
+^C
+--- company-repo-01 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2034ms
+```
+
+Some networks block ICMP, but **100% packet loss** usually means something is wrong on the path or at the destination, not just a blocked echo reply.
+
+#### Step 4: Trace the network route
+
+`traceroute` shows each hop from the client toward the server and where replies stop:
+
+![Trace the network route](/network-troubleshooting-check-route.webp)
+
+- First router: `192.168.1.1`, responds
+- Second router: `192.168.2.1`, responds
+- Next hop toward `192.168.2.5`, times out
+
+Both routers answer, but traffic dies after the second hop. That points to a problem near the repository host (subnet routing, host interface, or service), not the client’s local link or DNS.
+
+#### Step 5: Diagnose the repository server
+
+On `company-repo-01`, check whether the service and network stack are healthy.
+
+**1. Confirm the HTTP service is listening on port 80:**
+
+```bash
+[company-repo-01 ~]$ netstat -an | grep 80 | grep -i LISTEN
+tcp6       0      0 :::80                   LISTEN
+```
+
+Here, `-n` shows numeric addresses (hosts and ports) instead of resolving names, and `-a` includes all sockets, not only established connections. Piping to `grep LISTEN` keeps only services waiting for inbound connections.
+
+Port 80 is open and a web server is bound, so the application layer looks fine.
+
+**2. Inspect network interfaces:**
+
+```bash
+[company-repo-01 ~]$ ip link
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp1s0f1: <BROADCAST,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 1000
+    link/ether 08:97:98:34:52:12 brd ff:ff:ff:ff:ff:ff
+```
+
+The data interface `enp1s0f1` is **DOWN** even though multicast flags appear in the line, link state is what matters. Bring it up:
+
+```bash
+[company-repo-01 ~]$ ip link set dev enp1s0f1 up
+[company-repo-01 ~]$ ip link
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp1s0f1: <BROADCAST,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 08:97:98:34:52:12 brd ff:ff:ff:ff:ff:ff
+```
+
+With `enp1s0f1` up, the server can receive traffic on the LAN again, the likely root cause of the timeout.
+
+#### Final verification
+
+From the client, retry the repository URL (or `ping company-repo-01` if ICMP is allowed). Connectivity should succeed once DNS, routing, the server interface, and the listening service are all aligned.
+
+This pattern (**client link → DNS → path → server interface → service**) is worth internalising. It applies to any situation where a host should be reachable but isn’t.
+

@@ -23,12 +23,6 @@ export type BlogPostFrontmatter = {
   tags?: string[];
   /** When true, show a subtle note that the article is course-driven notes. */
   notesFromKodeKloud?: boolean;
-  /** Optional series key used for grouped blog navigation. */
-  seriesKey?: string;
-  /** Optional 0 for hub page, 1..N for numbered parts. */
-  seriesPart?: number;
-  /** Optional total number of parts in the series. */
-  seriesTotalParts?: number;
 };
 
 export type BlogPostListItem = BlogPostFrontmatter & {
@@ -48,29 +42,6 @@ export function isBlogPostFrontmatter(
   if (
     o.notesFromKodeKloud !== undefined &&
     typeof o.notesFromKodeKloud !== "boolean"
-  ) {
-    return false;
-  }
-  if (o.seriesKey !== undefined && typeof o.seriesKey !== "string") {
-    return false;
-  }
-  if (
-    o.seriesPart !== undefined &&
-    (!Number.isInteger(o.seriesPart) || (o.seriesPart as number) < 0)
-  ) {
-    return false;
-  }
-  if (
-    o.seriesTotalParts !== undefined &&
-    (!Number.isInteger(o.seriesTotalParts) ||
-      (o.seriesTotalParts as number) < 1)
-  ) {
-    return false;
-  }
-  if (
-    o.seriesPart !== undefined &&
-    o.seriesTotalParts !== undefined &&
-    (o.seriesPart as number) > (o.seriesTotalParts as number)
   ) {
     return false;
   }

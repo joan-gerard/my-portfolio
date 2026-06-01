@@ -5,7 +5,6 @@ import { DetailsGrid, DetailsGridItem, Reveal, SectionBadge } from "../utils";
 type Props = {
   frontmatter: BlogPostFrontmatter;
   readingMinutes: number;
-  seriesLabel?: string;
 };
 
 /**
@@ -16,11 +15,7 @@ type Props = {
  * details" metadata grid (Published / Read time / Category) rendered like a
  * Portoz `Project details` block.
  */
-export function BlogArticleHeader({
-  frontmatter,
-  readingMinutes,
-  seriesLabel,
-}: Props) {
+export function BlogArticleHeader({ frontmatter, readingMinutes }: Props) {
   const category = frontmatter.tags?.[0] ?? "Article";
 
   return (
@@ -34,14 +29,6 @@ export function BlogArticleHeader({
           {frontmatter.title}
         </h1>
       </Reveal>
-
-      {seriesLabel ? (
-        <Reveal>
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-(--ink-subtle) md:text-sm">
-            {seriesLabel}
-          </p>
-        </Reveal>
-      ) : null}
 
       {frontmatter.description ? (
         <Reveal>

@@ -1,0 +1,423 @@
+---
+title: "Working with the Shell — Part 2"
+description: "File compression and archival, searching with find and locate, I/O redirection, pipes, and VI editor fundamentals."
+draft: false
+---
+
+
+<h3 id="compression-and-archival">File Compression and Archival</h3>
+
+#### Checking the size of a file
+
+| Task                                                                         | Command                | Output             |
+| ---------------------------------------------------------------------------- | ---------------------- | ------------------ |
+| To view files sizes in kilobytes                                             | `[~]$ du -sk test.img` | `100000`           |
+| For a more human-readable format                                             | `[~]$ du -sh test.img` | `98M     test.img` |
+| Use the `ls -lh` command to view<br /> file sizes in a human-readable format | `[~]$ ls -lh test.img` | -                  |
+
+#### Using `tar` for archival
+
+`tar` is the go-to utility for bundling multiple files or directories into a single archive file, a **tarball**. It's something you'll use constantly for backups, deployments, and file transfers.
+
+To create a tar archive, use the `-c` option to create the archive and the `-f` option to specify the file name:
+
+```bash
+[~]$ tar -cf test.tar file1 file2 file3
+[~]$ ls -ltr test.tar
+-rw-rw-r--  1 1281054720 Mar 13 19:48 test.tar
+```
+
+You can list the contents of a tarball using:
+
+```bash
+[~]$ tar -tf test.tar
+./file1
+./file2
+./file3
+```
+
+To extract files from a tar archive, use the `-x` option:
+
+```bash
+[~]$ tar -xf test.tar
+```
+
+Additionally, to compress the tarball and reduce its file size, include the `-z` option:
+
+```bash
+[~]$ tar -zcf test.tar file1 file2 file3
+```
+
+#### Compression commands
+
+Linux gives you a few different compression tools depending on how much compression you need versus how fast you want it. The three most common are `bzip2`, `gzip`, and `xz`:
+
+| Utility | Compressing           | File extension | Uncompressing               |
+| ------- | --------------------- | -------------- | --------------------------- |
+| `bzip2` | `[~]$ bzip2 test.img` | `.bz2`         | `[~]$ bunzip2 test.img.bz2` |
+| `gzip`  | `[~]$ gzip test1.img` | `.gz`          | `[~]$ gunzip test1.img.gz`  |
+| `xz`    | `[~]$ xz test2.img`   | `.xz`          | `[~]$ unxz test2.img.xz`    |
+
+> It is important to note that you do not always need to fully uncompress a file to view its content. Tools like `zcat`, `bzcat`, and `xzcat` allow you to read compressed files without manual decompression.
+
+<h3 id="files-and-patterns">Searching for Files and Patterns</h3>
+
+#### Using the `locate` command
+
+The `locate` command is the quickest way to find a file: it queries a pre-built database rather than scanning the filesystem in real time, so results come back almost instantly. For example:
+
+```bash
+locate City.txt
+/home/michael/Africa/Egypt/Cairo/City.txt
+/home/michael/Asia/India/Mumbai/City.txt
+```
+
+> If the file isn’t listed, you may need to update the database manually by running `sudo updatedb`, then re-run the `locate` command
+
+#### Using the `find` command
+
+If `locate` is the fast option, `find` is the powerful one. It searches the filesystem in real time and supports a wide range of filters and conditions. To find a file by name under a specific directory:
+
+```bash
+find /home/michael -name City.txt
+/home/michael/Africa/Egypt/Cairo/City.txt
+/home/michael/Asia/India/Mumbai/City.txt
+```
+
+#### Using the `grep` command
+
+`grep` is where searching gets really useful. Assume you have a file named `sample.txt` with the following content:
+
+```bash
+[~]$ cat sample.txt
+This is the first line.
+Followed by the second line.
+And then the third line.
+The fourth line has CAPITAL LETTERS
+The fifth line does not want to be printed
+```
+
+| Command                                         | Description                                                                                |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `grep second sample.txt`                        | prints only the line that contains the word “second.”                                      |
+| `grep -i capital sample.txt`                    | for a case-insensitive search, add the `-i` flag                                           |
+| `grep -R "third line" /home/michael`            | search recursively through a directory<br /> with the `-R`flag                             |
+| `grep -v exam examples.txt`                     | print only the lines that do NOT match<br /> a particular pattern with the `-v` flag       |
+| `grep -w exam examples.txt`                     | match only the whole word “exam”<br /> with the `-w` option                                |
+| `grep -A1 Arsenal premier-league-table.txt`     | print the line containing “Arsenal” along with<br /> the line immediately **following** it |
+| `grep -B1 Arsenal premier-league-table.txt`     | print the line containing “Arsenal” along with<br /> the line immediately **preceding** it |
+| `grep -A1 -B1 Arsenal premier-league-table.txt` | combine both options to display one line<br /> before and one after a matching line        |
+
+<h3 id="io-redirection">IO Redirection</h3>
+
+IO redirection was one of those things I knew existed but never fully appreciated until I started chaining commands together. The key is understanding the three standard streams every process works with:
+
+Every Linux command you run is automatically associated with three primary data streams:
+
+- **STDIN**: The standard input stream that accepts text input.
+- **STDOUT**: The standard output stream that displays text output on your screen.
+- **STDERR**: The standard error stream that shows error messages.
+
+Here's the basic model in action, displaying a file with `cat`:
+
+```bash
+[~]$ cat sample_text.txt
+This is the file contents
+```
+
+If the file does not exist, the error goes to **STDERR** instead of **STDOUT**:
+
+```bash
+[~]$ cat sample_text.txt
+This is the file contents
+cat: sample_text.txt: No such file or directory
+```
+
+#### Redirecting Standard Output and Error
+
+You can redirect **STDOUT** to a file instead of the screen using the `>` operator.
+
+Use a **single** arrow symbol to **overwrite** the file:
+
+```bash
+[~]$ echo $SHELL > shell.txt
+[~]$ cat shell.txt
+/bin/bash
+```
+
+Use a **double** arrow symbol to **append** to an existing file:
+
+```bash
+[~]$ echo "This is the Bash shell" >> shell.txt
+[~]$ cat shell.txt
+/bin/bash
+This is the Bash shell
+```
+
+To redirect only error messages to a file, prefix the redirection operator with the number `2`. This tells the shell to redirect **STDERR**:
+
+```bash
+[~]$ cat missing_file 2> error.txt
+[~]$ cat error.txt
+cat: missing_file: No such file or directory
+
+# append error msg instead of overwriting
+[~]$ cat missing_file 2>> error.txt
+```
+
+#### Using Pipes to Link Commands
+
+Often, you might want to pass the output of one command directly to another without creating an intermediary file; that’s where piping comes into play.
+
+The pipe operator (|) transfers the standard output from the command on its left to the standard input of the command on its right. For example:
+
+```bash
+command1 | command2
+```
+
+The pipe mechanism allows you to chain multiple commands together, enhancing efficiency and flexibility.
+
+#### The `tee` command
+
+Another valuable tool for managing IO redirection is the tee command. Unlike the redirection operator that sends the output exclusively to a file, tee duplicates the output by writing it both to a file and to the screen simultaneously.
+
+```bash
+[~]$ echo $SHELL | tee shell.txt
+/bin/bash
+[~]$ cat shell.txt
+/bin/bash
+```
+
+To append the output to the file rather than replacing its content, use the `-a` option with tee:
+
+```bash
+[~]$ echo $SHELL | tee -a shell.txt
+```
+
+These IO redirection techniques are some of the most practical things to get comfortable with early on. Whether you’re saving output to files, filtering errors, or chaining commands with pipes, they make everything on the command line faster and more expressive.
+
+#### Practical exercise
+
+**Task 1**:
+Find the location of the file called dummy.service within the /etc filesystem and redirect its absolute path to the file located at /home/bob/dummy-service.
+
+You can use the redirect operator with the `echo` command to save the answer to the file.
+
+**Answer**:
+Run the command:
+
+```bash
+sudo find /etc -name dummy.service
+```
+
+Next, utilize the `echo` command to save the output from the previous step into a file:
+
+```bash
+echo /etc/systemd/system/dummy.service > /home/bob/dummy-service
+```
+
+**Task 2**:
+Find the file under /etc directory that contains the string 172.16.238.197. Save the answer using the absolute path in the file /home/bob/ip.
+
+**Answer**:
+
+```bash
+sudo grep -ir 172.16.238.197 /etc/ > /home/bob/ip
+```
+
+**Task 3**:
+Read the file /usr/share/man/man1/tail.1.gz and, without extracting it, redirect its contents to a file called /home/bob/pipes.
+
+**Answer**:
+
+```bash
+zcat /usr/share/man/man1/tail.1.gz | tee /home/bob/pipes
+#
+zcat /usr/share/man/man1/tail.1.gz > /home/bob/pipes
+```
+
+<h3 id="vi-editor">VI Editor</h3>
+
+> A guide to using the VI Editor in Linux, covering its modes, commands, and features for efficient text editing and coding.
+
+VI (and its improved successor, VIM) is the editor you’ll encounter on practically every Linux server. It ships by default on nearly all distributions, so you can’t always rely on something friendlier being installed. If you’ve avoided it because the learning curve felt steep, this section breaks down exactly how it works.
+
+#### Getting Started with VI Editor
+
+To open a file for editing, invoke `vi` followed by the filename:
+
+```bash theme={null}
+[$] vi /home/michael/sample.txt
+This is the first line.
+Followed by the second line.
+Third line is very long compared to the previous two lines.
+Hello there!
+hello there!
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+"sample.txt" 5L, 139C
+1,1 All
+```
+
+When VI opens a file, it starts in Command Mode. Understanding the three modes is the key to everything:
+
+1. **Command Mode** - Execute commands such as copying, pasting, deleting, and navigating.
+2. **Insert Mode** - Edit or add new text.
+3. **Last Line Mode** - Save, quit, or perform other file operations.
+
+#### Opening Files in Command Mode
+
+VI always opens in Command Mode. Navigate using the arrow keys or the classic `H`/`J`/`K`/`L` keys (left/down/up/right).
+
+#### Switching to Insert Mode
+
+Press lowercase `i` to switch to Insert Mode. You’ll see `-- INSERT --` at the bottom of the screen. Other keys (`a`, `o`, `I`, `A`, `O`) also enter Insert Mode but position the cursor differently, which is useful once you’re comfortable with the basics.
+
+> **Tip:** To exit Insert Mode and return to Command Mode, simply press the `Esc` key.
+
+#### Working with VI Commands
+
+Once back in Command Mode, you can perform a variety of operations:
+
+- **Copying Text:** Place the cursor on a line and press `YY` to copy it. To paste the copied line above the target line, move the cursor appropriately and press `P`.
+
+  ```bash theme={null}
+  This is the first line.
+  Followed by the second line.
+  Third line is very long compared to the previous two lines.
+  Hello there!
+  hello there!
+  ~
+  ~
+  ~
+  "sample.txt" 5L, 139C 1,1 All
+  ```
+
+- **Saving and Deleting:**
+  - Save the file using uppercase `ZZ`.
+  - Delete a character by positioning on it and pressing `X`.
+  - Delete an entire line with `DD`.
+  - For multiple lines, use a command like `D3D` to delete three lines (replace `3` with any number).
+
+  Here's an example of deletion in Command Mode:
+
+  ```bash theme={null}
+  This is the first line.
+  Followed by the second line.
+  Third line is very long compared to the previous two lines.
+  Hello there!
+  hello there!
+  ~
+  ~
+  ~
+  ~
+  ~
+  "sample.txt" 5L, 139C      1,1         All
+  ```
+
+- **Undo and Redo Changes:**
+  - Press `U` to undo an unintended change.
+  - Use `Control-R` to redo a change that was undone.
+
+  ```bash theme={null}
+  This is the first line.
+  Followed by the second line.
+  Third line is very long compared to the previous two lines.
+  Hello there!
+  hello there!
+  ~
+  ~
+  ~
+  ~
+  ~
+  "sample.txt" 5L, 139C  1,1 All
+  ```
+
+#### Searching for Text
+
+Searching in VI is fast. Use `/` to search forward or `?` to search backward. After typing your term and pressing enter, `n` jumps to the next match and `N` goes back.
+
+```bash theme={null}
+/line
+This is the first line.
+Followed by the second line.
+Third line is very long compared to the previous two lines.
+Hello there!
+hello there!
+~
+~
+~
+~
+~
+~/line
+```
+
+#### Last Line Mode: Saving and Quitting
+
+Press `:` in Command Mode to enter Last Line Mode, where you can save and quit:
+
+- Save the changes with `:w`.
+- Quit the editor with `:q`.
+- Save and exit using `:wq`.
+- Force quit without saving using `:q!`.
+
+For example, after editing:
+
+```bash theme={null}
+This is the first line.
+Followed by the second line.
+Third line is very long compared to the previous two lines.
+Hello there!
+hello there!
+I made some changes to this file.
+~
+~
+~
+~
+~
+:W
+```
+
+#### Enhancing VI with VIM
+
+VIM ("VI Improved") adds autocomplete, spell checking, plugins, and syntax highlighting on top of VI. On most modern distributions, typing `vi` actually launches VIM via a symbolic link (e.g., `/usr/bin/vim.basic`), so you're likely already using it.
+
+Run `:h vi-differences` inside VIM to see a full comparison of what was added.
+
+```bash theme={null}
+This is the first line.
+Followed by the second line.
+Third line is very long compared to the previous two lines.
+Hello there!
+hello there!
+I made some changes to this file.
+~
+~
+~
+~
+~
+~
+~
+?
+:w
+```
+
+![The image describes VIM as "VI Improved," highlighting features like completion, spell check, plugins, syntax highlighting, and more, with a "KodeKloud" logo.](https://kodekloud.com/kk-media/image/upload/v1752881161/notes-assets/images/Learning-Linux-Basics-Course-Labs-VI-Editor/frame_440.jpg)
+
+> **Tip:** For more detailed information on command usage and advanced features, refer to the [VIM documentation](https://www.vim.org/docs.php) or use the built-in help command within VIM.
+
+#### Practice Makes Perfect
+
+The only way to get comfortable with VI is to actually use it. Practice switching modes, copying and deleting lines, and searching. It feels awkward at first, but muscle memory kicks in faster than you'd expect.
+
+![The image shows a text editor in "Insert Mode" with instructions for switching between modes using specific keys.](https://kodekloud.com/kk-media/image/upload/v1752881162/notes-assets/images/Learning-Linux-Basics-Course-Labs-VI-Editor/frame_350.jpg)
+
