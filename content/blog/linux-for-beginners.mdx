@@ -10,13 +10,15 @@ notesFromKodeKloud: true
 
 <h2 id="introduction">Introduction</h2>
 
-These notes summarize Linux fundamentals that are important for anyone building a career in DevOps, cloud, or infrastructure.
+I recently worked through KodeKloud's Linux Basics course, and this post is my attempt to document what I learned in a way that's actually useful to return to. If you're getting into DevOps or cloud infrastructure and Linux still feels a bit murky, I hope these notes help.
 
-Linux powers modern technology at scale, from the world's fastest supercomputers and most web platforms to the majority of smartphones. In the DevOps ecosystem, many core tools were designed for Linux first: Docker started as Linux-only, Ansible controllers run on Linux, and Kubernetes control planes remain Linux-based.
+Linux is everywhere. From the world's fastest supercomputers and most web servers to the majority of smartphones, it underpins modern technology at scale. In the DevOps world specifically, most core tooling was designed with Linux first in mind: Docker started as Linux-only, Ansible controllers run on Linux, and Kubernetes control planes are Linux-based.
 
-Because of this, Linux is not just helpful, it is foundational. The material behind these notes uses a story-driven format and hands-on labs to build practical skills in terminal usage, core system concepts, package management, security, networking, storage, and service management with systemd.
+That makes Linux not just helpful for this kind of work; it's foundational. The course takes a story-driven approach with hands-on labs, and I've structured my notes to follow the same flow.
 
 ### Common challenges
+
+Before diving in, the course acknowledges the typical pain points for Linux beginners, most of which I recognized from my own experience:
 
 - Trouble with navigating Linux CLI
 - Navigating directory structures and files
@@ -28,6 +30,8 @@ Because of this, Linux is not just helpful, it is foundational. The material beh
 - Lack of hands-on practice
 
 ### Learning structures
+
+Here's what the course covers, which is also the structure of these notes:
 
 - Interact with the terminal and understand the shell, which serves as the gateway to the Linux kernel
 - Study core Linux concepts that help you understand how systems operate
@@ -42,18 +46,18 @@ Because of this, Linux is not just helpful, it is foundational. The material beh
 
 ### What is a Shell?
 
-The Linux Shell is a program that allows text-based interaction between the user and the OS. This interaction is carried out by typing commands into the interface and receiving the response in the same way.
+The shell is a program that lets you interact with the operating system through text. You type a command, press enter, and the shell passes it to the OS, then returns the result. It sounds simple, and it is, but once you're comfortable with it, the shell becomes an incredibly powerful tool.
 
 ### Home directory
 
-When logging into the Shell, the very first directory would be the home directory ("/home/michael"). It allows users to store their personal data in the forms of files and directories.
+When you log in, you land in your home directory, typically `/home/<username>`. It's your personal workspace on the system, where your files, configurations, and scripts live.
 
 ### Command types
 
 - Internal or Built-in Commands: echo, cd, pwd, set...
 - External Commands: mv, date, uptime, cp...
 
-To verify whether a command is internal or external, use the type command. For example, executing `type echo` shows that `echo` is a built-in command.
+You can check whether a command is built-in or external using the `type` command. Running `type echo`, for example, confirms that `echo` is a shell built-in. This matters when writing scripts, since built-ins behave slightly differently from external programs.
 
 ### whatis and man commands
 
@@ -68,14 +72,14 @@ To verify whether a command is internal or external, use the type command. For e
 - Z Shell (zsh)
 - Bourne again Shell (bash)
 
-To check the shell being used
+To check which shell you're currently using:
 
 ```bash
 [~]$ echo $SHELL
 /bin/bash
 ```
 
-To change your default shell, use the chsh command.
+To switch to a different default shell, use the `chsh` command:
 
     ```bash
     [~]$ chsh
@@ -106,17 +110,15 @@ To change your default shell, use the chsh command.
 
 - User profile scripts
 
-  User profile scripts, such as `~/.profile`, `~/.bash_profile`, `~/.bashrc`, and others, are executed when a user logs in, allowing the setup of the environment according to personal preferences
-
-  To make changes persistent in Unix-like operating systems, variables, aliases, and other configurations can be added to these profile files.
+  Profile scripts like `~/.profile`, `~/.bash_profile`, and `~/.bashrc` run automatically when you log in, setting up your environment. Any variable, alias, or configuration you add here persists across sessions.
 
   ```bash
   echo 'export MY_VARIABLE="example_value"' >> ~/.profile
   ```
 
-  This command appends the `export` statement to the end of the `~/.profile` file, making the variable `MY_VARIABLE` persistent across sessions.
+  This appends the `export` statement to `~/.profile`, making `MY_VARIABLE` available every time you open a new session.
 
-  To add an alias, like ll for ls -l, use:
+  To add an alias, like `ll` for `ls -l`:
 
   ```bash
   echo 'alias ll="ls -l"' >> ~/.profile
@@ -124,9 +126,7 @@ To change your default shell, use the chsh command.
 
 ### Customising the Bash Prompt
 
-The Bash prompt, typically seen as [~]$ when you log in, can be customized to display useful system and user information.
-
-The appearance of the Bash prompt is controlled by the `PS1` environment variable. To view its current setting, run:
+The default Bash prompt is fairly minimal, but you can customize it to show useful context like the date, username, hostname, and current directory. The prompt is controlled by the `PS1` environment variable. To see what yours is set to:
 
 ```bash
 [~]$ echo $PS1
@@ -136,7 +136,7 @@ The appearance of the Bash prompt is controlled by the `PS1` environment variabl
 # $ = Prompt Symbol
 ```
 
-To customise the `PS1`
+To customise it, reassign `PS1` directly:
 
 ```Bash
 [~]$ PS1="[ \d \t \u@\h:\w ] $ "
@@ -149,11 +149,11 @@ To customise the `PS1`
 
 ### Linux Kernel
 
-What is a Kernel?
+The kernel is the heart of the operating system: it sits between your hardware and everything running on top of it, managing resources and making sure processes get what they need without stepping on each other:
 
 - It is the major component of the OS
-- it is the core interface between a computer's hardware and its processes
-- it communicates between the two, managing resources as efficiently as possible.
+- It is the core interface between a computer's hardware and its processes
+- It communicates between the two, managing resources as efficiently as possible.
 
 <svg viewBox="0 0 720 320" width="100%" role="img" aria-label="Linux kernel interaction diagram">
   <defs>
@@ -286,11 +286,11 @@ What is a Kernel?
   <line x1="595" y1="192" x2="595" y2="242" stroke="#475569" strokeWidth="2.5" markerStart="url(#arrow-start)" markerEnd="url(#arrow-end)"></line>
 </svg>
 
-The best analogy to understand Linux Kernel is the library analogy. The same interaction model applies: students represent user applications, the librarian represents the kernel, and books/DVDs/workstations represent system resources.
+The course uses a great analogy to make this concrete: think of a library. Students are user applications, the librarian is the kernel, and the books, DVDs, and workstations are system resources.
 
-Without librarians, students would search every corner of the library and borrow any materials they find, with no reliable tracking of who borrowed what or when items are due back. In such a mismanaged system, resources might not be available when other students need them most.
+Without the librarian, students would raid the shelves freely, with no tracking of who took what or when it's due back; resources would run dry and nothing would be managed reliably.
 
-A librarian ensures that students get books appropriate to their year level, enforces borrowing limits (for example, one book per student), tracks due dates, sends reminders before deadlines, and makes sure resources are returned.
+The librarian changes that: students get materials appropriate to their level, there are borrowing limits, due dates are tracked, reminders go out before deadlines, and resources get returned for others to use.
 
 #### Linux Kernel four major responsibilities
 
@@ -299,9 +299,7 @@ A librarian ensures that students get books appropriate to their year level, enf
 - **Device Drivers**: Acts as an intermediary between hardware devices and software processes.
 - **System Calls and Security**: Handles requests from processes and enforces security policies.
 
-The Linux Kernel is **monolithic**, which means that the Kernel carries out CPU scheduling, memory management and several other operations by itself.
-
-The Kernel is also **modular**, which means it can extend its capabilities through the use of dynamically loaded Kernel modules
+Two important characteristics worth knowing: the kernel is **monolithic**, meaning it handles CPU scheduling, memory management, and other core operations all within a single process. But it's also **modular**, so it can load and unload additional functionality at runtime via kernel modules, without needing to be recompiled.
 
 #### Kernel Versions
 
@@ -315,11 +313,11 @@ Linux
 4.15.0-72-generic
 ```
 
-Where 4 is the Kernel Version, 15 is the Major Version, 0 the Minor Version, 72 the patch release and 'generic' the Distro Specific Version
+So for `4.15.0-72-generic`: 4 is the kernel version, 15 the major version, 0 the minor version, 72 the patch release, and `generic` is the distro-specific build flavor.
 
 #### Understanding Kernel and User Space
 
-Memory management is divided into 2 primary areas:
+One concept that helped me understand how Linux organizes memory is the split between kernel space and user space. There are two primary areas:
 
 **Kernel Space**:
 
@@ -333,17 +331,17 @@ Memory management is divided into 2 primary areas:
 - This area hosts various utilities, programming languages, and graphical tools collectively known as the userland.
 - Similar to the publicly accessible areas of the library designed for readers and reference.
 
-User space programs primarily work with data by performing operations on memory or disk. They communicate their needs through system calls to the kernel.
+User space programs do their work with memory and disk, and whenever they need something from the hardware or OS, they make system calls to request it from the kernel.
 
 ![Kernel and User Space](/kernal-and-user-space.webp)
 
 <h3 id="working-with-hardware">Working With Hardware</h3>
 
-When a USB disk is attached, the kernel device driver detects the state change and emits a **uEvent**. That event is sent to the user-space device manager, **udev**, which then creates the corresponding device node under `/dev` (for example, `/dev/sdb1`).
+Something that clicked for me in this section: every time you plug in a device, an automatic chain of events fires. The kernel driver detects the state change and emits a **uEvent**, which gets picked up by **udev** (the user-space device manager). udev then creates the corresponding device node under `/dev` (for example, `/dev/sdb1`).
 
 ![The image illustrates the process of hardware interaction, showing a USB disk connecting through device drivers in kernel space and udev in user space to /dev/sdb1.](https://kodekloud.com/kk-media/image/upload/v1752881122/notes-assets/images/Learning-Linux-Basics-Course-Labs-Working-with-Hardware/frame_40.jpg)
 
-Once this flow completes, the new disk appears in the `/dev` filesystem and can be inspected or mounted.
+Once that flow completes, the new disk appears under `/dev` and you can inspect or mount it.
 
 > **Tip:** Linux provides powerful CLI tools to inspect kernel logs, monitor device events, and view hardware configuration details. These are essential for troubleshooting and administration.
 
@@ -519,11 +517,11 @@ Linux hardware management relies on a clear kernel-to-user-space flow plus pract
 - `lscpu` and `lsmem`/`free` for CPU and memory views
 - `lshw` for full-system hardware inventory
 
-Using these regularly improves troubleshooting speed and overall system administration confidence.
+I've found these commands particularly useful when setting up a new machine or diagnosing unexpected hardware behaviour.
 
 <h3 id="linux-boot-sequence">Linux Boot Sequence</h3>
 
-This section provides a simplified overview of the Linux boot process. The sequence has four key stages:
+Understanding what happens when Linux boots was one of those topics I always glossed over, but it's genuinely useful once you know it. The process runs through four stages:
 
 1. BIOS POST
 2. Boot Loader (GRUB2)
@@ -536,19 +534,15 @@ This section provides a simplified overview of the Linux boot process. The seque
 
 #### 1. BIOS POST
 
-The first stage is BIOS POST (Power-On Self-Test). During this phase, firmware validates core hardware components before handing off control. Because POST is firmware-driven, it is mostly independent of Linux itself. If POST fails, the system cannot continue booting.
+BIOS POST (Power-On Self-Test) is the very first thing that runs: the firmware checks that core hardware is healthy before handing off control. This stage is entirely independent of Linux itself; if something fails here, the machine doesn't even get to load the OS.
 
 #### 2. Boot Loader
 
-After POST succeeds, BIOS/firmware reads boot code from the selected boot device (commonly from the disk's early boot sectors and the `/boot` filesystem). The boot loader then displays available boot entries, loads the selected Linux kernel into memory, passes kernel parameters, and transfers execution to the kernel.
-
-In most Linux distributions, this boot loader is **GRUB2** (Grand Unified Boot Loader v2).
+Once POST passes, the firmware reads boot code from the selected boot device and hands control to the boot loader. In most Linux distributions this is **GRUB2** (Grand Unified Boot Loader v2), which presents available boot entries, loads the selected kernel into memory, passes it startup parameters, and transfers execution to it.
 
 #### 3. Kernel Initialization
 
-At this stage, the compressed kernel image is decompressed and loaded into memory. The kernel initializes hardware, memory subsystems, and core drivers, then prepares the system for user space.
-
-Typical early kernel log output may look like:
+Here the compressed kernel image is decompressed and loaded into memory. The kernel initializes hardware, memory subsystems, and core drivers, then prepares everything for user space. If you've ever seen a stream of lines fly by during boot, that's what's happening. A typical early kernel log looks like:
 
 ```bash
 [0.554274]  Magic number: 0:465:215
@@ -573,22 +567,20 @@ Typical early kernel log output may look like:
 [1.000000] ptbase: ioc0: Initiating bringup
 ```
 
-Once kernel initialization is complete, Linux launches the init process to bring up user space and essential system processes.
+Once kernel initialization is complete, Linux launches the init process, which brings up user space and essential system processes.
 
 #### 4. Service Initialization
 
-Modern Linux systems typically use **systemd** as PID 1 (init). `systemd` mounts filesystems, starts background services, resolves dependencies, and moves the system to a usable target state.
+Modern Linux systems use **systemd** as PID 1. It mounts filesystems, starts background services, resolves dependencies between them, and brings the system to a usable state. Compared to legacy SysV init, one big win is that systemd starts services in parallel, which noticeably reduces boot time.
 
-Compared with legacy SysV init, one major advantage is parallel service startup, which helps reduce boot time.
-
-To confirm which init implementation is linked on your system:
+To confirm which init implementation your system is using:
 
 ```bash
 [~]$ ls -l /sbin/init
 lrwxrwxrwx /sbin/init -> /lib/systemd/systemd
 ```
 
-Additional boot logs often show filesystem mounts and service manager startup:
+Later in the boot sequence, the logs show filesystem mounts and the service manager coming up:
 
 ```bash
 [5.574670] EXT4-fs (sda1): mounted filesystem with ordered data mode
@@ -599,41 +591,37 @@ Additional boot logs often show filesystem mounts and service manager startup:
 [5.748912] systemd[1]: Set hostname to <kubemaster>.
 ```
 
-When required services are active, boot is complete and the system is ready for user interaction.
+Once the required services are active, boot is complete and the system is ready to use.
 
 <h3 id="runlevels">Runlevels</h3>
 
-In Linux, the system can operate in several modes, known as runlevels. You might be familiar with graphical mode; however, runlevels allow for various operational modes beyond just the GUI.
-
-To determine the current runlevel of a Linux system, use the `runlevel` command:
+Runlevels define what mode the system is operating in. Most people are familiar with graphical mode, but there are several others, the most common being multi-user non-graphical mode. You can check the current runlevel with the `runlevel` command:
 
 ```bash theme={null}
 Ubuntu 18.04.4 LTS caleston-lp03 tty1
 caleston-lp03 login:
 ```
 
-This output indicates that the system is running at runlevel 3, which is non-graphical mode. In contrast, another laptop could be configured to run at runlevel 5, which provides a graphical user interface.
-
-The boot process utilizes the runlevel setting by having the init process check the current runlevel and start only those services required for that mode. For instance, graphical mode (runlevel 5) needs a display manager service to start the GUI, whereas this service is unnecessary in non-graphical mode.
+This login prompt tells us the system is at runlevel 3 (non-graphical mode). A system with a desktop environment would be at runlevel 5. During boot, the init process checks the configured runlevel and starts only the services needed for that mode; for example, a display manager is needed for runlevel 5 but unnecessary for runlevel 3.
 
 ![The image explains systemd runlevels, showing graphical and command line interfaces, with indicators for display-manager service enabled or disabled.](https://kodekloud.com/kk-media/image/upload/v1752881120/notes-assets/images/Learning-Linux-Basics-Course-Labs-Runlevels/frame_80.jpg)
 
-In modern Linux distributions like Ubuntu 18.04, the system uses systemd as the init process. Under systemd, traditional runlevels are represented as targets:
+On modern distributions like Ubuntu 18.04, systemd replaces the old runlevel model with **targets**:
 
 ![The image explains systemd targets and runlevels, showing how they boot into graphical or command line interfaces on RHEL and Ubuntu systems.](https://kodekloud.com/kk-media/image/upload/v1752881121/notes-assets/images/Learning-Linux-Basics-Course-Labs-Runlevels/frame_110.jpg)
 
-In this context:
+The mapping is straightforward:
 
 - Runlevel 5 corresponds to the graphical target.
 - Runlevel 3 corresponds to the multi-user target.
 
-While additional runlevels (or targets) exist, these two are the most commonly used.
+These two cover the vast majority of real-world use cases.
 
 > If your system boots into a command line interface by default, it's likely configured to use the multi-user target.
 
 #### Changing the Default Target
 
-To view the current default systemd target, execute the following command, which reads the file located at `/etc/systemd/system/default.target`:
+To see which target the system boots into by default (stored as a symlink at `/etc/systemd/system/default.target`):
 
 ```bash theme={null}
 $ systemctl get-default
@@ -642,9 +630,7 @@ graphical.target
 $ ls -ltr /etc/systemd/system/default.target
 ```
 
-In this example, the `default.target` file is a symbolic link to the `graphical.target` unit file located in the `/lib/systemd/system/` directory.
-
-If you wish to change the default target, use the `systemctl set-default` command followed by your desired target. For instance, to switch from graphical mode (runlevel 5) to multi-user mode (runlevel 3), run:
+The `default.target` is just a symbolic link pointing to a unit file under `/lib/systemd/system/`. To switch from graphical mode to multi-user mode (or vice versa), use `systemctl set-default`:
 
 ```bash theme={null}
 $ systemctl get-default
@@ -657,7 +643,7 @@ $ systemctl set-default multi-user.target
 Created symlink /etc/systemd/system/default.target -> /lib/systemd/system/multi-user.target
 ```
 
-This command updates the default target, effectively switching your system's mode of operation from graphical to non-graphical.
+This updates the symlink so the system boots into the new target next time.
 
 > After changing the default target, you may need to reboot your system for the changes to take effect.
 
@@ -743,11 +729,11 @@ tmpfs           5.0M  4.0K  5.0M   1% /run/lock
 
 <h3 id="package-management-introduction">Introduction</h3>
 
-A Linux distribution (or "distro") is a complete operating system built by bundling the core Linux kernel with various software, tools, and a package manager to make it ready for use.
+Before diving into specific package managers, it's worth understanding what a Linux distribution actually is. A distro is a complete OS built by bundling the core Linux kernel with software, tools, and a package manager.
 
 #### What makes up a Distro?
 
-Think of a distribution as a "pre-packaged meal" where the Linux kernel is the main ingredient, but each chef (the distro creator) adds different sides and seasonings:
+A good way to think about it: a distribution is like a "pre-packaged meal" where the kernel is the main ingredient, but each chef (the distro creator) adds different sides and seasonings:
 
 - Linux Kernel: The core engine that talks to your hardware.
 - Package Manager: The tool used to install and update software (like the App Store).
@@ -756,7 +742,7 @@ Think of a distribution as a "pre-packaged meal" where the Linux kernel is the m
 
 #### Debian-based vs. Red Hat-based
 
-Most Linux systems today belong to one of these two "families." They differ primarily in philosophy, package management, and who they are built for
+Most Linux systems fall into one of two families. They differ primarily in philosophy, package format, and target audience:
 
 | Feature         | Debian-based                                                     | Red Hat-based                                                      |
 | --------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------ |
@@ -768,7 +754,7 @@ Most Linux systems today belong to one of these two "families." They differ prim
 
 <h3 id="rpm-and-yum">RPM and YUM</h3>
 
-RPM and YUM are the primary package managers for RPM-based Linux distributions. Both tools play essential roles in managing software packages by handling installation, upgrades, removal, and dependency resolution.
+On Red Hat-based systems, you'll work with two tools: RPM for direct package operations, and YUM as the higher-level manager that handles dependency resolution automatically. Here's how each works:
 
 #### RPM (Red Hat Package Manager)
 
@@ -784,11 +770,11 @@ RPM and YUM are the primary package managers for RPM-based Linux distributions. 
 
 #### YUM (Yellowdog Updater Modified)
 
-Repository configurations are stored in `.repo` files located in the `/etc/yum.repos.d` directory. YUM leverages these configuration files to locate and manage software packages. Repositories can be local or remote.
+Repository configurations live in `.repo` files under `/etc/yum.repos.d`. YUM reads these to know where to look for packages; repositories can be local or remote.
 
 ##### YUM Installation Process
 
-When you run a yum install command, YUM conducts a comprehensive transaction check:
+When you run `yum install`, YUM does a full transaction check before downloading anything:
 
 - It verifies if the package is already installed.
 - It searches the enabled repositories in /etc/yum.repos.d for the package.
@@ -806,7 +792,7 @@ When you run a yum install command, YUM conducts a comprehensive transaction che
 
 <h3 id="dpkg-and-apt">DPKG and APT</h3>
 
-DPKG and APT are package managers in Debian-based distributions.
+On the Debian side, DPKG is the low-level tool that handles individual `.deb` packages, while APT is the high-level interface most people actually use day-to-day.
 
 #### DPKG (Debian Package Manager)
 
@@ -820,9 +806,7 @@ DPKG and APT are package managers in Debian-based distributions.
 
 #### APT (Advanced Package Tool)
 
-APT (Advanced Package Tool) is a user-friendly front-end for DPKG, which means it acts as a "manager" or "translator" to make package management easier.
-
-APT relies on software repositories defined in the sources file. The repository details are stored in:
+APT builds on DPKG and adds dependency resolution, repository management, and a cleaner interface. It's what you'll realistically use most on Ubuntu or any Debian-based system. Repository sources are defined in:
 
 ```bash
 /etc/apt/sources.list
@@ -830,7 +814,7 @@ APT relies on software repositories defined in the sources file. The repository 
 
 **Common APT Commands**
 
-Below is a table summarizing key APT commands along with their use cases:
+Here are the commands I reach for most often:
 | Task | Command | Description |
 | --- | --- | --- |
 | Update repositories | `apt update` | Refresh the package repository information |
@@ -853,7 +837,7 @@ Below is a table summarizing key APT commands along with their use cases:
 
 #### Using `tar` for archival
 
-The `tar` command is one of the most common utilities used to group multiple files or directories into a single archive file (**tarball**). This is particularly useful for data backup, transfer, and archiving.
+`tar` is the go-to utility for bundling multiple files or directories into a single archive file, a **tarball**. It's something you'll use constantly for backups, deployments, and file transfers.
 
 To create a tar archive, use the `-c` option to create the archive and the `-f` option to specify the file name:
 
@@ -886,7 +870,7 @@ Additionally, to compress the tarball and reduce its file size, include the `-z`
 
 #### Compression commands
 
-Linux offers several commands for compressing files. The choice of command depends on the type of data and required compression level. Below are examples using `bzip2`, `gzip`, and `xz`:
+Linux gives you a few different compression tools depending on how much compression you need versus how fast you want it. The three most common are `bzip2`, `gzip`, and `xz`:
 
 | Utility | Compressing           | File extension | Uncompressing               |
 | ------- | --------------------- | -------------- | --------------------------- |
@@ -900,7 +884,7 @@ Linux offers several commands for compressing files. The choice of command depen
 
 #### Using the `locate` command
 
-The `locate` command provides a fast way to find files by querying a pre-built database (mlocate.db). For example, to search for files named “City.txt” within a directory structure representing continents, countries, and cities, simply run:
+The `locate` command is the quickest way to find a file: it queries a pre-built database rather than scanning the filesystem in real time, so results come back almost instantly. For example:
 
 ```bash
 locate City.txt
@@ -912,7 +896,7 @@ locate City.txt
 
 #### Using the `find` command
 
-Unlike `locate`, the `find` command does not rely on a pre-built database and offers a highly versatile suite of options for searching. To locate a file named “City.txt” within the directory /home/michael, use:
+If `locate` is the fast option, `find` is the powerful one. It searches the filesystem in real time and supports a wide range of filters and conditions. To find a file by name under a specific directory:
 
 ```bash
 find /home/michael -name City.txt
@@ -922,7 +906,7 @@ find /home/michael -name City.txt
 
 #### Using the `grep` command
 
-Assume you have a file named sample.txt with the following content:
+`grep` is where searching gets really useful. Assume you have a file named `sample.txt` with the following content:
 
 ```bash
 [~]$ cat sample.txt
@@ -946,7 +930,7 @@ The fifth line does not want to be printed
 
 <h3 id="io-redirection">IO Redirection</h3>
 
-This section delves into IO redirection in Linux and explains the concept of standard streams.
+IO redirection was one of those things I knew existed but never fully appreciated until I started chaining commands together. The key is understanding the three standard streams every process works with:
 
 Every Linux command you run is automatically associated with three primary data streams:
 
@@ -954,14 +938,14 @@ Every Linux command you run is automatically associated with three primary data 
 - **STDOUT**: The standard output stream that displays text output on your screen.
 - **STDERR**: The standard error stream that shows error messages.
 
-Below is an example of displaying the content of a file using the cat command:
+Here's the basic model in action, displaying a file with `cat`:
 
 ```bash
 [~]$ cat sample_text.txt
 This is the file contents
 ```
 
-If you attempt to access a file that does not exist, the error message is directed to **STDERR**:
+If the file does not exist, the error goes to **STDERR** instead of **STDOUT**:
 
 ```bash
 [~]$ cat sample_text.txt
@@ -971,7 +955,7 @@ cat: sample_text.txt: No such file or directory
 
 #### Redirecting Standard Output and Error
 
-To redirect the standard output to a file instead of the screen, use the forward arrow symbol (`>`).
+You can redirect **STDOUT** to a file instead of the screen using the `>` operator.
 
 Use a **single** arrow symbol to **overwrite** the file:
 
@@ -1030,7 +1014,7 @@ To append the output to the file rather than replacing its content, use the `-a`
 [~]$ echo $SHELL | tee -a shell.txt
 ```
 
-By mastering these IO redirection techniques, you can efficiently manage command outputs and errors in Linux. Whether saving output to files, suppressing error messages, or chaining commands with pipes, these methods are essential for streamlining your workflow and enhancing your command-line proficiency.
+These IO redirection techniques are some of the most practical things to get comfortable with early on. Whether you’re saving output to files, filtering errors, or chaining commands with pipes, they make everything on the command line faster and more expressive.
 
 #### Practical exercise
 
@@ -1076,11 +1060,11 @@ zcat /usr/share/man/man1/tail.1.gz > /home/bob/pipes
 
 > A guide to using the VI Editor in Linux, covering its modes, commands, and features for efficient text editing and coding.
 
-Explore the power of console-based text editors in Linux with a focus on the VI Editor. While the simple `cat` command is useful for small file operations, its limited functionality makes it impractical for handling extensive text manipulation or coding. This guide will walk you through using VI, one of the most robust editors available by default on nearly every Linux distribution.
+VI (and its improved successor, VIM) is the editor you’ll encounter on practically every Linux server. It ships by default on nearly all distributions, so you can’t always rely on something friendlier being installed. If you’ve avoided it because the learning curve felt steep, this section breaks down exactly how it works.
 
 #### Getting Started with VI Editor
 
-The VI Editor is a powerful, console-based text editor perfect for editing files and writing code. To open a file for editing, simply invoke VI followed by the file name. For instance, to open a sample file from Michael's home directory, use the following command:
+To open a file for editing, invoke `vi` followed by the filename:
 
 ```bash theme={null}
 [$] vi /home/michael/sample.txt
@@ -1104,7 +1088,7 @@ hello there!
 1,1 All
 ```
 
-When you open a file with VI, it starts in Command Mode and displays the file's existing content (if any). VI Editor operates primarily in three modes:
+When VI opens a file, it starts in Command Mode. Understanding the three modes is the key to everything:
 
 1. **Command Mode** - Execute commands such as copying, pasting, deleting, and navigating.
 2. **Insert Mode** - Edit or add new text.
@@ -1112,11 +1096,11 @@ When you open a file with VI, it starts in Command Mode and displays the file's 
 
 #### Opening Files in Command Mode
 
-Every time you start VI, it opens in Command Mode. In this state, only commands are recognized. Navigate through the file using the arrow keys or by pressing `H` (left), `J` (down), `K` (up), and `L` (right). You may also use the mouse to select text.
+VI always opens in Command Mode. Navigate using the arrow keys or the classic `H`/`J`/`K`/`L` keys (left/down/up/right).
 
 #### Switching to Insert Mode
 
-To make changes in your file, switch from Command Mode to Insert Mode by pressing lowercase `i`. In Insert Mode, a blinking cursor and the indicator `-- INSERT --` appear at the bottom of the screen, allowing you to add or modify text. Other keys such as `a`, `o`, `I`, `A`, or `O` may also be used to enter Insert Mode based on where you want to position the cursor.
+Press lowercase `i` to switch to Insert Mode. You’ll see `-- INSERT --` at the bottom of the screen. Other keys (`a`, `o`, `I`, `A`, `O`) also enter Insert Mode but position the cursor differently, which is useful once you’re comfortable with the basics.
 
 > **Tip:** To exit Insert Mode and return to Command Mode, simply press the `Esc` key.
 
@@ -1180,7 +1164,7 @@ Once back in Command Mode, you can perform a variety of operations:
 
 #### Searching for Text
 
-VI provides efficient search capabilities. Use slash (`/`) to search downward from the current line or question mark (`?`) to search upward. Typing `/line` will move the cursor to the first occurrence of the search term. Press `n` for the next match downward, or `N` for the previous match upward.
+Searching in VI is fast. Use `/` to search forward or `?` to search backward. After typing your term and pressing enter, `n` jumps to the next match and `N` goes back.
 
 ```bash theme={null}
 /line
@@ -1199,14 +1183,14 @@ hello there!
 
 #### Last Line Mode: Saving and Quitting
 
-Switch to Last Line Mode by pressing colon (`:`) in Command Mode. This mode allows you to execute commands such as saving and quitting:
+Press `:` in Command Mode to enter Last Line Mode, where you can save and quit:
 
 - Save the changes with `:w`.
 - Quit the editor with `:q`.
 - Save and exit using `:wq`.
 - Force quit without saving using `:q!`.
 
-An example indicating saving changes in Last Line Mode is shown below:
+For example, after editing:
 
 ```bash theme={null}
 This is the first line.
@@ -1225,9 +1209,9 @@ I made some changes to this file.
 
 #### Enhancing VI with VIM
 
-VIM ("VI Improved") builds upon the core features of VI by providing additional enhancements such as autocomplete, spell checking, plugins, and syntax highlighting. Often, the `vi` command on modern Linux distributions is actually a symbolic link to VIM (for example, `/usr/bin/vim.basic`).
+VIM ("VI Improved") adds autocomplete, spell checking, plugins, and syntax highlighting on top of VI. On most modern distributions, typing `vi` actually launches VIM via a symbolic link (e.g., `/usr/bin/vim.basic`), so you're likely already using it.
 
-To see the differences between VI and VIM, open a file in VIM and type `:h vi-differences` to view detailed comparisons.
+Run `:h vi-differences` inside VIM to see a full comparison of what was added.
 
 ```bash theme={null}
 This is the first line.
@@ -1253,7 +1237,7 @@ I made some changes to this file.
 
 #### Practice Makes Perfect
 
-Now that you have a solid understanding of the VI Editor's modes and commands, it's time to practice. Experiment with switching between modes, executing commands, and utilizing VI's extensive feature set to streamline your text editing and coding workflow.
+The only way to get comfortable with VI is to actually use it. Practice switching modes, copying and deleting lines, and searching. It feels awkward at first, but muscle memory kicks in faster than you'd expect.
 
 ![The image shows a text editor in "Insert Mode" with instructions for switching between modes using specific keys.](https://kodekloud.com/kk-media/image/upload/v1752881162/notes-assets/images/Learning-Linux-Basics-Course-Labs-VI-Editor/frame_350.jpg)
 
@@ -1263,7 +1247,7 @@ Now that you have a solid understanding of the VI Editor's modes and commands, i
 
 #### The old way
 
-Imagine two computers on the same network, Computer A and Computer B, with IP addresses 192.168.1.10 and 192.168.1.11 respectively. To test connectivity, you can run a ping command using the IP address:
+To understand DNS, it helps to start from how hostname resolution worked before DNS existed. Say you have two computers on the same network: Computer A (192.168.1.10) and Computer B (192.168.1.11). You can ping B by IP directly:
 
 ```bash
 [~]$ ping 192.168.1.11
@@ -1271,14 +1255,14 @@ Reply from 192.168.1.11: bytes=32 time=4ms TTL=117
 Reply from 192.168.1.11: bytes=32 time=4ms TTL=117
 ```
 
-Suppose system B provides database services. Instead of remembering its IP address, you decide to assign it an alias (e.g., db). Initially, if you ping “db”, Computer A will not recognize the name. To resolve this, append an entry in system A’s `/etc/hosts` file mapping the IP address to the alias:
+If B is a database server, you’d rather call it `db` than remember its IP. The quick fix is adding an entry to `/etc/hosts`:
 
 ```bash
 [~]$ cat >> /etc/hosts
 192.168.1.11 db
 ```
 
-After adding the entry, the ping command uses the mapping from the hosts file:
+After adding that entry, `ping db` works:
 
 ```bash
 [~]$ ping db
@@ -1287,26 +1271,26 @@ PING db (192.168.1.11) 56(84) bytes of data.
 64 bytes from db (192.168.1.11): icmp_seq=2 ttl=64 time=0.079 ms
 ```
 
-Remember, the local `/etc/hosts` file is the definitive source of hostname-to-IP mappings for that system. The system does not verify whether system B’s actual hostname matches the alias you defined
+The local `/etc/hosts` file is authoritative for that system; the OS doesn’t verify whether the alias you wrote matches the remote machine’s actual hostname.
 
-Every command, whether `ping`, `ssh`, or `curl`, first checks the local `/etc/hosts` file for IP address mappings. This process of translating a hostname to an IP address is known as **name resolution**.
+Every command, whether `ping`, `ssh`, or `curl`, first checks `/etc/hosts` for a hostname mapping before going anywhere else. This translation from hostname to IP is called **name resolution**.
 
 #### Transitioning to Centralized DNS
 
-In larger networks, managing host entries with individual `/etc/hosts` files becomes impractical, especially when IP addresses change frequently
+Managing `/etc/hosts` entries on every machine gets unmanageable at scale, especially when IP addresses change frequently.
 
-With a DNS server in place, all hosts are configured to query a single point for hostname resolution rather than relying solely on local files.
+A DNS server solves this: all hosts point to one central place for name resolution.
 
-To have all systems use the centralized DNS server (assumed to be at 192.168.1.100), update each system’s `/etc/resolv.conf` file:
+To point a system at the DNS server, update `/etc/resolv.conf`:
 
 ```bash
 [~]$ cat /etc/resolv.conf
 nameserver 192.168.1.100
 ```
 
-Once set, if a hostname cannot be resolved locally, the system forwards the request to the DNS server.
+Once set, any hostname that can’t be resolved locally gets forwarded to the DNS server.
 
-Local /etc/hosts entries remain effective for names that do not need to be shared network-wide. They take precedence over DNS records as configured in `/etc/nsswitch.conf`
+Local `/etc/hosts` entries still work for names that don’t need to be shared across the network. The lookup order is controlled by `/etc/nsswitch.conf`:
 
 ```bash
 [~]$ cat /etc/nsswitch.conf
@@ -1315,20 +1299,20 @@ hosts:          files dns
 ...
 ```
 
-If a hostname is not defined locally or on the DNS server, resolution will fail:
+If a name isn’t found anywhere in that lookup chain, resolution fails:
 
 ```bash
 [~]$ ping www.facebook.com
 ping: www.facebook.com: Temporary failure in name resolution
 ```
 
-To resolve external domains, you can set your internal DNS server to forward queries to a public nameserver such as Google’s 8.8.8.8, or adjust your system configuration accordingly.
+To reach external domains, configure your internal DNS server to forward unknown queries to a public nameserver like Google’s 8.8.8.8.
 
 #### Public DNS Resolution and Domain Hierarchy
 
-When pinging external sites like www.facebook.com, you’ll notice the inclusion of top-level domains (TLDs), such as .com. Public DNS relies on fully qualified domain names (FQDNs) structured hierarchically.
+When you ping external sites like www.facebook.com, you’re dealing with fully qualified domain names (FQDNs). Public DNS is organized as a hierarchy of domains:
 
-For example, consider Google. Its domain hierarchy is organized as follows:
+Take Google as an example:
 
 - The root (denoted by a dot)
 - Top-Level Domain (.com, .net, .org, etc.)
@@ -1336,7 +1320,7 @@ For example, consider Google. Its domain hierarchy is organized as follows:
 
 #### Search Domains
 
-Organizations often implement an internal hierarchical structure similar to public DNS. For instance, a company might use the domain mycompany.com with various subdomains for different services:
+Companies typically set up internal DNS with their own domain and subdomains for different services:
 
 - External website: www.mycompany.com
 - Email server: mail.mycompany.com
@@ -1344,7 +1328,7 @@ Organizations often implement an internal hierarchical structure similar to publ
 - Payroll: pay.mycompany.com
 - Human Resources: hr.mycompany.com
 
-You can simplify local hostname resolution by configuring search domains in your `/etc/resolv.conf` file. This allows short names (e.g., “web”) to automatically be expanded to their fully qualified domain names (e.g., “web.mycompany.com”). For example:
+Adding a `search` entry to `/etc/resolv.conf` lets you use short hostnames that automatically get expanded to their full form. For example:
 
 ```bash
 [~]$ cat >> /etc/resolv.conf
@@ -1352,7 +1336,7 @@ nameserver 192.168.1.100
 search mycompany.com
 ```
 
-Now, when you run `ping web`, the system interprets `web` as `web.mycompany.com`:
+Now `ping web` automatically resolves to `web.mycompany.com`:
 
 ```bash
 [~]$ ping web
@@ -1363,9 +1347,9 @@ PING web.mycompany.com (192.168.1.10) 56(84) bytes of data.
 
 ### Networking Basics
 
-Linux networking rests on a few core ideas: switching, routing, network interfaces, gateways, and routes. This section walks through how devices on the same LAN, or on different networks, find and reach each other.
+Networking was the section of the course I found most grounding; it explains what’s actually happening when two machines talk to each other. The core concepts are switching, routing, interfaces, and gateways.
 
-Imagine two devices, A and B (laptops, desktops, or VMs), that need to communicate. The first step is connecting both to a **switch**, which creates a localized network linking the hosts. Each machine needs a **network interface** (physical or virtual) to attach to that switch.
+Picture two devices, A and B, that need to talk to each other. They connect to a **switch**, which links them at the local network level. Each device needs a **network interface** (either physical or virtual) to attach to that switch.
 
 #### Inspecting and configuring interfaces
 
@@ -1376,14 +1360,14 @@ To list interfaces and their state, use `ip link`:
 eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
 ```
 
-Assuming the network address is `192.168.1.0`, both devices receive IPs from that range. View or assign addresses with `ip addr`. After bringing `eth0` up, assign addresses on each host:
+Assuming the network is `192.168.1.0`, both devices get IPs in that range. Use `ip addr` to view or assign addresses:
 
 ```bash
 [~]$ ip addr add 192.168.1.10/24 dev eth0   # device A
 [~]$ ip addr add 192.168.1.11/24 dev eth0   # device B
 ```
 
-With interfaces up and IPs set, the hosts can talk through the switch. A switch only supports traffic **within the same network**. Test connectivity with `ping`:
+With both interfaces up and IPs assigned, they can reach each other through the switch. Note that a switch only handles traffic **within the same network**. Verify with `ping`:
 
 ```bash
 [~]$ ping 192.168.1.11
@@ -1393,11 +1377,11 @@ Reply from 192.168.1.11: bytes=32 time=4ms TTL=117
 
 #### Routing between networks
 
-Now consider a second network (`192.168.2.0`) with devices C (`192.168.2.10`) and D (`192.168.2.11`). How does device B (`192.168.1.11`) reach device C (`192.168.2.10`)? That requires a **router**, a system with multiple interfaces, each on a different network. In this example the router might use `192.168.1.1` on the first LAN and `192.168.2.1` on the second, so it can forward packets between them.
+Now suppose there’s a second network (`192.168.2.0`) with devices C and D. How does B reach C? That requires a **router**, a system with interfaces on both networks. In this example, the router sits at `192.168.1.1` on the first LAN and `192.168.2.1` on the second, forwarding packets between them.
 
 ![Network routing between two subnets via a router](/network-routing.webp)
 
-When B sends traffic to C, it must know the **exit point** (the router). Think of the **gateway** as the door from the local network to other networks or the Internet; every host needs to know where that door is.
+For B to reach C, it needs to know its exit point. The **gateway** is that door out of the local network; every host that wants to reach other networks needs to have one configured.
 
 View the kernel routing table with `route` or `ip route`:
 
@@ -1407,13 +1391,13 @@ Kernel IP routing table
 Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 ```
 
-Without extra routes, B only reaches `192.168.1.0`. To reach `192.168.2.0`, add a route sending that subnet via the router on the local side:
+Without any extra routes, B can only reach `192.168.1.0`. To reach `192.168.2.0`, add a route pointing that subnet via the router:
 
 ```bash
 [~]$ ip route add 192.168.2.0/24 via 192.168.1.1
 ```
 
-Device C needs the mirror: traffic for `192.168.1.0` via `192.168.2.1`.
+Device C needs the same in reverse: a route for `192.168.1.0` via `192.168.2.1`.
 
 > **Tip:** For Internet access (e.g. reaching hosts in ranges like `172.217.194.0`), connect the router to the Internet and add a **default route** on each device so unknown destinations go through the router.
 
@@ -1434,9 +1418,9 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 0.0.0.0         192.168.2.1     255.255.255.255 UG    0      0        0 eth0
 ```
 
-`default` and destination `0.0.0.0` mean the same thing for the default route. An entry with `0.0.0.0` in the gateway column means no further gateway is needed for that route. In larger setups you might keep separate entries: one default gateway for the Internet and specific routes for internal subnets via other routers.
+`default` and `0.0.0.0` as destination both mean the same thing: the default route. When you see `0.0.0.0` in the gateway column, it means packets for that destination are sent directly without going through a router. In larger environments you’d typically keep a default route for Internet traffic and add specific routes for internal subnets.
 
-If Internet access fails, inspect the routing table, especially the default gateway. You can correct a bad internal route, for example:
+If Internet access stops working, inspect the routing table and check the default gateway. For example, to correct a misconfigured internal route:
 
 ```bash
 [~]$ ip route add 192.168.1.0/24 via 192.168.2.2
@@ -1463,7 +1447,7 @@ With switching, addressing, gateways, and routes in place, you have a solid foun
 
 ### Network troubleshooting
 
-A common scenario: you point a client at a repository server (`company-repo-01`) and get a connection timeout. The hostname may have been wrong at first; after fixing the URL, the error persists. Timeouts often trace back to one of these areas:
+Here’s a scenario I found really useful for building a mental model of network troubleshooting: you point a client at a repository server (`company-repo-01`) and get a connection timeout. Even after fixing the hostname, the error persists. Timeouts like this usually come down to one of these areas:
 
 - Local network interface down or misconfigured
 - DNS not resolving the hostname to the correct IP
@@ -1570,26 +1554,26 @@ With `enp1s0f1` up, the server can receive traffic on the LAN again, the likely 
 
 From the client, retry the repository URL (or `ping company-repo-01` if ICMP is allowed). Connectivity should succeed once DNS, routing, the server interface, and the listening service are all aligned.
 
-This pattern **client link → DNS → path → server interface → service** applies beyond repository hosts and is worth running in order whenever a host is reachable in theory but not in practice.
+This pattern (**client link → DNS → path → server interface → service**) is worth internalising. It applies to any situation where a host should be reachable but isn’t.
 
 <h2 id="security-file-permissions">Security and File Permissions</h2>
 
-Security in Linux employs user and password-based authentication mechanisms to control system access. Several tools and frameworks are available to manage authentication:
+Linux security is a broad topic, but this section of the course focuses on the fundamentals that matter most day-to-day: authentication, user accounts, and file permissions. Several tools and frameworks come into play:
 
 - PAM (Pluggable Authentication Modules): Governs how programs and services handle authentication.
 - Network Security Tools: Utilities such as iptables and Firewalld regulate access to network services.
 - SSH (Secure Shell): Provides secure remote access over unsecured networks, with SSH hardening ensuring only authorized users can connect.
 - SELinux: Enforces security policies to isolate applications running on the same system.
 
-> There are numerous tools that exist to secure a Linux system, but this article focuses on basic access control, file ownership and permissions.
+> There are many tools for securing a Linux system, but this section focuses on the essentials: access control, file ownership, and permissions.
 
 ### Linux Accounts
 
 #### User and Group Accounts
 
-Each user is associated with an account that holds critical details such as the username, password and a unique identifier (UID).
+Linux is a multi-user OS by design, so every person or service that needs access gets its own account. Each account holds details like the username, a unique identifier (UID), and a password.
 
-Account details such as the home directory and default shell are stored in the `/etc/passwd` file:
+The home directory and default shell for each user are stored in `/etc/passwd`:
 
 ```bash
 [~]$ cat /etc/passwd
@@ -1607,9 +1591,7 @@ www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
 bob:1000:1000:Bob Kingsley,,,:/home/bob:/bin/bash
 ```
 
-Linux Groups enable the organisation of users based on roles or functions.
-
-Group-related information, including the unique group identifier (GID), is maintained in the `/etc/group` file. Consider a scenario with two developers, Bob and Michael, working on the same system. They can be grouped under a Linux group called “developers” to facilitate shared access to particular files and directories:
+Groups let you organize users by role. Group membership and GIDs are stored in `/etc/group`. For example, two developers (Bob and Michael) could both belong to a `developers` group, which then gets shared access to relevant files:
 
 ```bash
 [~]$ cat /etc/group
@@ -1628,14 +1610,14 @@ bob:x:1000:
 developers:x:1003:bob,michael
 ```
 
-Each user account comprises a username, UID, a primary GID (typically matching the username), the home directory, and the default shell. To review detailed information about a specific user account and its group memberships, you can use the `id` command:
+To inspect a user’s UID, primary GID, and all group memberships:
 
 ```bash
 [~]$ id michael
 uid=1001(michael) gid=1001(michael) groups=1001(michael),1003(developers)
 ```
 
-User accounts fall into different types:
+There are a few distinct account types on a Linux system:
 
 - **Regular User Account**: Represents an individual person requiring system access.
 - **Superuser Account**: The root account (UID 0) with full system privileges.
@@ -1646,7 +1628,7 @@ User accounts fall into different types:
 
 ##### Using the `su` command
 
-The `su` (substitute user) command enables you to switch to another user, including the root account. For example, to switch to root:
+The `su` command lets you switch to another user account entirely, including root:
 
 ```bash
 [~]$ su -
@@ -1654,7 +1636,7 @@ Password:
 root ~#
 ```
 
-Alternatively, execute a specific command as another user using `su -c` (which requires the target user’s password):
+To run a single command as another user without a full session switch:
 
 ```bash
 [~]$ su -c "whoami"
@@ -1662,18 +1644,18 @@ Password:
 root
 ```
 
-Even though `su` is a useful utility, it is generally recommended to use `sudo` for enhanced security.
+That said, `sudo` is the preferred approach in most environments; it’s more auditable and avoids sharing root’s password.
 
 ##### Using the `sudo` command
 
-The sudo command allows trusted users to execute administrative commands using their own password. This method avoids the need to log in as root directly. For example:
+`sudo` lets trusted users run privileged commands using their own password. You never need to share or know the root password:
 
 ```bash
 [michael@ubuntu-server ~]$ sudo apt-get install nginx
 [sudo] password for michael:
 ```
 
-The default `sudo` configuration is defined in the `/etc/sudoers` file, where administrators can configure specific privileges. For example, Bob may have full administrative rights while Sarah might be restricted to rebooting the system only:
+Who can run what with `sudo` is defined in `/etc/sudoers`. You can give users full root access or restrict them to specific commands:
 
 ```bash
 [~]$ cat /etc/sudoers
@@ -1691,7 +1673,7 @@ sarah   localhost=/usr/bin/shutdown -r now
 #include directory /etc/sudoers.d
 ```
 
-A common security practice is to set the root account to a no-login shell:
+A standard hardening step is disabling direct root login by setting it to a no-login shell:
 
 ```bash
 [~]$ grep -i ^root /etc/passwd
@@ -1700,7 +1682,7 @@ root:x:0:0:root:/root:/usr/sbin/nologin
 
 #### Understanding the sudoers File
 
-The sudoers file is organized as follows:
+The structure of each sudoers entry breaks down like this:
 
 - Lines beginning with a hash (#) are comments.
 - The first field specifies the user or group (groups are prefixed with `%`) that is granted sudo privileges.
@@ -1710,30 +1692,28 @@ The sudoers file is organized as follows:
 
 ### Access Control Files
 
-There are key Linux access control files essential for system security and user access management.
-
-Located under the /etc directory, these files include:
+Three files under `/etc` are central to Linux access control:
 
 - `/etc/passwd` for user account details
 - `/etc/shadow` for secure password storage and password expiry information
 - `/etc/group` for managing group memberships
 
-> Always use built-in commands to modify these files rather than editing them directly with a text editor.
+> Always use the dedicated commands to modify these files rather than editing them directly with a text editor.
 
-> Although the /etc directory is world-readable by default, only the root user has permission to make modifications.
+> The `/etc` directory is world-readable by default, but only root can modify these files.
 
 #### The `/etc/passwd` file
 
-The `/etc/passwd` file contains vital information about each user on the system. It includes data such as the username, user ID (UID), group ID (GID), home directory, and the default shell. Note that this file does not store actual passwords; an x is present in the password field to indicate that encrypted passwords are located in the `/etc/shadow` file.
+The `/etc/passwd` file stores per-user details: username, UID, GID, home directory, and default shell. It does not store actual passwords; an `x` in the password field means the real (hashed) password lives in `/etc/shadow`.
 
-For example, the following command retrieves Bob’s entry:
+To see a specific user's entry:
 
 ```bash
 [~]$ grep -i ^bob /etc/passwd
 bob:x:1001:1001::/home/bob:/bin/bash
 ```
 
-The structure of `/etc/passwd` is summarized as follows:
+Each line follows this format:
 
 ```bash
 USERNAME:PASSWORD:UID:GID:GECOS:HOMEDIR:SHELL
@@ -1751,14 +1731,14 @@ Where:
 
 #### The `/etc/shadow` file
 
-The `/etc/shadow` file securely stores users’ encrypted passwords, along with critical account and password expiry information. Each field is colon-separated. Below is an example entry for user Bob:
+`/etc/shadow` holds the hashed passwords and password expiry data. Here’s what Bob’s entry looks like:
 
 ```bash
 [~]$ grep -i ^bob /etc/shadow
 bob:$6$h0u0tOt0$5JcuRxR7y72LLQk4Kdog7u09LsNFS0yZPkIC8pV9tgD0wXCHutYcWF/7.eJ3TfGfG0lj4JF63PyuPwKC18tJS.:18188:0:99999:7:::
 ```
 
-The fields in `/etc/shadow` are arranged as follows:
+The colon-separated fields break down like this:
 
 ```bash
 USERNAME:PASSWORD:LASTCHANGE:MINAGE:MAXAGE:WARN:INACTIVE:EXPDATE
@@ -1777,14 +1757,14 @@ Where:
 
 #### The `/etc/group` file
 
-The `/etc/group` file is used to define and manage user groups on the system. Its contents are colon-separated and outline important group details. Here’s an example entry:
+`/etc/group` defines the groups on the system. Each line is colon-separated:
 
 ```bash
 [~]$ grep -i ^bob /etc/group
 developer:x:1001:bob,sara
 ```
 
-The format of /etc/group is:
+The fields are:
 
 ```bash
 NAME:PASSWORD:GID:MEMBERS
@@ -1799,18 +1779,18 @@ Where:
 
 ### User Management
 
-This section covers adding users, customizing account settings and managing groups.
+Creating and managing users is straightforward once you know the right commands. Here’s a walkthrough of the most common operations.
 
 #### Creating a new user
 
-The primary command to add a new local user is `useradd`. System administrators typically use this command to add new users. For example, to create a new user named Bob, execute:
+Use `useradd` to create a new user:
 
 ```bash
 [~]$ useradd bob
 ```
 
-This command creates Bob with a system-generated UID and GID. By default, Bob’s home directory is set to `/home/bob` (based on the system’s default configuration) and his login shell is set to `/bin/sh`.
-To set a password for Bob’s account, use the `passwd` command:
+This creates the account with a system-assigned UID and GID. The default home directory is `/home/bob` and the default shell is `/bin/sh`.
+Set the account's password with:
 
 ```bash
 [~]$ passwd bob
@@ -1818,11 +1798,11 @@ To set a password for Bob’s account, use the `passwd` command:
 
 > Both `useradd` and `passwd` commands must be executed with root privileges.
 
-After logging in, a user can confirm their current username by running the `whoami` command. Additionally, users can change their password at any time by simply running `passwd` without any additional arguments.
+A logged-in user can run `whoami` to confirm their identity and `passwd` (without arguments) to change their own password.
 
 #### `useradd` options
 
-The useradd command supports several options that allow you to customize the user creation process. Here are some commonly used options:
+`useradd` supports several options for customizing the account:
 
 - `-u`: Specify a custom UID.
 - `-g`: Specify the primary group via a custom GID.
@@ -1832,7 +1812,7 @@ The useradd command supports several options that allow you to customize the use
 - `-e`: Set the account expiration date.
 - `-G`: Add the new user to additional (secondary) groups.
 
-For example, to create Bob with a custom UID, GID, home directory, shell, and an account comment, use:
+Combining options:
 
 ```bash
 [~]$ useradd -u 1009 -g 1009 -d /home/robert -s /bin/bash -c "Mercury Project member" bob
@@ -1840,13 +1820,13 @@ For example, to create Bob with a custom UID, GID, home directory, shell, and an
 
 #### User Deletion and Group Management
 
-To delete a user account, use the `userdel` command followed by the username:
+To remove a user account:
 
 ```bash
 [~]$ userdel bob
 ```
 
-Managing groups is equally essential. Below are commands for adding and deleting groups:
+Group management follows the same pattern:
 
 - **Adding a New Group**: Use the groupadd command. The -g option lets you specify a custom GID.
 
@@ -1864,20 +1844,20 @@ Managing groups is equally essential. Below are commands for adding and deleting
 
 #### Overview
 
-When listing files using the `ls -l` command, the first character in the output indicates the file type. For example:
+Permissions in Linux are visible right from `ls -l`. The first character shows the file type, followed by three sets of permission bits:
 
 ```bash
 $ ls -l bash-script.sh
 -rwxrwxr-x 1 bob bob 89 Mar 17 01:35 bash-script.sh
 ```
 
-The characters following the file type (e.g., rwx) represent permissions grouped into three categories:
+Those permission bits are grouped into three sets:
 
 | -   | rwx         | rwx         | rwx          |
 | --- | ----------- | ----------- | ------------ |
 |     | Owner > `u` | Group > `g` | Others > `o` |
 
-For each permission set:
+Each set has the same three bits:
 
 - `r` (read) permits reading the file or view directory's content.
 - `w` (write) allows modifying the file.
@@ -1887,12 +1867,12 @@ For each permission set:
 
 #### Changing File Permissions with `chmod`
 
-Linux provides two modes to modify file permissions using the chmod command: symbolic mode and numeric mode.
+`chmod` has two modes: symbolic (human-readable) and numeric (octal). Both do the same thing, just expressed differently.
 ​
 
 ##### Symbolic Mode
 
-In symbolic mode, you specify the target: `u` (user), `g` (group), or `o` (others). You then adjust permissions by using the `+` operator to add or the `-` operator to remove permissions. Here are some examples:
+In symbolic mode, you specify who (`u` for user, `g` for group, `o` for others) and then add or remove specific bits:
 
 ```bash
 chmod u+rwX test-file
@@ -1900,7 +1880,7 @@ chmod ugo+r test-file
 chmod o-rwx test-file
 ```
 
-These options can be combined. For example, to grant full permissions to the owner, add read and execute permissions to the group, and remove all permissions for others:
+You can combine multiple targets in one command:
 
 ```bash
 chmod u+rwx,g+r-x,o-rwx test-file
@@ -1908,7 +1888,7 @@ chmod u+rwx,g+r-x,o-rwx test-file
 
 ##### Numeric Mode
 
-In numeric mode, you provide a three-digit octal number:
+In numeric mode, each digit (0–7) represents a combination of read (4), write (2), and execute (1):
 
 - The first digit sets permissions for the owner.
 - The second digit sets permissions for the group.
@@ -1927,9 +1907,9 @@ chmod 660 test-file
 
 #### Changing Ownership with `chown` and `chgrp`
 
-Ownership changes for files or directories are handled by the chown and chgrp commands.
+`chown` changes file ownership and `chgrp` changes the group.
 
-To change both the owner and group of a file, use:
+The general syntax for `chown`:
 
 ```bash
 chown owner:group file
@@ -1946,23 +1926,23 @@ chown bob android.apk
 chgrp android test-file
 ```
 
-To change ownership for an entire directory tree (for example, application code deployed under `/opt`), use the `-R` (recursive) flag:
+To apply ownership recursively across an entire directory tree, use `-R`:
 
 ```bash
 sudo chown -R mercury /opt/caleston-code
 ```
 
-This applies the `mercury` user as owner to `/opt/caleston-code` and every file and subdirectory beneath it, which is typical after extracting a project archive or copying code so the service account can read and write the deployment without running as root.
+This is a pattern you’ll use frequently after deploying code: set the owner to the service account so the application can read and write its files without running as root.
 
 ### SSH and SCP
 
-This section covers essential commands for secure remote access and file transfers using `SSH` and `SCP`.
+SSH and SCP are two tools I reach for constantly in practice: SSH for connecting to remote servers, SCP for moving files between them.
 
 #### SSH
 
-SSH (Secure Shell) is a widely used protocol for remotely logging into and executing commands on another computer. By invoking SSH with the remote host’s IP address or hostname, you can securely connect to that machine.
+SSH (Secure Shell) lets you log into and run commands on a remote machine over an encrypted connection. It’s the standard way to access Linux servers remotely.
 
-You may specify the username using the `user@` syntax or the `-l` flag. Ensure that the remote server has an SSH service running on port 22 and that you have proper authentication, either a valid username/password combination or an SSH key pair.
+You can specify the username with the `user@hostname` syntax or the `-l` flag. The remote server needs SSH running on port 22, and you need valid credentials: either a password or an SSH key pair.
 
 ```bash
 ssh <hostname_OR_IP_Address>
@@ -1976,11 +1956,11 @@ Last login: Tue Apr 7 20:08:58 2020 from 192.168.1.109
 [bob@devapp01 ~]$
 ```
 
-In the example above, because the username is not explicitly mentioned, SSH attempts to log in using the current local user (“bob”). Upon connection, the system prompts you to enter the password for that account on the remote server.
+When no username is specified, SSH uses your current local username. On connection, it prompts for that account’s password on the remote machine.
 
 #### Passwordless SSH
 
-To avoid entering your password every time, you can configure passwordless authentication by using SSH key pairs. A key pair consists of:
+Typing a password every time gets old fast. The better approach is SSH key authentication, which lets you log in without a password at all. A key pair has two parts:
 
 - Private Key: Kept secure on your client device.
 - Public Key: Shared and installed on your remote server.
@@ -1989,7 +1969,7 @@ When the public key is added to the remote server’s `~/.ssh/authorized_keys` f
 
 ##### Generating the key pair
 
-On your client machine, generate a key pair using the following command. You can optionally secure your key with a passphrase, though note that you will be prompted to enter it every time the key is utilized.
+Generate a key pair on your client machine. You can protect it with a passphrase (you’ll be prompted for it each time the key is used), or leave it empty for fully passwordless access:
 
 ```bash
 [bob@caleston-lp10 ~]$ ssh-keygen -t rsa
@@ -2017,11 +1997,11 @@ The key's randomart image is:
 +----[SHA256]-----+
 ```
 
-> In this process, the public key is stored in `/home/bob/.ssh/id_rsa.pub` (identified by the .pub extension), while the private key remains safe in `/home/bob/.ssh/id_rsa`.
+> The public key is saved to `/home/bob/.ssh/id_rsa.pub` and the private key to `/home/bob/.ssh/id_rsa`. Keep the private key secure; never share it.
 
 ##### Copying the Public Key to the Remote Server
 
-To enable passwordless SSH login, copy your public key to the remote server using the ssh-copy-id command. This step authenticates you at least once with your password to install the key on the server.
+Copy the public key to the remote server using `ssh-copy-id`. You’ll authenticate with your password this one time to install the key:
 
 ```bash
 [bob@caleston-lp10 ~]$ ssh-copy-id bob@devapp01
@@ -2035,11 +2015,11 @@ Now try logging into the machine with: "ssh bob@devapp01"
 and verify that only the intended key(s) were added.
 ```
 
-After completing these steps, you should be able to connect to the remote server without entering your password each time. Dave confirms that Bob’s public key is now installed in the authorized_keys file within the .ssh directory on the remote server.
+After this, connecting to the server no longer requires a password. The public key is now listed in the server's `~/.ssh/authorized_keys` file.
 
 #### SCP
 
-SCP (Secure Copy) is a powerful tool for transferring files and directories securely over SSH. It operates much like the traditional Linux `cp` command but enables file transfer between your local machine and remote servers.
+SCP (Secure Copy) works like `cp` but over SSH; you can copy files to or from remote servers using the same credentials and key pairs you use for SSH.
 
 ##### Copying a file using SCP
 
@@ -2055,13 +2035,13 @@ caleston-code.tar.gz                             100% 2498KB  51MB/s  00:00
 
 When you need to transfer entire directories, include the `-r` option to copy recursively. To preserve original modification times, access times, and permissions, add the `-p` flag.
 
-These SCP functionalities are highly beneficial when moving projects, such as migrating a Django application from your development environment to a production server.
+These options are useful whenever you’re deploying code or moving files between environments, for example when migrating a project from development to production.
 
 ### IPTables: Introduction
 
-In complex environments featuring multiple clients and servers interconnected by various routers and switches, implementing robust network security is essential. You can secure the network using external firewall appliances or apply filtering rules directly on each server with tools like **iptables**, **firewalld** on Linux, or the built-in **firewalls** on Windows.
+Once you’re working with multi-server environments, you need a way to control what traffic is allowed in and out of each machine. On Linux, that’s where `iptables` comes in. You can use external firewall appliances, but applying rules directly on the server with **iptables** or **firewalld** is common in practice.
 
-This section will demonstrate how to configure local iptables rules on a Linux server to regulate network traffic.
+The course walks through configuring iptables rules on a Linux server to regulate traffic in and out.
 
 Consider the following Project Mercury environment setup:
 
@@ -2071,7 +2051,7 @@ Consider the following Project Mercury environment setup:
 | Application server | 172.16.238.10  |
 | Database server    | 172.16.238.11  |
 
-Without a firewall, all servers can communicate freely. We will enhance security by enforcing these rules:
+Without any firewall rules, every server can reach every other server freely. The goal here is to lock that down:
 
 - Allow SSH access from your laptop to the application server.
 - Permit HTTP access (port 80) to the application server only from the client laptop, blocking other servers (e.g., devdb01).
@@ -2104,23 +2084,23 @@ Chain OUTPUT (policy ACCEPT)
 target prot opt source destination
 ```
 
-Iptables uses three main chains, each serving a distinct purpose:
+`iptables` organizes rules into three main chains:
 
 - INPUT Chain: Manages incoming traffic. For instance, adding a rule here allows SSH connections from your client laptop.
 - OUTPUT Chain: Controls traffic originating from the server, including outbound connections like database queries.
 - FORWARD Chain: Typically used by network routers to forward traffic between devices. Standard Linux servers rarely use this chain.
 
-With no custom rules in place, the default policy is to accept all incoming and outgoing traffic:
+With no rules configured, the default policy is to accept all traffic:
 
 > A “chain” is essentially a list of rules. Each rule checks network packets and decides whether to accept or drop them based on defined conditions such as source IP, destination IP, port number, or protocol
 
 ### IPTables: Securing the Environment
 
-This section demonstrates how to configure iptables rules to secure a development environment.
+Now let’s actually configure the rules to secure the environment.
 
 #### Configuring SSH Access
 
-Begin by adding an incoming rule on the development server that permits SSH connections solely from the designated client. Execute the following command:
+Start by allowing SSH connections only from the designated client IP:
 
 ```bash
 iptables -A INPUT -p tcp -s 172.16.238.187 --dport 22 -j ACCEPT
@@ -2134,7 +2114,7 @@ iptables -A INPUT -p tcp -s 172.16.238.187 --dport 22 -j ACCEPT
 | `--dport`   | `22`             | Targets the destination port 22, <br /> which is the standard SSH port.                  |
 | `-j ACCEPT` | `ACCEPT`         | Accepts the packet when all <br /> preceding conditions are satisfied.                   |
 
-After adding the rule, verify it by listing the iptables rules with:
+Verify by listing the current rules:
 
 ```bash
 iptables -L
@@ -2142,7 +2122,7 @@ iptables -L
 
 ##### Blocking Unauthorized SSH Attempts
 
-By default, if another client tries to access SSH without a specific allow rule, the connection would follow the default policy (typically accepting all connections). Since our requirement is to restrict SSH access to the specified client, add a rule that drops SSH traffic from all other sources:
+Without a matching ALLOW rule, other clients would still get through on the default policy. Block all other SSH attempts:
 
 ```bash
 iptables -A INPUT -p tcp --dport 22 -j DROP
@@ -2166,7 +2146,7 @@ target     prot opt source               destination
 
 #### Configuring Outbound Traffic
 
-On the development application server, additional configurations are needed to manage outbound connections:
+Next, control what the application server can reach outbound:
 
 - Allow connections to the DB server on port 5432.
 - Permit connections to the software repository server on port 80.
@@ -2184,17 +2164,17 @@ Add the following OUTPUT rules:
 
 ##### Allowing Specific HTTPS Traffic
 
-If you need to access a particular site using HTTPS from the devapp-01 server (e.g., to 172.16.238.100), the general DROP rule for port 443 would normally block this connection. To allow HTTPS access to this specific destination, insert an ACCEPT rule at the top of the OUTPUT chain:
+If you need to allow HTTPS to one specific destination while the general DROP rule is in place, insert an ACCEPT rule at the top of the chain so it takes precedence:
 
 ```bash
 [bob@devapp01 ~]$ iptables -I OUTPUT -p tcp -d 172.16.238.100 --dport 443 -j ACCEPT
 ```
 
-The `-I` option inserts the rule at the top of the chain, making sure it takes precedence over the subsequent DROP rules.
+The `-I` flag inserts the rule at the top, so it’s evaluated before the DROP rule.
 
 ##### Deleting a Rule
 
-If you need to remove an iptables rule by its position (for example, deleting the rule at position 5 from the OUTPUT chain), use the `-D` option:
+To remove a rule by its position in the chain:
 
 ```bash
 [bob@devapp01 ~]$ iptables -D OUTPUT 5
@@ -2202,14 +2182,14 @@ If you need to remove an iptables rule by its position (for example, deleting th
 
 #### Securing the Database Server
 
-To ensure that only the development application server can access the PostgreSQL service on the database server (port 5432), configure the following rules on the DB server:
+On the database server, allow connections on port 5432 only from the application server, and drop everything else:
 
 ```bash
 [bob@devdb01 ~]$ iptables -A INPUT -p tcp -s 172.16.238.10 --dport 5432 -j ACCEPT
 [bob@devdb01 ~]$ iptables -A INPUT -p tcp --dport 5432 -j DROP
 ```
 
-Listing the iptables rules on the DB server should produce output similar to:
+Verifying the DB server rules should show:
 
 ```bash
 
@@ -2276,9 +2256,9 @@ tcp 0 0 172.16.238.10:44060 172.16.238.11:5432 ESTABLISHED
 
 ### CRON Jobs
 
-Consider a practical example: you need to run the command `uptime` and redirect its output to the file `/tmp/system-report.txt` **every day at 9 p.m**. Running the command manually can be tedious, so a Cron job automates this process.
+CRON is the Linux scheduler: it lets you run commands automatically on a timed schedule. A simple example: log system uptime to a file every day at 9 PM instead of doing it manually.
 
-The command to append the output is:
+The command you want to run:
 
 ```bash
 uptime >> /tmp/system-report.txt
@@ -2286,23 +2266,23 @@ uptime >> /tmp/system-report.txt
 
 #### Scheduling a CRON Job
 
-To schedule this task, login and edit the crontab:
+To schedule it, edit your crontab:
 
 ```bash
 [bob@caleston-lp01 ~]$ crontab -e
 ```
 
-This command opens the crontab file in the default editor (typically VI). At the bottom of the file, add the following Cron job configuration:
+This opens the crontab in your default editor. Add the schedule at the bottom:
 
 ```bash
 0 21 * * * uptime >> /tmp/system-report.txt
 ```
 
-> Avoid using sudo with the crontab command if you intend the task to run for yourself; using sudo would schedule the job for the root user.
+> Don’t run `crontab -e` with `sudo` unless you want the job to run as root; it schedules the job for whichever user you’re running the command as.
 
 #### Understanding the CRON syntax
 
-For the schedule `0 21 * * *`, the first five fields specify when the task runs:
+The five fields in a cron expression map to:
 
 | Field        | Value | Meaning                                            |
 | ------------ | ----- | -------------------------------------------------- |
@@ -2312,7 +2292,7 @@ For the schedule `0 21 * * *`, the first five fields specify when the task runs:
 | Month        | `*`   | Every month.                                       |
 | Day of Week  | `*`   | Every day of the week.                             |
 
-Here are some examples to help you better understand the scheduling syntax:
+A few more examples to make the syntax concrete:
 
 | Description                                                                             | Schedule      |
 | --------------------------------------------------------------------------------------- | ------------- |
@@ -2324,25 +2304,25 @@ Here are some examples to help you better understand the scheduling syntax:
 
 #### Listing and Verifying Cron Jobs
 
-To list all current Cron jobs for Michael, run:
+To see all scheduled jobs for the current user:
 
 ```bash
 [bob@caleston-lp01 ~]$ crontab -l
 ```
 
-After scheduling, verify that the task ran as expected at 9 p.m. Check the output file using:
+After the scheduled time, verify the job ran by checking the output file:
 
 ```bash
 cat /tmp/system-report.txt
 ```
 
-Also, you can inspect the system log file (typically located at `/var/log/syslog`). Look for an entry similar to:
+You can also check the system log for confirmation:
 
 ```bash
 21:00:00 up 20:15, 1 user, load average: 0.47, 0.50, 0.52
 ```
 
-This confirms that the uptime command executed as scheduled.
+That entry confirms the job ran at the scheduled time.
 
 <h2 id="systemd">Service Management with SYSTEMD</h2>
 
@@ -2350,17 +2330,17 @@ This confirms that the uptime command executed as scheduled.
 
 #### What is a service?
 
-A service in Linux is a **program that runs continuously in the background to handle specific system or network tasks without user interaction**. These programs are also known as **daemons**.
+A service in Linux is a **program that runs continuously in the background** to handle system or network tasks without any user interaction. These are also called **daemons**.
 
-Core Characteristics:
+Core characteristics:
 
-- Background execution: They start automatically and run unseen by the user.
-- No user interface: They lack a standard graphical or text interface.
-- System management: They wait for specific requests, like incoming web traffic or hardware events.
+- Background execution: they start automatically and run unseen.
+- No user interface: no GUI or interactive shell.
+- Event-driven: they wait for specific requests, like incoming web traffic or hardware events.
 
-This section will detail how to manage services with `SYSTEMD` by building a service unit from scratch, by utilizing essential `SYSTEMD` utilities, such as `systemctl` and `journalctl`.
+This section builds a systemd service unit from scratch, using `systemctl` and `journalctl` along the way.
 
-Here are some common service requirements:
+The scenario used throughout this section is the Project Mercury service. Here are its requirements:
 
 - A shell script named `project-mercury.sh` located in `/usr/bin` must execute as a background service.
 - The service should be enabled to start automatically during boot.
@@ -2371,18 +2351,18 @@ Here are some common service requirements:
 - All service events, including start, stop, and errors, must be logged for later analysis.
 - The service should adhere to the graphical.target since Bob’s system defaults to a graphical environment.
 
-The following steps build the unit file incrementally until it meets every requirement above.
+The steps below build the unit file incrementally, adding one piece at a time until every requirement is satisfied.
 
 #### Step 1: Create a minimal service unit
 
-Create `/etc/systemd/system/project-mercury.service`. Because `project-mercury.sh` is a Bash script, run it through `/bin/bash` and use `ExecStart` to launch it in the background:
+Create `/etc/systemd/system/project-mercury.service`. Since `project-mercury.sh` is a Bash script, run it via `/bin/bash`:
 
 ```ini
 [Service]
 ExecStart=/bin/bash /usr/bin/project-mercury.sh
 ```
 
-Start the service (use `sudo` when required):
+Start it to verify it works:
 
 ```bash
 sudo systemctl start project-mercury.service
@@ -2407,7 +2387,7 @@ Example output:
            └─25041 /bin/bash /usr/bin/project-mercury.sh
 ```
 
-Stop the service when you are done verifying:
+Stop it once verified:
 
 ```bash
 sudo systemctl stop project-mercury.service
@@ -2415,7 +2395,7 @@ sudo systemctl stop project-mercury.service
 
 #### Step 2: Enable the service at boot
 
-Add an `[Install]` section so systemd starts the unit when the system reaches the graphical target (if it is your default environment):
+Add an `[Install]` section that ties the unit to the graphical target, so systemd starts it automatically at boot:
 
 ```ini
 [Service]
@@ -2425,7 +2405,7 @@ ExecStart=/bin/bash /usr/bin/project-mercury.sh
 WantedBy=graphical.target
 ```
 
-Enable it after saving the file:
+Then enable it:
 
 ```bash
 sudo systemctl enable project-mercury.service
@@ -2433,7 +2413,7 @@ sudo systemctl enable project-mercury.service
 
 #### Step 3: Run under a dedicated user
 
-By default, services run as root. Add `User=project_mercury` so the script runs under the pre-created account:
+By default, services run as root. Adding `User=project_mercury` drops privileges to the dedicated service account:
 
 ```ini
 [Service]
@@ -2444,11 +2424,11 @@ User=project_mercury
 WantedBy=graphical.target
 ```
 
-> Using a dedicated service account limits what the process can do if it is compromised, which is a basic hardening practice.
+> Running services as a dedicated non-root account is a basic hardening practice; it limits the blast radius if the process is ever compromised.
 
 #### Step 4: Restart on failure only
 
-Use `Restart=on-failure` so systemd retries after crashes but does not bring the service back when an administrator stops it manually. `RestartSec=10` waits ten seconds between attempts:
+`Restart=on-failure` tells systemd to restart the service if it crashes, but not if it’s stopped manually with `systemctl stop`. `RestartSec=10` adds a 10-second cooldown between restart attempts:
 
 ```ini
 [Service]
@@ -2461,11 +2441,11 @@ RestartSec=10
 WantedBy=graphical.target
 ```
 
-> systemd records start, stop, and failure events in the journal by default, so no extra logging directives are needed for the requirements listed above. Inspect them with `journalctl -u project-mercury.service`.
+> systemd journals all service events automatically, so no extra logging config is needed. Check them with `journalctl -u project-mercury.service`.
 
 #### Step 5: Depend on PostgreSQL
 
-The Django app needs PostgreSQL running first. Add a `[Unit]` section with metadata and `After=postgresql.service` so ordering is correct at boot:
+The Django app depends on PostgreSQL being up first. The `[Unit]` section lets you set that ordering:
 
 ```ini
 [Unit]
@@ -2483,7 +2463,7 @@ RestartSec=10
 WantedBy=graphical.target
 ```
 
-Reload systemd after every unit file change:
+Always reload systemd after editing a unit file:
 
 ```bash
 sudo systemctl daemon-reload
@@ -2491,7 +2471,7 @@ sudo systemctl daemon-reload
 
 #### Final unit file
 
-Together, the sections above produce the complete service definition:
+Putting it all together, the complete unit file looks like this:
 
 ```ini
 [Unit]
@@ -2510,15 +2490,15 @@ RestartSec=10
 WantedBy=graphical.target
 ```
 
-After placing the file under `/etc/systemd/system/`, run `daemon-reload`, then `enable` and `start` the unit. Use `systemctl status` and `journalctl` to confirm behavior under boot, manual stop, and simulated failure.
+After placing the file under `/etc/systemd/system/`, run `daemon-reload`, then `enable` and `start` the unit. Use `systemctl status` and `journalctl` to verify it behaves correctly at boot, after a manual stop, and after a simulated failure.
 
 ### SYSTEMD Tools
 
-With `project-mercury.service` defined, day-to-day work shifts to two utilities: **`systemctl`** for managing units and targets, and **`journalctl`** for reading logs. Together they cover service lifecycle, boot targets, and troubleshooting.
+Once a unit is in place, the two tools you’ll use constantly are **`systemctl`** (for managing units and targets) and **`journalctl`** (for reading logs). Together they cover the full service lifecycle and most troubleshooting scenarios.
 
 #### Managing services with systemctl
 
-`systemctl` is the primary command for starting, stopping, and inspecting services on systemd-based systems. The examples below use **Docker**; replace `docker` with any unit name (for example `project-mercury`).
+`systemctl` is the main tool for managing services. The examples below use Docker as a stand-in; replace it with any unit name:
 
 | Action                             | Command                    |
 | ---------------------------------- | -------------------------- |
@@ -2542,7 +2522,7 @@ Examples:
 [~]$ systemctl status docker
 ```
 
-A healthy service reports **active (running)**:
+A healthy service shows **active (running)**:
 
 ```text
 ● docker.service - Docker Application Container Engine
@@ -2564,37 +2544,37 @@ Other common `Active` values:
 - **activating** / **deactivating**: transitional states during start or stop
 - **failed**: start or runtime error; check the unit file and logs
 
-Whenever you edit a unit file on disk, reload systemd so it picks up changes:
+After editing any unit file on disk:
 
 ```bash
 [~]$ systemctl daemon-reload
 ```
 
-To edit a unit in a drop-in or replace the full file interactively:
+To edit a unit interactively (using a drop-in override or replacing the full file):
 
 ```bash
 [~]$ systemctl edit project-mercury.service --full
 ```
 
-Saving through `systemctl edit` applies changes immediately; you do not need a separate `daemon-reload` afterward.
+Saving via `systemctl edit` applies changes immediately; no separate `daemon-reload` needed.
 
 #### Working with system targets
 
-Targets group units into boot states (the systemd equivalent of runlevels). You already used `graphical.target` for Project Mercury; the same commands apply system-wide.
+Targets group related units into boot states, the systemd equivalent of runlevels. The commands you used for `graphical.target` apply to any target system-wide.
 
-View the default target:
+To check the current default:
 
 ```bash
 [~]$ systemctl get-default
 ```
 
-Change it (for example to multi-user, non-graphical mode):
+To switch to non-graphical multi-user mode:
 
 ```bash
 [~]$ systemctl set-default multi-user.target
 ```
 
-List units systemd has loaded or attempted to load:
+To see all units systemd has loaded or tried to load:
 
 ```bash
 [~]$ systemctl list-units --all
@@ -2619,7 +2599,7 @@ loaded    inactive dead     -         Rescue Mode
 loaded    inactive dead     -         Shutdown
 ```
 
-Omit `--all` to see only active units:
+Without `--all`, only active units are shown:
 
 ```bash
 [~]$ systemctl list-units
@@ -2627,9 +2607,9 @@ Omit `--all` to see only active units:
 
 #### Querying logs with journalctl
 
-`journalctl` reads the systemd journal. With no options it streams the full log from oldest to newest; in practice you filter by unit or time range.
+`journalctl` reads the systemd journal. On its own it dumps the full log; in practice you always filter by unit or time.
 
-Logs for a specific service:
+To see logs for a specific service:
 
 ```bash
 [~]$ journalctl -u docker.service
@@ -2646,11 +2626,11 @@ Mar 19 17:43:23 dockerd[2590]: level=info msg="Docker daemon" commit=63
 Mar 19 17:43:23 systemd[1]: Started Docker Application Container Engine.
 ```
 
-For Project Mercury, use `journalctl -u project-mercury.service` after start, stop, or failure events. Filtered journal output is often the fastest way to see misconfigured `ExecStart` paths, permission errors, or dependency ordering problems.
+For any service you’re debugging, `journalctl -u <service>` is usually the first place to look. It quickly surfaces misconfigured `ExecStart` paths, permission errors, and dependency ordering problems.
 
 ![systemd tools overview: systemctl for unit and target management, journalctl for journal logs](https://kodekloud.com/kk-media/image/upload/v1752881143/notes-assets/images/Learning-Linux-Basics-Course-Labs-SYSTEMD-Tools/frame_70.jpg)
 
-**Summary:** `systemctl` drives service and target lifecycle; `journalctl` explains what happened when something fails. The Project Mercury unit from the previous section is one concrete example; the same workflow applies to Docker, databases, and any other daemon on the system.
+**Summary:** `systemctl` drives the service lifecycle; `journalctl` tells you what went wrong. The Project Mercury unit is just one example; this same workflow applies to any daemon on the system.
 
 <h2 id="storage-in-linux">Storage in Linux</h2>
 
@@ -2658,9 +2638,7 @@ For Project Mercury, use `journalctl -u project-mercury.service` after start, st
 
 #### Block Devices
 
-A block device denotes a hardware component used for data storage and is typically represented as a file in the `/dev` directory. Devices such as traditional spinning hard disks and solid-state disks (SSD) are common examples. Data on these devices is accessed in fixed-size blocks.
-
-You can list the block devices on your system using the `lsblk` command. Additionally, using `ls -l` in the `/dev` directory and filtering for lines starting with “b” helps you identify block files.
+Storage in Linux starts with block devices: physical disks and SSDs that appear as files under `/dev`. Data is accessed in fixed-size blocks, hence the name. Two useful commands for inspecting them:
 
 ```bash
 $ lsblk
@@ -2675,22 +2653,22 @@ brw-rw----  1 root disk  8,  0 Mar 19 17:43 sda
 brw-rw----  1 root disk  8,  1 Mar 19 17:42 sda1
 ```
 
-Each block device is assigned a major and minor number:
+Each block device has a major and minor number:
 
 - The **major number** (8 in this case) identifies the type of block device (commonly associated with SCSI devices, hence the “sd” prefix).
 - The **minor numbers** differentiate among individual physical or logical devices, such as the whole disk and its partitions.
 
 #### Partitions
 
-In the example above, the SSD disk is divided into three partitions:
+In this example the SSD has three partitions:
 
 - `sda3` is used as the root partition.
 - `sda2` (72.5GB) is mounted at /media/MM/Data and is typically used for storing backup data.
 - `sda1` is mounted at /boot/efi to store boot loader files needed during system startup.
 
-> It is possible to use a disk without partitioning; however, partitioning is generally recommended because it offers improved flexibility and organization.
+> You can use a disk without partitioning, but partitioning is generally recommended for the flexibility and organization it provides.
 
-The `fdisk` command lists the partition table but also allows you to create or delete partitions. Running `fdisk -l /dev/sda` provides detailed information such as partition type, disk size in bytes, and sector details.
+`fdisk -l` lists the partition table with full detail: disk size in bytes, sector layout, partition types, and more:
 
 ```bash
 $ sudo fdisk -l /dev/sda
@@ -2709,17 +2687,17 @@ Device        Start       End   Sectors Size Type
 
 #### Partitioning Schemes
 
-There are three primary types of disk partitions:
+MBR (the older standard) supports three partition types:
 
 - **Primary Partition**: Used for booting an operating system. Traditionally, disks could have a maximum of four primary partitions.
 - **Extended Partition**: Acts as a container for logical partitions; it cannot be used directly.
 - **Logical Partition**: Created within an extended partition to bypass the four primary partition limitation.
 
-A partitioning scheme, or partition table, defines how these partitions are organized on a disk. GPT (GUID Partition Table) supports an almost unlimited number of partitions, often limited only by the operating system, such as RHEL’s limit of 128 partitions per disk, and eliminates the 2TB disk size restriction.
+GPT (GUID Partition Table) is the modern standard. It supports up to 128 partitions per disk and removes the old 2 TB size limit, making it the right choice for any new setup.
 
 #### Creating a New Partition with GPT
 
-The `gdisk` command allows you to create a new partition.
+Use `gdisk` to create partitions on a GPT disk:
 
 ```bash
 $ gdisk /dev/sdb
@@ -2735,7 +2713,7 @@ Found valid GPT with protective MBR; using GPT.
 Command (? for help):
 ```
 
-To add a new partition, press `n` and follow the interactive prompts:
+Press `n` to add a new partition and follow the prompts:
 
 ```bash
 Command (? for help): n
@@ -2752,7 +2730,7 @@ Command (? for help):
 
 > Partition size can be typed in the Last Sector question. Size formats are `+500M`, `+20G`, etc
 
-After providing the partition details and confirming with the default hex code (8300 for Linux filesystem), finalize the changes by writing the new partition table to disk. Press `W` at the prompt:
+After specifying the size and type, write the changes to disk with `W`:
 
 ```bash
 Command (? for help): W
@@ -2763,13 +2741,11 @@ OK; writing new GUID partition table (GPT) to /dev/sdb.
 The operation has completed successfully.
 ```
 
-The new partition `/dev/sdb1` is now available. Verify the partition creation using `lsblk` or `fdisk -l`.
+The new partition `/dev/sdb1` is now available. Confirm with `lsblk` or `fdisk -l`.
 
 ### File Systems
 
-After partitioning divides a disk into segments of usable space, the Linux kernel still treats these partitions as **raw disk** areas. To read and write data, you must create a file system that defines the storage structure and then mount that file system to a directory.
-
-The extended family (`ext2`, `ext3`, `ext4`) is common on Linux. The table below compares their main characteristics:
+Partitioning gives you raw space, but before you can store files you need to create a file system on top of it. The ext family is the most common choice on Linux. Here’s how the three versions compare:
 
 | Feature              | EXT2                            | EXT3 | EXT4      |
 | -------------------- | ------------------------------- | ---- | --------- |
@@ -2781,11 +2757,11 @@ The extended family (`ext2`, `ext3`, `ext4`) is common on Linux. The table below
 | Linux permissions    | Yes                             | N/A  | N/A       |
 | Backwards compatible | N/A                             | Yes  | Yes       |
 
-Ext4 further enhances Ext2 and Ext3 capabilities and is one of the most popular general-purpose file systems today; it supports files up to 16 TB and volumes as large as 1 exabyte. Additionally, ext4 (as well as ext3) offers backward compatibility: the ext4 driver can mount ext3 and ext2 filesystems, and the ext3 driver can mount ext2 filesystems.
+Ext4 is the most capable of the three and is the default on most Linux systems today. One nice property: the ext4 driver is backward compatible, meaning it can also mount ext3 and ext2 filesystems.
 
 #### Creating and Mounting an ext4 File System
 
-Use the `mkfs.ext4` command to format the device.
+Format the partition with ext4 and mount it:
 
 ```bash
 [~]$ mkfs.ext4 /dev/sdb1
@@ -2800,7 +2776,7 @@ Writing superblocks and filesystem accounting information: done
 
 #### Verifying the Mounted File System
 
-You can confirm that the file system is mounted correctly by using the mount command combined with grep:
+Confirm the mount:
 
 ```bash
 [~]$ mount | grep /dev/sdb1
@@ -2809,7 +2785,7 @@ You can confirm that the file system is mounted correctly by using the mount com
 
 #### Configuring Automatic Mounting at Boot
 
-To automatically mount the file system during system boot, add an entry to the `/etc/fstab` file. This enables persistent mounting and ensures the file system is available after a reboot. For example:
+To make the mount persist across reboots, add an entry to `/etc/fstab`:
 
 ```bash
 # /etc/fstab: static file system information.
@@ -2820,7 +2796,7 @@ To automatically mount the file system during system boot, add an entry to the `
 /dev/sda1  /  ext4  defaults,relatime,errors=panic  0  1
 ```
 
-Add an entry by either modifying `/etc/fstab` or with a command:
+Add the entry with:
 
 ```bash
 echo "/dev/sdb1 /mnt/ext4 ext4 rw 0 0" >> /etc/fstab
@@ -2837,13 +2813,11 @@ In the fstab entry:
 | 5     | Whether `dump` backs up this file system (often `0`)                  | `0`                              |
 | 6     | Boot-time `fsck` order (`0` = skip; `1` is usually reserved for root) | `1`                              |
 
-> use `sudo blkid /dev/vdd` to verify the type of filesystem created
+> Use `sudo blkid /dev/vdd` to check the filesystem type on a device.
 
 ### DAS, NAS and SAN
 
-This section provides an overview of DAS, NAS, and SAN external storage technologies essential for enterprise-grade environments.
-
-There are three commonly used external storage technologies:
+At some point you’ll move beyond a single disk inside a server. Enterprise environments use shared storage that multiple servers can access, and there are three main approaches:
 
 - Direct-Attached Storage (DAS)
 - Network-Attached Storage (NAS)
@@ -2851,69 +2825,61 @@ There are three commonly used external storage technologies:
 
 #### Direct-Attached Storage (DAS)
 
-Direct-Attached Storage (DAS) connects storage devices directly to a host system. The operating system recognizes these devices as block devices, allowing for excellent performance with minimal latency because there is no network or firewall overhead.
-
-DAS is particularly well-suited for small businesses and environments where storage does not need to be shared among multiple servers. However, its direct attachment means scalability is limited, making it less ideal for larger, enterprise environments that demand shared and flexible storage solutions.
+DAS connects storage directly to a single host. The OS treats it as a local block device, which means great performance and minimal latency; there’s no network involved. The downside is that it can’t be shared between servers, so it’s best suited for standalone machines or small setups.
 
 #### Network-Attached Storage (NAS)
 
-Network-Attached Storage (NAS) is ideal for mid-to-large businesses that require shared file storage accessible over a network. NAS devices are physically separate from the computing hosts, and data is transferred via a network connection. Even if the physical distance is minimal (such as devices within the same rack in a data center), the data still travels through network infrastructure.
-
-NAS typically functions as an NFS (Network File System) server, exporting storage as directories or shares that can be accessed simultaneously by multiple hosts. Its design supports centralized shared storage with high availability and good performance, particularly with high-speed Ethernet connectivity. NAS is well-suited for web servers, application servers, and non-production database environments. It is important to note that installing an operating system directly on a NAS device is generally not recommended.
+NAS serves file storage over the network. Multiple hosts can access the same share simultaneously, making it a natural fit for web servers, application servers, and shared storage environments. NAS devices typically act as NFS servers and are managed separately from the compute hosts. One thing to note: installing an OS directly on a NAS isn’t recommended.
 
 #### Storage Area Network (SAN)
 
-Storage Area Network (SAN) provides block storage designed for enterprises running mission-critical applications that demand high throughput and low latency. In a SAN system, storage is allocated to hosts as Logical Unit Numbers (LUNs), which represent sections of a shared storage pool presented as logical disks to the server.
-
-When a host system detects a SAN device, it appears as a raw disk where partitions and file systems can be created, much like any other block device. SAN systems typically use Fibre Channel Protocol (FCP) for high-speed data transfer, though Ethernet-based solutions do exist. A Host Bus Adapter (HBA) installed in the server (usually via a PCI slot) connects to Fibre Channel switches, ensuring that SAN environments can deliver superior performance and reliability.
+SAN takes a different approach: it provides block storage over a dedicated high-speed network. The server sees the storage as a raw disk (via a Logical Unit Number, or LUN) and manages partitioning and filesystems itself, just like a local disk. SANs typically use Fibre Channel Protocol (FCP) for maximum throughput, connected via Host Bus Adapters (HBAs). The result is the highest performance and reliability of the three options, at the cost of complexity and price.
 
 ### NFS Filesystem
 
-Unlike block devices that manage data in blocks, NFS stores data as individual files, offering a unique file-centric approach to network storage.
+NFS (Network File System) is the most common way to share a directory from one Linux server to other machines on the network. Clients mount the exported directory and interact with it just like a local folder, even though the files actually live on the server. For example, a software repository at `/software/repos` can be shared so that every machine in the office mounts and reads from it directly.
 
-NFS utilizes a server-client model to share directories seamlessly across the network. For instance, consider a software repository server that maintains a directory at `/software/repos`. By **exporting** this directory using NFS, employee laptops can access its contents as if the files were stored locally, even though they reside on the server.
+> In NFS terminology, **exporting** means making a directory available to client systems.
 
-> In NFS terminology, **exporting** refers to the process of sharing a directory with client systems.
-
-On the NFS server, directory sharing is managed through the exports configuration file located at `/etc/exports`. This file specifies which clients are permitted to access the shared directories.
+On the server side, `/etc/exports` lists what gets shared and who can access it:
 
 ```bash
 /software/repos 10.61.35.201 10.61.35.202 10.61.35.203
 ```
 
-The above snippet shows a basic export configuration. Instead of listing individual IP addresses, you could also specify network ranges or use a wildcard (\*) if you want to allow access from any client. Note that in many environments a firewall sits between the server and its clients, requiring specific ports to be opened for NFS traffic.
+Individual IPs, network ranges, or a wildcard (`*`) are all valid in this file. Keep in mind that most environments have a firewall between server and clients, so NFS ports need to be open.
 
-After updating the /etc/exports file on the server, apply the changes and share the directories using the exportfs command. To export all the mounts defined in the exports file, use:
+After updating `/etc/exports`, apply the changes with `exportfs`:
 
 ```bash
 exportfs -a
 ```
 
-Alternatively, to manually export a directory to a specific client, you can run:
+To export a specific directory to a single client manually:
 
 ```bash
 exportfs -o 10.61.35.201:/software/repos
 ```
 
-Once the directory is exported on the server, you can mount it on the client machine. To mount the shared directory (for example, to the local directory `/mnt/software/repos`), use the following command, ensuring that you specify the NFS server’s IP (or hostname) followed by the exported directory separated by a colon:
+On the client, mount the share like any other filesystem; specify the server IP and the exported path, separated by a colon:
 
 ```bash
 mount 10.61.112.101:/software/repos /mnt/software/repos
 ```
 
-With these steps, the NFS share should now be successfully mounted on the client system, enabling seamless file access from the server.
+After mounting, the client can read and write the NFS share as if it were a local directory.
 
 ### Logical Volume Manager (LVM)
 
-The Logical Volume Manager (LVM) is a powerful tool that enables you to group multiple physical volumes (disks or partitions) into a single volume group (VG). From the volume group, you can then allocate one or more logical volumes (LVs).
+LVM is one of those tools that feels complicated at first but becomes indispensable once you understand it. The idea is simple: pool physical disks into a **volume group**, then carve that pool into **logical volumes** that behave like regular partitions, but you can resize them live while they’re still mounted.
 
-> One of LVM’s most significant advantages is its ability to resize logical volumes dynamically, provided there is sufficient free space in the volume group. This feature is especially useful for systems with changing storage requirements.
+> The killer feature: logical volumes can grow dynamically as long as there’s free space in the volume group, with no downtime required.
 
 #### Steps
 
 **Prerequisites**
 
-Ensure that the LVM2 package is installed on your system. Use the command below to install LVM2:
+Make sure the LVM2 package is installed:
 
 ```bash
 apt-get install lvm2
@@ -2921,8 +2887,7 @@ apt-get install lvm2
 
 **Step 1: Create a Physical Volume**
 
-The initial step in configuring LVM is to identify available disks or partitions and create physical volumes (PVs) from them. A physical volume represents the disk or partition in LVM.
-For example, to create a physical volume on the device path `/dev/sdb`, execute:
+Create a physical volume on an available disk or partition:
 
 ```bash
 pvcreate /dev/sdb
@@ -2936,7 +2901,7 @@ Physical volume "/dev/sdb" successfully created
 
 **Step 2: Create a Volume Group**
 
-Once the physical volume is established, create a volume group (VG) that will host your logical volumes. In this example, the VG is named `caleston_vg` and includes `/dev/sdb`:
+Create a volume group from the physical volume:
 
 ```bash
 vgcreate caleston_vg /dev/sdb
@@ -2948,7 +2913,7 @@ Expected output:
 Volume group "caleston_vg" successfully created
 ```
 
-To display details about the physical volume, run:
+Inspect the physical volume:
 
 ```bash
 pvdisplay
@@ -2969,7 +2934,7 @@ Allocated PE 0
 PV UUID iDCXIN-En2h-5IlJ-Yjqv-GcsR-gDfV-zaf66E
 ```
 
-For further information about the volume group, use:
+And the volume group:
 
 ```bash
 vgdisplay
@@ -3002,7 +2967,7 @@ VG UUID VzmIAn-9cEl5bA-lVtm-wHKX-KQaObR
 
 **Step 3: Create a Logical Volume**
 
-After establishing the volume group, create a logical volume (LV). In this example, we create a 1GB LV named `vol1` within the `caleston_vg` volume group:
+Create a logical volume from the pool:
 
 ```bash
 lvcreate -L 1G -n vol1 caleston_vg
@@ -3014,7 +2979,7 @@ Expected output:
 Logical volume "vol1" created.
 ```
 
-To verify that the LV was created successfully, list all logical volumes:
+List logical volumes to confirm:
 
 ```bash
 lvs
@@ -3029,13 +2994,11 @@ vol1 caleston_vg -wi-a----- 1.00g
 
 **Step 4: Create and Mount a Filesystem**
 
-With your logical volume in place, the next step is to create a filesystem on it. In this example, we create an ext4 filesystem on `/dev/caleston_vg/vol1`:
+Format the logical volume with a filesystem and mount it:
 
 ```bash
 mkfs.ext4 /dev/caleston_vg/vol1
 ```
-
-After the filesystem is created, mount it to a directory (e.g., /mnt/vol1) to make it accessible:
 
 ```bash
 mount -t ext4 /dev/caleston_vg/vol1 /mnt/vol1
@@ -3043,7 +3006,7 @@ mount -t ext4 /dev/caleston_vg/vol1 /mnt/vol1
 
 **Step 5: Resize the Logical Volume and Filesystem**
 
-Sometimes you may need to expand the logical volume while it remains mounted. Begin by verifying that there is sufficient free space in the volume group:
+One of the main reasons to use LVM is online resize. First, check available space in the volume group:
 
 ```bash
 vgs
@@ -3056,7 +3019,7 @@ VG           #PV #LV #SN Attr   VSize  VFree
 caleston_vg   1  1   1   0 wz--n- 20.00g 19.00g
 ```
 
-If there is enough free space, extend the logical volume by an additional 1GB:
+Extend the logical volume:
 
 ```bash
 lvresize -L +1G /dev/caleston_vg/vol1
@@ -3068,15 +3031,13 @@ Expected output:
 Logical volume vol1 successfully resized.
 ```
 
-> At this stage, even after resizing the logical volume, the filesystem will still report its original size (1GB) when using the `df` command because only the LV has been extended. It is essential to also resize the filesystem with the `resize2fs` command.
-
-Resize the filesystem using:
+> After extending the LV, `df` still shows the original size because the filesystem itself hasn’t been resized yet. Resize it with `resize2fs`:
 
 ```bash
 resize2fs /dev/caleston_vg/vol1
 ```
 
-The output will indicate that the filesystem has been resized. Finally, verify the new filesystem size:
+Verify the new size:
 
 ```bash
 df -hP /mnt/vol1
@@ -3090,4 +3051,4 @@ Filesystem                      Size  Used Avail Use% Mounted on
 ​
 ```
 
-> It’s important to note that the logical volume can be accessed through two different paths: `/dev/caleston_vg/vol1` and `/dev/mapper/caleston_vg-vol1`. Both paths refer to the same logical volume, so you can use either interchangeably in your commands and configurations.
+> The logical volume is accessible via two equivalent paths: `/dev/caleston_vg/vol1` and `/dev/mapper/caleston_vg-vol1`. They refer to the same device, so you can use either one interchangeably.
