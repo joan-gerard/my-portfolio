@@ -776,7 +776,7 @@ RPM and YUM are the primary package managers for RPM-based Linux distributions. 
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Installation | `rpm -ivh telnet.rpm`<br /><br />`-i`: Install the package<br />`-v`: Verbose mode for detailed output.<br />`-h`: Display the installation progress. |
 | Uninstalling | `rpm -e telnet.rpm`                                                                                                                                   |
-| Updgrade     | `rpm -Uvh telnet.rpm`<br /><br />Note the uppercase `U`                                                                                               |
+| Upgrade      | `rpm -Uvh telnet.rpm`<br /><br />Note the uppercase `U`                                                                                               |
 | Query        | `rpm -q telnet.rpm`                                                                                                                                   |
 | Verifying    | `rpm -Vf <path to file>`<br /><br />Note the uppercase `V`                                                                                            |
 
@@ -2053,7 +2053,7 @@ caleston-code.tar.gz                             100% 2498KB  51MB/s  00:00
 
 ##### Copying directories with SCP
 
-When you need to transfer entire directories, include the `-r` option to copy recursively. To maintain original file ownership and permissions, add the `-p` flag.
+When you need to transfer entire directories, include the `-r` option to copy recursively. To preserve original modification times, access times, and permissions, add the `-p` flag.
 
 These SCP functionalities are highly beneficial when moving projects, such as migrating a Django application from your development environment to a production server.
 
@@ -2076,7 +2076,7 @@ Without a firewall, all servers can communicate freely. We will enhance security
 - Allow SSH access from your laptop to the application server.
 - Permit HTTP access (port 80) to the application server only from the client laptop, blocking other servers (e.g., devdb01).
 - Allow the application server to connect to the database server on port 5432 for database operations.
-- Grant the application server HTTP access to the software repository server (kailston-repo-01).
+- Grant the application server HTTP access to the software repository server (caleston-repo-01).
 - Block outgoing internet access from the application server.
 - Restrict the database server to accept connections on port 5432 solely from the application server.
 
@@ -2781,7 +2781,7 @@ The extended family (`ext2`, `ext3`, `ext4`) is common on Linux. The table below
 | Linux permissions    | Yes                             | N/A  | N/A       |
 | Backwards compatible | N/A                             | Yes  | Yes       |
 
-Ext4 further enhances Ext2 and Ext3 capabilities and is one of the most popular general-purpose file systems today; it supports files up to 16 TB and volumes as large as 1 exabyte. Additionally, ext4 (as well as ext3) offers backward compatibility: a file system created with ext4 can be mounted as ext3 or ext2, and an ext3 file system can be mounted as ext2.
+Ext4 further enhances Ext2 and Ext3 capabilities and is one of the most popular general-purpose file systems today; it supports files up to 16 TB and volumes as large as 1 exabyte. Additionally, ext4 (as well as ext3) offers backward compatibility: the ext4 driver can mount ext3 and ext2 filesystems, and the ext3 driver can mount ext2 filesystems.
 
 #### Creating and Mounting an ext4 File System
 
@@ -2903,7 +2903,7 @@ mount 10.61.112.101:/software/repos /mnt/software/repos
 
 With these steps, the NFS share should now be successfully mounted on the client system, enabling seamless file access from the server.
 
-### Logic Volume Manager (LVM)
+### Logical Volume Manager (LVM)
 
 The Logical Volume Manager (LVM) is a powerful tool that enables you to group multiple physical volumes (disks or partitions) into a single volume group (VG). From the volume group, you can then allocate one or more logical volumes (LVs).
 
