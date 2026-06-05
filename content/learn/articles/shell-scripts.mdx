@@ -1,0 +1,941 @@
+---
+title: "Shell Scripts for Beginners"
+description: "A practical introduction to shell scripting: variables, conditionals, loops, functions, and the patterns that make scripts reusable and maintainable."
+tags:
+  - Linux
+  - Shell
+  - Scripting
+draft: true
+notesFromKodeKloud: true
+---
+
+Shell scripts in Linux provide a powerful way to automate repetitive or complex tasks, which is a significant advantage for system administrators and IT professionals.
+
+Automating daily tasks such as **system backups**, **software installation** and **updates** on multiple servers, or **routine system monitoring** (e.g., checking memory, CPU, and disk usage) can boost efficiency and reduce errors.
+
+Shell scripting is also excellent for performing regular audits, such as **identifying logged-in users**, **tracking user activities**, **detecting resource-intensive processes**, or scanning multiple log files to **diagnose issues**.
+
+By the end of this article, I will have dived into the basics of shell scripting, covering topics such as:
+
+- Creating my first script and making it executable.
+- Utilizing variables effectively.
+- mplementing control logic with conditional statements.
+- Employing `for` loops and `while` loops.
+- Performing arithmetic operations.
+
+<h2 id="shell-script-introduction">Shell Script Introduction</h2>
+
+### My first shell script
+
+This section uses a rocket launch scenario to show how a shell script chains multiple commands into one repeatable workflow (less manual typing and fewer mistakes along the way) .
+
+Before writing a script, it helps to be explicit about its purpose: list each step and the command that performs it. In the example mission, the requirements are to create a `lunar-mission` directory, add a rocket with `rocket-add`, run the launch sequence (`rocket-start-power`, `rocket-internal-power`, `rocket-start-sequence`, and related steps), and verify the result with `rocket-status`. Those steps were previously run by hand:
+
+```bash
+mkdir lunar-mission
+rocket-add lunar-mission
+rocket-start-power lunar-mission
+rocket-internal-power lunar-mission
+rocket-start-sequence
+```
+
+Automating them means moving the same commands, in the same order, into a file with a descriptive name such as `create-and-launch-rocket.sh`, a name that reflects both creating the mission and launching the rocket. Run the script with `bash create-and-launch-rocket.sh`; the shell executes each line sequentially and waits for a command to finish before continuing.
+
+A fuller version of the script might also include engine start, lift-off, and a final status check:
+
+```bash
+mkdir lunar-mission
+rocket-add lunar-mission
+rocket-start-power lunar-mission
+rocket-internal-power lunar-mission
+rocket-start-sequence lunar-mission
+rocket-start-engine lunar-mission
+rocket-lift-off lunar-mission
+rocket-status lunar-mission
+```
+
+To run the script like any other command, you can make it executable and put it on your `PATH`. If the script lives outside directories listed in `PATH`, the shell reports `command not found` until you append its folder, eg `export PATH=$PATH:/home/michael`.
+
+Without execute permission, you may see `Permission denied`; use `ls -l` to inspect permissions and `chmod +x create-and-launch-rocket` to fix that.
+
+For scripts you invoke often, omitting the `.sh` extension is a common convention so the name feels like a normal command. Avoid vague names like `script1.sh` or `test.sh` so the script’s role stays obvious at a glance.
+
+### Variables
+
+variables enhance flexibility and reduce errors by enabling dynamic value assignment throughout your scripts.
+
+Instead of hardcoding values such as a mission name, using a variable (typically named “mission_name”) allows you to update the value in one place, ensuring consistency across all commands.
+
+#### Basic Variable Usage
+
+When referencing a variable in a script, always prefix its name with a dollar sign (`$`). However, omit the dollar sign when assigning a value. Below is an improved example of how to set and use a variable in a shell script.
+
+> To change the mission, update the variable assignment at the beginning
+
+#### Capturing Command Output in Variables
+
+Variables in shell scripts can also store the output of commands. For instance, if the command `rocket-status` outputs a value such as “launching”, “success”, or “failed”, you can capture that output and then display it. The following example demonstrates how to do this:
+
+```bash
+#!/bin/bash
+
+# Set the mission name for a different mission
+mission_name=mars-mission
+
+# Execute the series of commands for the mission
+mkdir "$mission_name"
+rocket-add "$mission_name"
+rocket-start-power "$mission_name"
+rocket-internal-power "$mission_name"
+rocket-crew-ready "$mission_name"
+rocket-start-sequence "$mission_name"
+rocket-start-engine "$mission_name"
+rocket-lift-off "$mission_name"
+rocket-status "$mission_name"
+
+# Capture the rocket status output into a variable
+rocket_status=$(rocket-status "$mission_name")
+
+# Print the status of the launch
+echo "Status of launch: $rocket_status"
+```
+
+### Command Line Arguments
+
+By incorporating command-line arguments, you can pass the mission name directly when executing the script, dramatically streamlining the process.
+
+When a shell script runs, it automatically splits the command and its arguments. The script name is stored in the variable `$0`, while the first user-provided argument is stored in `$1`. Subsequent arguments are held in `$2`, `$3`, and so on. By replacing hard-coded values with these built-in variables, your script becomes universally reusable for any mission.
+
+Here is the updated version of the script that leverages the command-line argument:
+
+```bash
+mission_name=$1
+mkdir $mission_name
+rocket-add $mission_name
+rocket-start-power $mission_name
+rocket-internal-power $mission_name
+rocket-start-sequence $mission_name
+rocket-start-engine $mission_name
+rocket-lift-off $mission_name
+rocket-status $mission_name
+
+rocket_status=$(rocket-status $mission_name)
+echo "Status of launch: $rocket_status"
+```
+
+```bash
+$ create-and-launch-rocket saturn-mission
+```
+
+### Read Inputs
+
+If you prefer the script to prompt the user for input when it starts, you can use the read command. Initially, a basic use of `read` might look like this:
+
+In this simple example, the script waits for the user to type a value, but it does not indicate what is expected. To provide guidance to the user, you can include a prompt using the `-p` option:
+
+```bash
+#!/bin/bash
+read -p "Enter mission name: " mission_name
+
+mkdir "$mission_name"
+
+rocket-add "$mission_name"
+rocket-start-power "$mission_name"
+rocket-internal-power "$mission_name"
+rocket-start-sequence "$mission_name"
+rocket-start-engine "$mission_name"
+rocket-lift-off "$mission_name"
+
+rocket_status=$(rocket-status "$mission_name")
+echo "Status of launch: $rocket_status"
+```
+
+Alternatively, you can combine both methods. For example, you might first check if the mission name is provided as a command-line argument. If not, the script can prompt the user for input. An enhanced version of the script that incorporates both methods is shown below:
+
+```bash
+#!/bin/bash
+if [ -z "$1" ]; then
+    read -p "Enter mission name: " mission_name
+else
+    mission_name=$1
+fi
+
+mkdir "$mission_name"
+
+rocket-add "$mission_name"
+rocket-start-power "$mission_name"
+rocket-internal-power "$mission_name"
+rocket-start-sequence "$mission_name"
+rocket-start-engine "$mission_name"
+rocket-lift-off "$mission_name"
+
+rocket_status=$(rocket-status "$mission_name")
+echo "Status of launch: $rocket_status"
+```
+
+This script checks if the first argument is empty. If it is, the script prompts the user for the mission name, otherwise, it uses the command-line argument.
+
+### Arithmetic Operations
+
+Shell scripts often need to compute values, either for counters, resource checks, or derived paths. This section covers three approaches: the traditional `expr` command, Bash double parentheses for integer math, and `bc` for floating point work.
+
+#### Using the expr command
+
+The `expr` command evaluates an arithmetic expression and prints the result. For example:
+
+```bash
+$ expr 6 + 3
+9
+```
+
+`expr` supports addition, subtraction, division, and multiplication, including variables:
+
+```bash
+$ expr 6 + 3
+9
+
+$ expr 6 - 3
+3
+
+$ expr 6 / 3
+2
+
+$ expr 6 \* 3
+18
+
+$ A=6
+$ B=3
+
+$ expr $A + $B
+9
+
+$ expr $A - $B
+3
+
+$ expr $A / $B
+2
+
+$ expr $A \* $B
+18
+```
+
+> Operators and operands must be separated by spaces. When multiplying with `expr`, escape `*` with a backslash because the shell treats `*` as a glob pattern.
+
+#### Using double parentheses
+
+Bash provides C-like arithmetic with `(( ))`. Variables do not need a `$` prefix inside the expression, spaces between operators are optional, and `*` does not need escaping.
+
+```bash
+$ A=6
+$ B=3
+
+$ echo $(( A + B ))
+9
+
+$ echo $(( A - B ))
+3
+
+$ echo $(( A / B ))
+2
+
+$ echo $(( A * B ))
+18
+```
+
+Double parentheses also support pre-increment (`++A`), pre-decrement (`--A`), post-increment (`A++`), and post-decrement (`A--`):
+
+```bash
+$ echo $(( ++A ))
+7
+
+$ echo $(( --A ))
+6
+
+$ echo $(( A++ ))
+6
+
+$ echo $(( A-- ))
+7
+```
+
+Always wrap the expansion in `echo` or assign it to a variable. Bare `(( ... ))` can be misread by the shell and lead to confusing errors.
+
+#### Floating point arithmetic with bc
+
+Both `expr` and `$(( ))` perform integer division only. Dividing 10 by 3 yields `3`, not `3.333...`:
+
+```bash
+$ A=10
+$ B=3
+
+$ expr $A / $B
+3
+
+$ echo $(( A / B ))
+3
+```
+
+For floating point results, pipe the expression to `bc` with the `-l` flag (loads the standard math library):
+
+```bash
+$ echo "$A / $B" | bc -l
+3.333333
+```
+
+Use `bc` inline in a script or for one-off calculations via a pipe.
+
+Misc example:
+
+```bash
+baskets=4
+apples_per_basket=5
+
+total_apples=`expr $baskets \* $apples_per_basket`
+
+echo "Total Apples = $total_apples"
+```
+
+<h2 id="flow-control">Flow Control</h2>
+
+### Conditional Logic
+
+Conditional logic lets a script branch based on command output, user input, or file state. A practical pattern is to capture `rocket-status` output and react when the launch is in progress (`launching`), finished (`success`), or broken (`failed`). If the status is `failed`, the script can run `rocket-debug` automatically instead of leaving troubleshooting to a manual follow-up.
+
+#### How conditional statements work
+
+Shell `if` statements read like plain English: test a condition in square brackets, run commands when it is true, and close the block with `fi`. The script usually stores `rocket_status` first, then decides whether to call debug or print a message.
+
+Leave at least one space after `[` and before `]` in test expressions. Without that spacing, the shell may parse the test incorrectly.
+
+#### Example: if, elif, and else
+
+`rocket-status` can return `launching`, `success`, or `failed`. `rocket-debug` might report something like `overheating` when a launch fails:
+
+```bash
+$ rocket-status lunar-mission
+launching    success     failed
+
+$ rocket-debug lunar-mission
+overheating
+```
+
+A script can branch on the captured status:
+
+```bash
+mission_name=$1
+rocket_status=$(rocket-status $mission_name)
+
+if [ "$rocket_status" = "failed" ]; then
+    rocket-debug $mission_name
+elif [ "$rocket_status" = "success" ]; then
+    echo "This is successful"
+else
+    echo "The state is not failed or success"
+fi
+```
+
+If the status is `failed`, debugging runs. If it is `success`, the script prints confirmation. Any other value (including `launching`) falls through to the `else` branch.
+
+#### String comparisons
+
+Inside `[ ]`, compare strings with `=` for equality and `!=` for inequality. Quote variables so empty or multi-word values do not break the test:
+
+```bash
+[ "$rocket_status" = "failed" ]
+[ "$name" != "unknown" ]
+```
+
+#### Numeric comparisons
+
+For integers, use `-eq`, `-ne`, `-gt`, and `-lt` instead of `=`:
+
+```bash
+# Use -eq to check if two numbers are equal
+[ "$count" -eq 0 ]
+
+# Use -ne to verify that numbers are not equal
+[ "$retries" -ne 3 ]
+
+# Use -gt for “greater than”
+[ "$load" -gt 80 ]
+
+# Use -lt for “less than”
+[ "$disk_free" -lt 10 ]
+```
+
+Bash also supports `[[ ]]` for richer tests, including pattern matching. That syntax is a Bash extension and may not exist in every shell.
+
+Pattern matching example (substring check without quoting the pattern side):
+
+To check if the string "ABC" contains the substring "BC", you can use pattern matching with asterisks (`*`) outside double quotes:
+
+```bash theme={null}
+[[ "ABC" == *BC* ]]
+```
+
+![The image explains conditional operators in Bash, showing examples and descriptions of string comparisons and pattern matching.](https://kodekloud.com/kk-media/image/upload/v1752884047/notes-assets/images/Shell-Scripts-for-Beginners-Conditional-Logic/frame_340.jpg)
+
+#### Sorting and logical operators
+
+String ordering comparisons use lexicographic operators such as `<` and `>` inside tests when you need alphabetical ordering (for example, whether `"ABC"` sorts before `"BCD"`).
+
+Combine conditions with `&&` (both must be true) or `||` (at least one must be true):
+
+```bash
+[ COND1 ] && [ COND2 ]
+[ COND1 ] || [ COND2 ]
+```
+
+With `[[ ]]`, you can write compound tests in a single pair of brackets:
+
+```bash
+[[ A -gt 4 && A -lt 10 ]]
+[[ A -gt 4 || A -lt 10 ]]
+```
+
+#### File-level tests
+
+Scripts can branch on files and directories before reading or executing them:
+
+| Operator | Purpose                        | Example                     |
+| -------- | ------------------------------ | --------------------------- |
+| `-e`     | Check if a path exists         | `[ -e filename ]`           |
+| `-d`     | Check if a path is a directory | `[ -d /path/to/directory ]` |
+| `-s`     | Check if a file is not empty   | `[ -s filename ]`           |
+| `-x`     | Check if a file is executable  | `[ -x filename ]`           |
+| `-w`     | Check if a file is writable    | `[ -w filename ]`           |
+
+> Confirm permissions on the paths you test. A missing execute bit or wrong ownership can make file tests misleading even when the path exists.
+
+#### Summary
+
+Use `if` / `elif` / `else` / `fi` to steer script flow from command output, strings, numbers, or file checks. Quote variables in `[ ]` tests, pick the right operators for strings (`=`, `!=`) versus numbers (`-eq`, `-ne`, `-gt`, `-lt`), and use `[[ ]]` in Bash when you need pattern matching or combined conditions. File operators (`-e`, `-d`, `-s`, `-x`, `-w`) let you guard actions until paths exist and look safe to use.
+
+### 'For' Loops
+
+For loops automate repetitive work in shell scripts. If you already have a script that launches one rocket with one command, scaling to hundreds of missions means running the same command sequence many times in a row. A for loop runs that pattern for each item in a list without retyping every invocation.
+
+#### From manual commands to a loop
+
+You might start by running the launcher once per mission:
+
+```bash
+$ create-and-launch-rocket lunar-mission
+$ create-and-launch-rocket jupiter-mission
+$ create-and-launch-rocket saturn-mission
+$ create-and-launch-rocket satellite-mission
+$ create-and-launch-rocket lunar-mission-2
+$ create-and-launch-rocket mars-mission
+$ create-and-launch-rocket earth-mission
+```
+
+You can paste the same commands into a wrapper script (for example `launch_rockets.sh`) without a loop:
+
+```bash
+create-and-launch-rocket lunar-mission
+create-and-launch-rocket saturn-mission
+create-and-launch-rocket solar-mission-20
+create-and-launch-rocket lunar-mission
+create-and-launch-rocket earth-mission
+```
+
+A for loop runs `create-and-launch-rocket` once per mission in a list instead of duplicating lines.
+
+#### Basic structure
+
+The keywords `do` and `done` wrap the commands that run on each iteration:
+
+```bash
+for mission in <list of missions>
+do
+    create-and-launch-rocket $mission
+done
+```
+
+The list can be space-separated mission names. On each pass, `mission` holds the next value and you pass it to your command with `$`:
+
+```bash
+for mission in lunar-mission jupiter-mission saturn-mission satellite-mission lunar-mission-2
+do
+  create-and-launch-rocket $mission
+done
+```
+
+#### Reading missions from a file
+
+When the list grows, inline names in the script become hard to maintain. Store them in a file (for example `mission-names.txt`) and iterate over the file contents:
+
+```bash
+for mission in $(cat mission-names.txt)
+do
+    create-and-launch-rocket $mission
+done
+```
+
+`$(cat mission-names.txt)` runs first; the loop then walks over each word or line the command returns. Prefer passing inputs as arguments or reading from external files so routine runs do not require editing the script.
+
+> Avoid backticks for command substitution. Use `$(...)` instead, especially when nesting commands. It is easier to read and less error-prone.
+
+#### Ways to supply loop values
+
+You can feed a for loop in two main ways:
+
+1. **From a file** - read items with `$(cat filename)`.
+2. **Inline in the script** - list items after `in`.
+
+Examples:
+
+```bash
+for mission in $(cat mission-names.txt)
+do
+    create-and-launch-rocket $mission
+done
+
+for mission in 1 2 3 4 5 6
+do
+    create-and-launch-rocket mission-$mission
+done
+```
+
+#### Ranges with brace expansion
+
+To repeat a fixed number of times (for example 0 through 100), use brace expansion:
+
+```bash
+for mission in {0..100}
+do
+  create-and-launch-rocket mission-$mission
+done
+```
+
+If you know C-style loops with init, condition, and increment in one line, Bash also supports similar forms with double parentheses. The word-list `for` loop above is the usual choice for missions, files, and command output.
+
+#### When to use a for loop
+
+Typical uses include:
+
+- Running the same commands many times.
+- Iterating over files.
+- Walking lines in a file.
+- Processing output from other commands.
+
+![Scenarios for using a for loop: repeat commands, iterate files, parse file lines, and process command output.](https://kodekloud.com/kk-media/image/upload/v1752884049/notes-assets/images/Shell-Scripts-for-Beginners-Loops-For/frame_370.jpg)
+
+#### Practical examples
+
+1. **Counting lines in files** - loop over names from `ls` and print each file’s line count:
+
+   ```bash
+   for file in $(ls)
+   do
+     echo "Line count of $file is $(cat $file | wc -l)"
+   done
+   ```
+
+2. **Installing packages** - read package names from a file and install each one:
+
+   ```bash
+   for package in $(cat install-packages.txt)
+   do
+     sudo apt-get -y install $package
+   done
+   ```
+
+3. **Checking server uptimes** - SSH into each host listed in a file and run `uptime` (passwordless SSH keeps this smooth):
+
+   ```bash
+   for server in $(cat servers.txt)
+   do
+     ssh $server "uptime"
+   done
+   ```
+
+These patterns keep scripts maintainable: data lives in files or arguments, loops stay short, and users with little shell experience can follow the flow without editing the script for every run.
+
+#### Practical exercise
+
+**Task:**
+
+We have a few different applications running on this system. The list of applications is stored in the `/home/bob/apps.txt` file. Each application has its logs stored in the `/var/log/apps` directory under a file with its name. Check it out!
+
+A simple version of the script has been developed for you named `/home/bob/count-requests.sh`, which inspects the log file of an application and prints the number of GET, POST, and DELETE requests. Update the script to use a for loop to read the list of applications from `apps.txt`, count the number of requests for each application, and display the results in a tabular format like this:
+
+```
+Log name         GET         POST          DELETE
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -
+
+finance            10           20            50
+
+marketing          20           10            30
+```
+
+**Answer:**
+
+```bash
+echo -e " Log name   \t      GET      \t      POST    \t   DELETE "
+echo -e "------------------------------------------------------------"
+
+for app in $( cat /home/bob/apps.txt )
+do
+  get_requests=$(cat /var/log/apps/${app}_app.log | grep "GET" | wc -l)
+  post_requests=$(cat /var/log/apps/${app}_app.log | grep "POST" | wc -l)
+  delete_requests=$(cat /var/log/apps/${app}_app.log | grep "DELETE" | wc -l)
+
+  echo -e " ${app}    \t ${get_requests}    \t    ${post_requests}   \t   ${delete_requests}"
+done
+```
+
+### 'While' Loops
+
+In this section, we explore the use of while loops in shell scripting with a practical example, a rocket launch script. The initial script is designed to determine the cause of a failure using the rocket debug command when the rocket’s status is “failed.” Below is an example that performs a single status check after liftoff:
+
+```bash
+mission_name=$1
+
+mkdir $mission_name
+
+rocket-add $mission_name
+
+rocket-start-power $mission_name
+rocket-internal-power $mission_name
+rocket-start-sequence $mission_name
+rocket-start-engine $mission_name
+rocket-lift-off $mission_name
+
+rocket_status=$(rocket-status $mission_name)
+
+if [ "$rocket_status" = "failed" ]
+then
+    rocket-debug $mission_name
+fi
+```
+
+The above script demonstrates a basic check. The status command may return one of three states: launching, success, or failed. However, since the rocket might remain in the “launching” state for a few seconds, a single status check might occur too early. This means the script might miss detecting a failure if the rocket is still in the launching phase.
+
+Rather than adding multiple nested conditional checks, make use of `while`:
+
+```bash
+mission_name=$1
+mkdir $mission_name
+rocket-add $mission_name
+rocket-start-power $mission_name
+rocket-internal-power $mission_name
+rocket-start-sequence $mission_name
+rocket-start-engine $mission_name
+rocket-lift-off $mission_name
+rocket_status=$(rocket-status $mission_name)
+while [ "$rocket_status" = "launching" ]
+do
+    sleep 2
+    rocket_status=$(rocket-status $mission_name)
+done
+if [ "$rocket_status" = "failed" ]
+then
+    rocket-debug $mission_name
+fi
+```
+
+#### Example: Infinite Menu-Driven Program
+
+Below is an example of a while loop used to create an infinite menu-driven program. This script displays a simple menu with options to shutdown, restart, or exit:
+
+```bash
+while true
+do
+    echo "1. Shutdown"
+    echo "2. Restart"
+    echo "3. Exit Menu"
+    read -p "Enter your choice: " choice
+
+    if [ "$choice" -eq 1 ]
+    then
+        shutdown now
+    elif [ "$choice" -eq 2 ]
+    then
+        shutdown -r now
+    elif [ "$choice" -eq 3 ]
+    then
+        break
+    else
+        continue
+    fi
+done
+```
+
+#### Practical exercise
+
+**Task:**
+
+Build a menu-driven calculator program. Develop a script `/home/bob/calculator.sh` that, when run:
+
+- Shows a menu with these options: Add, Subtract, Multiply, Divide, Quit
+- Depending on the input, asks for two numbers (Number1 and Number2) and prints the result in the form `Answer=6`
+- Shows the menu again until the user selects option 5 to quit
+
+The script must be executable. Use `chmod +x /home/bob/calculator.sh` if needed.
+
+**Answer:**
+
+```bash
+while true
+do
+  echo "1. Add"
+  echo "2. Subtract"
+  echo "3. Multiply"
+  echo "4. Divide"
+  echo "5. Quit"
+
+  read -p "Enter your choice: " choice
+
+  if [ $choice -eq 1 ]
+  then
+        read -p "Enter Number1: " number1
+        read -p "Enter Number2: " number2
+        echo Answer=$(( $number1 + $number2 ))
+  elif [ $choice -eq 2 ]
+  then
+        read -p "Enter Number1: " number1
+        read -p "Enter Number2: " number2
+        echo Answer=$(( $number1 - $number2 ))
+  elif [ $choice -eq 3 ]
+  then
+        read -p "Enter Number1: " number1
+        read -p "Enter Number2: " number2
+        echo Answer=$(( $number1 * $number2 ))
+  elif [ $choice -eq 4 ]
+  then
+        read -p "Enter Number1: " number1
+        read -p "Enter Number2: " number2
+        echo Answer=$(( $number1 / $number2 ))
+  elif [ $choice -eq 5 ]
+  then
+    break
+  fi
+
+done
+```
+
+### Case statements
+
+Previously, we combined a `while` loop with an "if-elif-else" construct to handle user choices. Although that approach works, using a case statement makes your code simpler, more readable, and easier to manage.
+
+Below is an example of a menu using if and elif statements:
+
+```bash
+echo "1. Shutdown"
+echo "2. Restart"
+echo "3. Exit Menu"
+read -p "Enter your choice: " choice
+if [ $choice -eq 1 ]
+then
+    shutdown now
+elif [ $choice -eq 2 ]
+then
+    shutdown -r now
+elif [ $choice -eq 3 ]
+then
+    break
+else
+    continue
+fi
+```
+
+The same functionality can be achieved more elegantly using a case statement. The structure of a case statement starts with the case keyword and ends with esac (which is “case” spelled backward). Each branch of the case block ends with a double semicolon (;;), and the special pattern \* serves as a catch-all, similar to an else block.
+
+```bash
+while true
+do
+    echo "1. Shutdown"
+    echo "2. Restart"
+    echo "3. Exit Menu"
+    read -p "Enter your choice: " choice
+    case $choice in
+        1) shutdown now ;;
+        2) shutdown -r now ;;
+        3) break ;;
+        *) continue ;;
+    esac
+done
+```
+
+<h2 id="shebang">Shebang</h2>
+
+### Shebang
+
+The shebang plays a critical role in shell scripts. Everything built in this article assumes Bash: `$(( ))` arithmetic, `[[ ]]` tests, brace expansion like `{0..10}`, and `case` blocks with `esac`. Those constructs work when you invoke a file explicitly with `bash script.sh`, but they can fail under `/bin/sh` or `dash`, which many systems use as the default non-interactive shell.
+
+#### Why the default shell matters
+
+When you run `./create-and-launch-rocket lunar-mission`, the kernel reads the first line of the file to decide which interpreter should execute it. Without a shebang, the system may fall back to `sh`, and Bash-only syntax stops working. You might see errors about unknown operators, bad substitutions, or missing `[[` support.
+
+Calling `bash create-and-launch-rocket.sh` sidesteps that problem because you name the interpreter on the command line. A shebang gives you the same guarantee when the script is executable and run directly:
+
+```bash
+#!/bin/bash
+for mission in {0..10}
+do
+    create-and-launch-rocket $mission
+done
+```
+
+With `#!/bin/bash` as the first line, `./launch-all-missions.sh` always runs under Bash, regardless of what shell you use interactively in the terminal.
+
+#### How the shebang works
+
+The shebang must be the very first line of the file (no blank lines or comments above it). It starts with `#!`, followed by the path to the interpreter. Common choices:
+
+| Shebang               | When to use it                                                                              |
+| --------------------- | ------------------------------------------------------------------------------------------- |
+| `#!/bin/bash`         | Script uses Bash features (`[[ ]]`, arrays, brace expansion, `source`, and similar).        |
+| `#!/bin/sh`           | POSIX-only script meant to run on minimal shells. Avoid Bash-only syntax.                   |
+| `#!/usr/bin/env bash` | Prefer when Bash may live in different paths across machines; `env` finds it on the `PATH`. |
+
+The `env` form is a practical default for scripts you copy between laptops, VMs, and containers:
+
+```bash
+#!/usr/bin/env bash
+```
+
+#### Making direct execution work
+
+A shebang alone is not enough. The script file also needs execute permission, as covered in the introduction:
+
+```bash
+chmod +x launch-all-missions.sh
+./launch-all-missions.sh
+```
+
+If you skip `chmod +x`, run `bash launch-all-missions.sh` instead. Both approaches are valid; the shebang matters most when you want the script to behave like any other command on your `PATH`.
+
+#### Portability takeaway
+
+Pick one interpreter, declare it with a shebang, and match the syntax to that choice. Bash scripts should start with `#!/bin/bash` or `#!/usr/bin/env bash`. POSIX `sh` scripts should stick to features defined in the POSIX shell standard. Mixing Bash syntax with a `#!/bin/sh` shebang is a common source of "works on my machine" failures in CI, cron jobs, and minimal Docker images where `sh` is not Bash.
+
+The shebang ensures your script always runs under the interpreter you wrote it for, so features like `for mission in {0..10}` and `[[ "$status" == *failed* ]]` behave the same every time you execute the file.
+
+### Exit Codes
+
+When you run a command, it either executes successfully or fails. For instance, listing the contents of the current directory with the command below executes successfully and returns an exit status of zero:
+
+```bash
+$ ls
+/home/root/tmp
+```
+
+Conversely, if you run a command that does not exist, an error is displayed and a non-zero exit code is returned:
+
+```bash
+$ lss
+Failed: command not found
+```
+
+> When a command runs successfully, it returns an exit status of 0; when it fails, it returns a non-zero value. These exit codes are not shown in the command output but are stored in the built-in variable `$?`.
+
+To view the exit code immediately after executing a command, use:
+
+```bash
+$ ls
+/home/root/tmp
+
+$ echo $?
+0
+
+$ lss
+Failed: command not found
+
+$ echo $?
+127
+```
+
+In our previous script that starts a rocket launch mission, even if the launch fails, the script returns an exit code of 0 because it only prints a failure message without setting a non-zero index:
+
+```bash
+mkdir $mission_name
+rocket-add $mission_name
+rocket-start-power $mission_name
+rocket-internal-power $mission_name
+rocket-start-sequence $mission_name
+rocket-start-engine $mission_name
+rocket-lift-off $mission_name
+rocket_status=$(rocket-status $mission_name)
+while [ "$rocket_status" == "launching" ]
+do
+  sleep 2
+  rocket_status=$(rocket-status $mission_name)
+done
+if [ "$rocket_status" = "failed" ]
+then
+  rocket-debug $mission_name
+fi
+```
+
+If you run the script, the output might be:
+
+```bash
+$ create-and-launch-rocket
+failed
+```
+
+```bash
+However, checking the exit code reveals that it remains 0:
+$ echo $?
+0
+```
+
+To address this issue, update the script so that it returns a non-zero exit code (typically 1) when the launch fails. Here is the improved version of the script:
+
+```bash
+if [ "$rocket_status" = "failed" ]
+then
+    rocket-debug $mission_name
+    exit 1
+fi
+```
+
+> Always ensure that your scripts return an appropriate exit code. Explicitly returning a non-zero code for failure conditions facilitates better integration with other systems and scripts.
+
+### Functions
+
+The way you can handle duplicated code is encapsulate repeated code into a function.
+
+Reusing a previous script, here's an example of a functon definition:
+
+```bash
+function launch-rocket() {
+  mission_name=$1
+  mkdir "$mission_name"
+
+  rocket-add "$mission_name"
+  rocket-start-power "$mission_name"
+  rocket-internal-power "$mission_name"
+  rocket-start-sequence "$mission_name"
+  rocket-start-engine "$mission_name"
+  rocket-lift-off "$mission_name"
+
+  rocket_status=$(rocket-status "$mission_name")
+  while [ "$rocket_status" = "launching" ]
+  do
+    sleep 2
+    rocket_status=$(rocket-status "$mission_name")
+  done
+
+  if [ "$rocket_status" = "failed" ]
+  then
+    rocket-debug "$mission_name"
+    return 1
+  fi
+}
+```
+
+The function `launch-rocket` now bundles the entire rocket launch process. You only need to call the function with the desired mission name whenever required:
+
+```bash
+launch-rocket lunar-mission
+launch-rocket mars-mission
+launch-rocket saturn-mission
+launch-rocket mercury-mission
+```
+
+#### `exit` vs `return`
+
+Notice the use of `return 1` in the function. In the initial version, `exit 1` would terminate the entire script if any individual mission failed. By using `return 1` instead, only the function call terminates with an error, which allows the main script to continue executing and manage subsequent missions.

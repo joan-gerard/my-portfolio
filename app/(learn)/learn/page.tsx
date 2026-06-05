@@ -1,6 +1,7 @@
+import { LearnArticleCard } from "@/components/learn/LearnArticleCard";
 import { LearnCourseCard } from "@/components/learn/LearnCourseCard";
 import { SectionHeader } from "@/components/utils";
-import { getAllCourses } from "@/lib/learn";
+import { getAllArticles, getAllCourses } from "@/lib/learn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 
 export default function LearnPage() {
   const courses = getAllCourses();
+  const articles = getAllArticles();
 
   return (
     <div
@@ -28,6 +30,7 @@ export default function LearnPage() {
           as="h1"
         />
 
+        {/* Courses */}
         {courses.length === 0 ? (
           <p className="rounded-3xl border border-dashed border-[var(--hairline-dark)] bg-black/20 px-6 py-16 text-center text-[var(--ink-dark-muted)]">
             No courses yet. Add an MDX directory under{" "}
@@ -42,11 +45,30 @@ export default function LearnPage() {
               <LearnCourseCard
                 key={course.slug}
                 course={course}
-                isLast={i === courses.length - 1}
+                isLast={i === courses.length - 1 && articles.length === 0}
               />
             ))}
           </ul>
         )}
+
+        {/* Standalone articles */}
+        {articles.length > 0 ? (
+          <section className="mt-20">
+            <div className="mb-8 border-t border-[var(--hairline-dark)] pt-12">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--ink-dark-muted)]">
+                Notes &amp; reference
+              </p>
+              <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-white md:text-3xl">
+                Standalone articles
+              </h2>
+            </div>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {articles.map((article) => (
+                <LearnArticleCard key={article.slug} article={article} />
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </section>
     </div>
   );

@@ -10,6 +10,7 @@ import {
 } from "@/constants/learnCourses";
 
 const LEARN_DIR = path.join(process.cwd(), "content/learn");
+const LEARN_ARTICLES_DIR = path.join(LEARN_DIR, "articles");
 
 export type LearnChapterFrontmatter = {
   title: string;
@@ -129,4 +130,86 @@ export function generateLearnStaticParams(): {
 export function getReadingMinutes(mdxContent: string): number {
   const words = mdxContent.trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 200));
+}
+
+// ---------------------------------------------------------------------------
+// Standalone learn articles  (/learn/articles/[slug])
+// ---------------------------------------------------------------------------
+
+export type LearnArticleFrontmatter = {
+  title: string;
+  description: string;
+  draft?: boolean;
+  tags?: string[];
+  notesFromKodeKloud?: boolean;
+};
+
+export type LearnArticleListItem = LearnArticleFrontmatter & { slug: string };
+
+function isLearnArticleFrontmatter(
+  data: unknown,
+): data is LearnArticleFrontmatter {
+  if (!data || typeof data !== "object") return false;
+  const o = data as Record<string, unknown>;
+  if (o.draft !== undefined && typeof o.draft !== "boolean") return false;
+  if (
+    o.notesFromKodeKloud !== undefined &&
+    typeof o.notesFromKodeKloud !== "boolean"
+  )
+    return false;
+  if (o.tags !== undefined) {
+    if (!Array.isArray(o.tags)) return false;
+    if (!(o.tags as unknown[]).every((t) => typeof t === "string")) return false;
+  }
+  return typeof o.title === "string" && typeof o.description === "string";
+}
+
+/** All published standalone learn articles, sorted alphabetically by title. */
+export function getAllArticles(): LearnArticleListItem[] {
+  if (!fs.existsSync(LEARN_ARTICLES_DIR)) return [];
+  const slugs = fs
+    .readdirSync(LEARN_ARTICLES_DIR)
+    .filter((f) => f.endsWith(".mdx"))
+    .map((f) => f.replace(/\.mdx$/, ""));
+
+  const articles: LearnArticleListItem[] = [];
+  for (const slug of slugs) {
+    const raw = fs.readFileSync(
+      path.join(LEARN_ARTICLES_DIR, `${slug}.mdx`),
+      "utf8",
+    );
+    const { data } = matter(raw);
+    if (!isLearnArticleFrontmatter(data)) continue;
+    if (data.draft === true && process.env.NODE_ENV !== "development") continue;
+    articles.push({ slug, ...data });
+  }
+  return articles.sort((a, b) => a.title.localeCompare(b.title));
+}
+
+/**
+ * Load and parse a single standalone learn article.
+ * Wrapped in React.cache so repeated calls within the same request are free.
+ */
+export const loadArticle = cache(
+  (
+    slug: string,
+  ): { content: string; frontmatter: LearnArticleFrontmatter } | null => {
+    const filePath = path.join(LEARN_ARTICLES_DIR, `${slug}.mdx`);
+    if (!fs.existsSync(filePath)) return null;
+    const raw = fs.readFileSync(filePath, "utf8");
+    const { data, content } = matter(raw);
+    if (!isLearnArticleFrontmatter(data)) return null;
+    if (data.draft === true && process.env.NODE_ENV !== "development")
+      return null;
+    return { content, frontmatter: data };
+  },
+);
+
+/** Generate Next.js static params for all published standalone articles. */
+export function generateArticleStaticParams(): { slug: string }[] {
+  if (!fs.existsSync(LEARN_ARTICLES_DIR)) return [];
+  return fs
+    .readdirSync(LEARN_ARTICLES_DIR)
+    .filter((f) => f.endsWith(".mdx"))
+    .map((f) => ({ slug: f.replace(/\.mdx$/, "") }));
 }
