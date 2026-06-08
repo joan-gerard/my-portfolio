@@ -1,0 +1,550 @@
+---
+title: "How to Deploy a LAMP Stack E-commerce App on Ubuntu"
+date: "2026-06-05"
+description: A step-by-step guide to spinning up an Ubuntu VM with Lima and deploying a LAMP stack e-commerce application.
+tags:
+  - VM
+  - Docker
+  - Shell Script
+draft: true
+---
+
+## Provision an Ubuntu VM with Lima
+
+### Start the VM
+
+```bash
+$ limactl start --name=lamp-ecommerce template://ubuntu
+```
+
+Once done, the Ubuntu VM will be running:
+
+```bash
+$ limactl list
+
+NAME              STATUS     SSH                VMTYPE    ARCH       CPUS    MEMORY    DISK      DIR
+lamp-ecommerce    Running    127.0.0.1:61421    vz        aarch64    4       4GiB      100GiB    ~/.lima/lamp-ecommerce
+```
+
+### Shell into the VM
+
+```bash
+$ limactl shell lamp-ecommerce
+```
+
+Verify you're on Ubuntu:
+
+```bash
+$ cat /etc/os-release
+
+PRETTY_NAME="Ubuntu 25.10"
+NAME="Ubuntu"
+VERSION_ID="25.10"
+VERSION="25.10 (Questing Quokka)"
+VERSION_CODENAME=questing
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=questing
+LOGO=ubuntu-logo
+```
+
+### Update the package list
+
+I'll update the package list before installing anything:
+
+```bash
+sudo apt update
+```
+
+> `sudo apt update` doesn't actually install or upgrade anything — it just refreshes the list of available packages so your system knows what's out there. Think of it as syncing a catalogue before shopping.
+
+## Install the LAMP stack
+
+### Install Apache
+
+```bash
+sudo apt install -y apache2
+```
+
+Verify it is running:
+
+```bash
+sudo systemctl status apache2
+```
+
+### Install MariaDB
+
+```bash
+sudo apt install -y mariadb-server
+```
+
+MariaDB is up and running. Next I'll install PHP and the necessary modules.
+
+### Install PHP
+
+```bash
+sudo apt install -y php libapache2-mod-php php-mysql
+```
+
+At this point I have the full LAMP stack installed.
+
+## Secure and configure MariaDB
+
+Jump into the MariaDB shell:
+
+```bash
+sudo mariadb
+```
+
+Execute the following commands to create the database and application user:
+
+```sql
+CREATE DATABASE ecomdb;
+CREATE USER 'ecomuser'@'localhost' IDENTIFIED BY 'ecompassword';
+GRANT ALL PRIVILEGES ON ecomdb.* TO 'ecomuser'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+## Clone and deploy the application
+
+### Clone the repository
+
+Lima mounts your Mac's home directory as read-only by default. I need to clone into a writable location inside the VM:
+
+```bash
+cd /tmp
+git clone https://github.com/kodekloudhub/learning-app-ecommerce.git
+```
+
+### Inspect the application code
+
+The application used for this project is a legacy app, so I need to inspect the code before running anything.
+
+First I make sure the PHP app uses `mysqli` and not the old deprecated `mysql_` functions. That seems to be the case.
+
+I also need to find the SQL file to load the inventory data:
+
+```bash
+$ find /tmp/learning-app-ecommerce -name "*.sql"
+
+/tmp/learning-app-ecommerce/assets/db-load-script.sql
+```
+
+I'll quickly peek at the SQL file to understand what it creates:
+
+```bash
+cat /tmp/learning-app-ecommerce/assets/db-load-script.sql
+```
+
+```sql
+USE ecomdb;
+CREATE TABLE products (id mediumint(8) unsigned NOT NULL auto_increment,Name varchar(255) default NULL,Price varchar(255) default NULL, ImageUrl varchar(255) default NULL,PRIMARY KEY (id)) AUTO_INCREMENT=1;
+
+INSERT INTO products (Name,Price,ImageUrl) VALUES ("Laptop","100","c-1.png"),("Drone","200","c-2.png"),("VR","300","c-3.png"),("Tablet","50","c-5.png"),("Watch","90","c-6.png"),("Phone Covers","20","c-7.png"),("Phone","80","c-8.png"),("Laptop","150","c-4.png");
+```
+
+Clean and simple — just a `products` table with some inventory data. No compatibility issues with recent MariaDB versions.
+
+### Load the inventory data
+
+Load it into the database:
+
+```bash
+sudo mariadb < /tmp/learning-app-ecommerce/assets/db-load-script.sql
+```
+
+Then verify the data loaded correctly:
+
+```bash
+sudo mariadb -e "SELECT * FROM ecomdb.products;"
+```
+
+> The `-e` flag stands for "execute". It tells MariaDB to run the SQL command provided in the quotes and then immediately exit back to your terminal, without opening the interactive database prompt.
+
+```bash
++----+--------------+-------+----------+
+| id | Name         | Price | ImageUrl |
++----+--------------+-------+----------+
+|  1 | Laptop       | 100   | c-1.png  |
+|  2 | Drone        | 200   | c-2.png  |
+|  3 | VR           | 300   | c-3.png  |
+|  4 | Tablet       | 50    | c-5.png  |
+|  5 | Watch        | 90    | c-6.png  |
+|  6 | Phone Covers | 20    | c-7.png  |
+|  7 | Phone        | 80    | c-8.png  |
+|  8 | Laptop       | 150   | c-4.png  |
++----+--------------+-------+----------+
+```
+
+### Deploy files and configure Apache
+
+Now I'll copy the application files to Apache's web root:
+
+```bash
+sudo cp -r /tmp/learning-app-ecommerce/* /var/www/html/
+```
+
+The database connection code uses environment variables rather than hardcoded values. I need to set those variables so Apache can pass them to PHP. I'll do that by editing Apache's environment file:
+
+```bash
+sudo nano /etc/apache2/envvars
+```
+
+Add these lines at the end of the file:
+
+```bash
+export DB_HOST=localhost
+export DB_USER=ecomuser
+export DB_PASSWORD=ecompassword
+export DB_NAME=ecomdb
+```
+
+Restart Apache:
+
+```bash
+sudo systemctl restart apache2
+```
+
+### Fix DirectoryIndex and verify the app
+
+Now I'll test if the app is working:
+
+```bash
+curl http://localhost
+```
+
+I'm getting the Apache default page, which means Apache is serving `index.html` instead of `index.php`. I need to tell Apache to prioritize `index.php`.
+
+Edit the Apache directory config:
+
+```bash
+sudo nano /etc/apache2/mods-enabled/dir.conf
+```
+
+You'll see something like:
+
+```
+DirectoryIndex index.html index.cgi index.pl index.php index.xhtml index.htm
+```
+
+Move `index.php` to the front:
+
+```
+DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+```
+
+Save, then restart Apache:
+
+```bash
+sudo systemctl restart apache2
+```
+
+Then test again:
+
+```bash
+curl http://localhost
+```
+
+I can now see the list of products.
+
+## Recap and next steps
+
+The app is fully working. Here's a quick recap of what I've accomplished:
+
+- Provisioned an Ubuntu VM locally using Lima
+- Installed and configured the full LAMP stack (Apache, MariaDB, PHP)
+- Created the database, user, and permissions
+- Loaded inventory data from a SQL script
+- Deployed the application code
+- Configured environment variables for database credentials
+- Fixed Apache to serve `index.php` as the default page
+
+That's the KodeKloud project completed on my own local infrastructure.
+
+Next steps:
+
+- Write the `setup.sh` shell script that automates everything I just did manually — that's the actual deliverable the course expects
+- Then containerize it with Docker Compose for the portfolio demo
+
+## Project deliverable: automate with setup.sh
+
+### Script requirements
+
+Here's what the script needs to do, in order:
+
+1. Update apt packages
+2. Install Apache, MariaDB, PHP
+3. Start and enable all services
+4. Configure MariaDB — create database, user, grants
+5. Load the SQL data
+6. Copy app files to `/var/www/html/`
+7. Set environment variables in `/etc/apache2/envvars`
+8. Fix `dir.conf` to prioritize `index.php`
+9. Restart Apache
+
+### Create and write setup.sh
+
+I'll create the project directory and script:
+
+```bash
+mkdir -p /tmp/lamp-ecommerce
+nano /tmp/lamp-ecommerce/setup.sh
+```
+
+Write the script:
+
+```bash
+#!/bin/bash
+
+set -e
+
+echo "==> Updating package list..."
+sudo apt update -y
+
+echo "==> Installing Apache, MariaDB, PHP..."
+sudo apt install -y apache2 mariadb-server php libapache2-mod-php php-mysql
+
+echo "==> Starting and enabling services..."
+sudo systemctl start apache2
+sudo systemctl enable apache2
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+
+echo "==> Configuring MariaDB..."
+sudo mariadb -e "CREATE DATABASE IF NOT EXISTS ecomdb;"
+sudo mariadb -e "CREATE USER IF NOT EXISTS 'ecomuser'@'localhost' IDENTIFIED BY 'ecompassword';"
+sudo mariadb -e "GRANT ALL PRIVILEGES ON ecomdb.* TO 'ecomuser'@'localhost';"
+sudo mariadb -e "FLUSH PRIVILEGES;"
+
+echo "==> Loading inventory data..."
+sudo mariadb < /tmp/learning-app-ecommerce/assets/db-load-script.sql
+
+echo "==> Deploying application files..."
+sudo cp -r /tmp/learning-app-ecommerce/* /var/www/html/
+
+echo "==> Configuring Apache environment variables..."
+echo 'export DB_HOST=localhost' | sudo tee -a /etc/apache2/envvars
+echo 'export DB_USER=ecomuser' | sudo tee -a /etc/apache2/envvars
+echo 'export DB_PASSWORD=ecompassword' | sudo tee -a /etc/apache2/envvars
+echo 'export DB_NAME=ecomdb' | sudo tee -a /etc/apache2/envvars
+
+echo "==> Configuring Apache to serve index.php first..."
+sudo sed -i 's/DirectoryIndex index.html/DirectoryIndex index.php index.html/' /etc/apache2/mods-enabled/dir.conf
+
+echo "==> Restarting Apache..."
+sudo systemctl restart apache2
+
+echo "==> Done! App should be running at http://localhost"
+```
+
+> `set -e` tells the script to exit immediately if any command fails. By default, Bash scripts will keep running the next line even if a previous command returns an error. Adding `set -e` prevents an error from causing a catastrophic chain reaction down the line.
+
+### Make the script executable and validate syntax
+
+```bash
+chmod +x /tmp/lamp-ecommerce/setup.sh
+```
+
+I'll verify the script is valid and has no obvious syntax errors:
+
+```bash
+bash -n /tmp/lamp-ecommerce/setup.sh
+```
+
+> `-n` does a dry run and checks syntax without actually executing anything. If it returns with no output, the script is clean.
+
+## Prepare the repo for deployment
+
+I'll get the project into a proper repo structure. I want these files together:
+
+```
+lamp-ecommerce/
+├── README.md
+├── setup.sh
+└── assets/
+    └── db-load-script.sql
+```
+
+I only have the `setup.sh` file so far. I need to copy `assets/db-load-script.sql` from the cloned app and create my own `README.md`.
+
+I also need to update the `db-load-script.sql` path in `setup.sh`.
+
+Find this line:
+
+```bash
+sudo mariadb < /tmp/learning-app-ecommerce/assets/db-load-script.sql
+```
+
+Replace it with:
+
+```bash
+sudo mariadb < ./assets/db-load-script.sql
+```
+
+One final syntax check:
+
+```bash
+bash -n /tmp/lamp-ecommerce/setup.sh
+```
+
+Create a GitHub repo for this app, then initialize `git` and push:
+
+```bash
+cd /tmp/lamp-ecommerce
+git init
+git add .
+git commit -m "Initial commit: LAMP stack setup script and assets"
+git branch -M main
+git remote add origin https://github.com/[gh-profile]/lamp-ecommerce.git
+git push -u origin main
+```
+
+## So far
+
+Here's where I am:
+
+**Done:**
+
+- Provisioned an Ubuntu VM locally using Lima
+- Manually deployed the full LAMP stack
+- Got the app running at http://localhost
+- Wrote a `setup.sh` script that automates the whole process
+- Pushed everything to GitHub
+
+**Still to do:**
+
+- Docker Compose setup for the portfolio demo
+- Test `setup.sh` on a fresh VM
+- Flesh out the README
+
+## Docker
+
+Before I write anything, I'll think through the architecture. With Docker Compose I'll have two containers talking to each other:
+
+- `web` — Apache + PHP serving the app
+- `db` — MariaDB with the `ecomdb` database
+
+The `setup.sh` script was for a single machine where everything runs together. Docker Compose separates the concerns properly, which is also closer to how a real production environment works.
+
+That means I'll need:
+
+- `docker-compose.yml` to define the two services
+- `Dockerfile` to build the web container with Apache + PHP + app code
+- The SQL file to seed the database on startup
+
+I'll work on the Docker Compose setup on my Mac.
+
+Docker Compose is typically used for local development — I'd run it on my Mac to spin up the app quickly without needing a VM. In production, I'd use something like Kubernetes or ECS to orchestrate containers, not Compose.
+
+So my current workflow looks like this:
+
+As I value the difference between a dev environment and a server environment, I have two deployment approaches: a shell script for provisioning a real Ubuntu server, and a Docker Compose setup for local development. Same app, two different contexts.
+
+- **Lima VM** → simulates a production server, where I deploy manually with `setup.sh`
+- **Mac with Docker Compose** → local development environment, where I can spin up the app instantly with one command
+
+Now I'll create the Docker files. I need two things:
+
+- A `Dockerfile` to build the web container
+- A `docker-compose.yml` to define both services
+
+I'll also copy the PHP application source into an `app/` directory in the project root — that's what the Dockerfile expects.
+
+```
+lamp-ecommerce/
+├── app/                  # PHP files from learning-app-ecommerce
+├── assets/
+│   └── db-load-script.sql
+├── docker-compose.yml
+├── Dockerfile
+├── README.md
+└── setup.sh
+```
+
+I'll start with the `Dockerfile`. Create it in the project root:
+
+```bash
+touch Dockerfile
+```
+
+Then open it and add:
+
+```dockerfile
+FROM php:8.4-apache
+
+# Install PHP MySQL extension
+RUN docker-php-ext-install mysqli
+
+# Copy app files to Apache web root
+COPY app/ /var/www/html/
+
+# Generate .env file from environment variables at runtime
+CMD ["/bin/sh", "-c", "printf 'DB_HOST=%s\nDB_USER=%s\nDB_PASSWORD=%s\nDB_NAME=%s\n' \"$DB_HOST\" \"$DB_USER\" \"$DB_PASSWORD\" \"$DB_NAME\" > /var/www/html/.env && apache2-foreground"]
+```
+
+Then create `docker-compose.yml`:
+
+```yaml
+services:
+  web:
+    build: .
+    ports:
+      - "80:80"
+    environment:
+      DB_HOST: db
+      DB_USER: ecomuser
+      DB_PASSWORD: ecompassword
+      DB_NAME: ecomdb
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:11.8
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ecomdb
+      MYSQL_USER: ecomuser
+      MYSQL_PASSWORD: ecompassword
+    volumes:
+      - ./assets/db-load-script.sql:/docker-entrypoint-initdb.d/db-load-script.sql
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+```
+
+Once I've created both files, I'll run:
+
+```bash
+docker compose up --build
+```
+
+That's the full setup working end to end. Here's a recap of what I have now:
+
+**VM deployment (Lima)**
+
+- Ubuntu 25.10 VM provisioned locally
+- Full LAMP stack deployed manually
+- `setup.sh` automates the entire process on any fresh Ubuntu server
+
+**Docker Compose (Mac)**
+
+- Two containers — `web` (Apache + PHP) and `db` (MariaDB)
+- The KodeKloud e-commerce app served at http://localhost
+- Database seeded automatically on startup
+- One command to run the whole thing: `docker compose up`
+
+Now I'll commit the Docker files and push to GitHub:
+
+```bash
+git add Dockerfile docker-compose.yml
+git commit -m "Add Docker Compose setup for local development"
+git push
+```
+
+Then I'll update the README to document both deployment approaches.

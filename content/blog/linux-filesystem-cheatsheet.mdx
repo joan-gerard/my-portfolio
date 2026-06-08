@@ -85,6 +85,7 @@ Companion cheatsheet for [Linux for Beginners](/blog/linux-for-beginners). Every
 | `/etc/hosts` | Local hostname-to-IP mappings |
 | `/etc/network/interfaces` | Persistent network config example |
 | `/etc/nsswitch.conf` | Name service resolution order |
+| `/etc/os-release` | OS name, version, and distributor ID (read by scripts and package tools) |
 | `/etc/passwd` | User account database |
 | `/etc/resolv.conf` | DNS nameservers and search domains |
 | `/etc/shadow` | Encrypted passwords and aging fields |
@@ -234,7 +235,7 @@ These paths are shown in command output and are useful context, though they are 
 ├── dev/          # device nodes (sda*, sdb*, …)
 ├── etc/          # system configuration
 │   ├── apt/sources.list
-│   ├── group, passwd, shadow
+│   ├── group, os-release, passwd, shadow
 │   ├── hosts, resolv.conf, nsswitch.conf
 │   ├── network/interfaces
 │   ├── sudoers, sudoers.d/
