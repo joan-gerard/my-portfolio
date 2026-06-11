@@ -280,12 +280,13 @@ Here's what the script needs to do, in order:
 1. Update apt packages
 2. Install Apache, MariaDB, PHP
 3. Start and enable all services
-4. Configure MariaDB — create database, user, grants
-5. Load the SQL data
-6. Copy app files to `/var/www/html/`
-7. Set environment variables in `/etc/apache2/envvars`
-8. Fix `dir.conf` to prioritize `index.php`
-9. Restart Apache
+4. Configure the firewall with UFW
+5. Configure MariaDB — create database, user, grants
+6. Load the SQL data
+7. Copy app files to `/var/www/html/`
+8. Set environment variables in `/etc/apache2/envvars`
+9. Fix `dir.conf` to prioritize `index.php`
+10. Restart Apache
 
 ### Create and write setup.sh
 
@@ -315,6 +316,12 @@ sudo systemctl enable apache2
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
 
+echo "==> Configuring firewall..."
+sudo ufw allow OpenSSH
+sudo ufw allow 80/tcp
+sudo ufw allow 3306/tcp
+sudo ufw --force enable
+
 echo "==> Configuring MariaDB..."
 sudo mariadb -e "CREATE DATABASE IF NOT EXISTS ecomdb;"
 sudo mariadb -e "CREATE USER IF NOT EXISTS 'ecomuser'@'localhost' IDENTIFIED BY 'ecompassword';"
@@ -343,6 +350,18 @@ echo "==> Done! App should be running at http://localhost"
 ```
 
 > `set -e` tells the script to exit immediately if any command fails. By default, Bash scripts will keep running the next line even if a previous command returns an error. Adding `set -e` prevents an error from causing a catastrophic chain reaction down the line.
+
+### Configure the firewall with UFW
+
+On a real Ubuntu server — unlike my local Lima VM — the machine is reachable from the network. I need a firewall to block everything by default and only allow the traffic the app actually needs.
+
+**UFW** (Uncomplicated Firewall) is Ubuntu's built-in tool for managing `iptables` rules without writing low-level firewall syntax by hand. The script opens three ports before enabling it:
+
+- **OpenSSH** — keeps SSH access open so I don't lock myself out of the server
+- **80/tcp** — allows HTTP traffic to Apache
+- **3306/tcp** — allows MariaDB connections, which matters if the database runs on a separate host or another service needs remote access
+
+`ufw --force enable` turns the firewall on non-interactively, which is what I want inside an automated setup script.
 
 ### Make the script executable and validate syntax
 
