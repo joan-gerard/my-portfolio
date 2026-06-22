@@ -1,0 +1,561 @@
+---
+title: "Learning Go as a JavaScript Developer"
+date: "2026-06-11"
+description: "Notes from my first pass through Go basics: what felt familiar from JavaScript, what surprised me, and the syntax and concepts that are genuinely new."
+tags:
+  - Golang
+draft: true
+---
+
+I started learning Go to understand the language behind tools like Docker and Kubernetes. I am already comfortable with JavaScript, so I am not documenting everything a beginner needs. I am writing down what was **new to me**: Go's syntax, its type system, and the ideas that do not map cleanly onto JS.
+
+This article covers the basics I worked through: types and variables, control-flow quirks, slices, maps, functions, pointers, structs, methods, and interfaces.
+
+## Getting started
+
+Go is a statically typed, compiled language developed at Google. Installation instructions live at [go.dev/doc/install](https://go.dev/doc/install). On macOS, the installer updates your `PATH` for you; confirm with:
+
+```bash
+go version
+```
+
+My first program looked like this:
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello World!")
+}
+```
+
+A few things jumped out immediately compared to JavaScript:
+
+| Go | JavaScript equivalent |
+| --- | --- |
+| `package main` | No direct equivalent: every Go file belongs to a package |
+| `import "fmt"` | `import` from a module, but paths are URL-like (`"fmt"` is the standard library) |
+| `func main()` | The entry point, like top-level code in a script, but explicit |
+| No semicolons | Same freedom as JS (the formatter `gofmt` handles layout) |
+
+Run a single file with `go run main.go`.
+
+## Types and variables
+
+### Static typing, but not as verbose as I feared
+
+I already understand static vs dynamic typing from TypeScript annotations and from watching typed languages from the outside. Go is **statically typed**: the compiler catches type errors before run time, unlike JavaScript where `1 + "two"` becomes `"1two"`.
+
+What felt different from both JS and TypeScript:
+
+- Types are **required at compile time**, not optional annotations.
+- The compiler **infers** types when you use `:=`, so you do not have to write them everywhere.
+
+Basic types I keep reaching for:
+
+- `int`, `float64`, `string`, `bool`
+
+```go
+var greeting string = "Hello world" // explicit
+name := "Harry"                      // inferred as string
+```
+
+**JavaScript equivalent:** `let greeting = "Hello world"` or `const name = "Harry"`. The difference is that `name = 42` would fail at compile time in Go, not at run time.
+
+### The `:=` shorthand
+
+Inside functions, `:=` declares and assigns in one step. I reach for it constantly.
+
+```go
+score := 78
+```
+
+You cannot use `:=` at package level; there you need `var`. Reassigning with `=` is fine as long as the type stays the same.
+
+### Zero values
+
+In JavaScript, an uninitialized `let` binding is `undefined`. In Go, every variable gets a **zero value** when declared without an initializer:
+
+| Type | Zero value |
+| --- | --- |
+| `bool` | `false` |
+| `int` | `0` |
+| `float64` | `0.0` |
+| `string` | `""` |
+| pointers, slices, maps, interfaces | `nil` |
+
+```go
+var count int
+fmt.Println(count) // 0
+```
+
+This removed a whole class of "is it undefined?" questions: the default is always defined.
+
+### Printing and formatting
+
+`fmt.Println` adds a newline; `fmt.Print` does not. For formatted output, `fmt.Printf` uses verbs like `%s`, `%d`, `%v`:
+
+```go
+fmt.Printf("Hey, %s! You scored %d/100", name, score)
+```
+
+**JavaScript equivalent:** template literals: `` `Hey, ${name}! You scored ${score}/100` ``. Go has no built-in string interpolation; `Printf` (or `Sprintf`) is the idiomatic approach.
+
+Useful format verbs I keep looking up:
+
+| Verb | Meaning |
+| --- | --- |
+| `%v` | Default format |
+| `%T` | Type of the value |
+| `%d` | Integer |
+| `%t` | Boolean |
+| `%f` | Float |
+
+### Type conversion
+
+Go does not coerce types implicitly. Conversion is explicit:
+
+```go
+var i int = 90
+var f float64 = float64(i) // 90.00
+
+var f2 float64 = 45.89
+var i2 int = int(f2) // 45, truncates; does not round
+```
+
+For strings, the `strconv` package replaces JavaScript's `parseInt` / `String()`:
+
+```go
+s := strconv.Itoa(42)       // int → string
+n, err := strconv.Atoi("200") // string → int (returns error)
+```
+
+Always check `err` from `Atoi`: failed parsing returns `0` and a non-nil error, similar in spirit to `parseInt` returning `NaN` but more explicit.
+
+### Variable scope
+
+Same idea as JavaScript block scope with `{ }`: inner blocks can see outer variables, not the reverse. Package-level `var` declarations are visible across the whole package (like module-level `const`/`let` in JS).
+
+## Control flow: mostly familiar, a few Go quirks
+
+I skipped deep notes on `if`, `else`, loops, and operators; they work much like JavaScript. These are the differences worth remembering:
+
+**`else` must sit on the same line as the closing `}` of `if`:**
+
+```go
+if fruit == "apple" {
+    fmt.Println("apple")
+} else { // ← this brace pairing is required
+    fmt.Println("not apple")
+}
+```
+
+**`switch` does not fall through by default** (unlike JS `switch` without `break`, which also does not fall through, but Go makes this explicit). Use `fallthrough` only when you really want the next case to run.
+
+**Go has only `for`**: no `while` keyword. A while-style loop is just `for condition { }`:
+
+```go
+i := 1
+for i <= 5 {
+    fmt.Println(i * i)
+    i++
+}
+```
+
+**Integer division truncates:** `5 / 2` is `2`, not `2.5`. In JavaScript, `/` always produces a float.
+
+**`++` and `--` are statements, not expressions**: you cannot write `j = i++` or use them inside another expression.
+
+## Arrays and slices
+
+This is where Go diverged most from JavaScript arrays.
+
+### Fixed-size arrays
+
+Go arrays have a **fixed length that is part of the type**. `[3]int` and `[5]int` are different types.
+
+```go
+var grades [5]int           // [0 0 0 0 0]
+marks := [3]int{10, 20, 30}
+names := [...]string{"Rachel", "Phoebe", "Monica"} // length inferred
+```
+
+**JavaScript equivalent:** fixed-length arrays do not really exist: `new Array(5)` creates a sparse array with holes, which behaves differently. In practice I rarely use Go arrays directly; slices are what I reach for.
+
+### Slices: the dynamic collection
+
+A **slice** is a view over an underlying array. It is what I use instead of JavaScript arrays day to day.
+
+```go
+grades := []int{10, 20, 30}
+```
+
+A slice has three parts: a pointer to the array, a **length** (`len`), and a **capacity** (`cap`).
+
+```go
+slice := make([]int, 5, 10) // length 5, capacity 10
+fmt.Println(len(slice), cap(slice)) // 5 10
+```
+
+**Slicing** an array or another slice with `[low:high]`: `high` is exclusive:
+
+```go
+arr := [10]int{10, 20, 30, 40, 50, 60, 70, 80, 90, 100}
+slice := arr[1:8] // [20 30 40 50 60 70 80]
+```
+
+**JavaScript equivalent:** `arr.slice(1, 8)`: similar syntax, but Go slices share the underlying array. Mutating a slice can mutate the source:
+
+```go
+arr := [5]int{10, 20, 30, 40, 50}
+slice := arr[:3]
+slice[1] = 9000
+fmt.Println(arr) // [10 9000 30 40 50]
+```
+
+In JavaScript, `slice()` returns a shallow copy of the array segment, so mutating the copy does not affect the original (for primitive elements).
+
+**Growing with `append`:**
+
+```go
+slice = append(slice, 10, 20, 30)
+slice = append(slice, anotherSlice...) // spread-like syntax
+```
+
+If capacity runs out, `append` allocates a new backing array. Reassign the result; `append` may return a new slice header:
+
+```go
+slice = append(slice, value)
+```
+
+**Deleting** has no built-in: splice with two sub-slices:
+
+```go
+i := 2
+newSlice := append(arr[:i], arr[i+1:]...)
+```
+
+**`range` for iteration**, like `for...of` with index:
+
+```go
+for index, value := range grades {
+    fmt.Println(index, value)
+}
+for _, value := range grades { // ignore index
+    fmt.Println(value)
+}
+```
+
+## Maps
+
+Maps are Go's hash tables, closest to JavaScript objects used as dictionaries or `Map`.
+
+```go
+codes := map[string]string{"en": "English", "fr": "French"}
+```
+
+### The nil map trap
+
+Declaring a map with `var` creates a **nil** map. Writing to it panics:
+
+```go
+var codes map[string]string
+codes["en"] = "English" // panic: assignment to entry in nil map
+```
+
+Initialize with a literal or `make`:
+
+```go
+codes := make(map[string]string)
+codes["en"] = "English"
+```
+
+**JavaScript equivalent:** `const codes = {}` works immediately. Go requires explicit initialization.
+
+### Lookup with existence check
+
+Map indexing returns two values: the value and whether the key exists:
+
+```go
+value, found := codes["en"] // found == true
+value, found = codes["xx"]  // found == false, value is zero value ("")
+```
+
+**JavaScript equivalent:** `codes["xx"]` returns `undefined`; you might use `"xx" in codes` or `codes.hasOwnProperty("xx")`. Go's two-value form is built into the language.
+
+### Deleting keys
+
+```go
+delete(codes, "en")
+```
+
+**JavaScript equivalent:** `delete codes.en`.
+
+Iteration with `range`: key order is **randomized** (unlike object key order in modern JS for string keys).
+
+## Functions
+
+Basic function syntax is familiar. What was new:
+
+### Multiple return values
+
+```go
+func divide(a, b int) (int, int) {
+    return a / b, a % b
+}
+
+quotient, remainder := divide(10, 3)
+```
+
+**JavaScript equivalent:** return an array `[quotient, remainder]` or an object `{ quotient, remainder }`. Go makes multiple returns first-class.
+
+### Named return values
+
+```go
+func divide(a, b int) (quotient, remainder int) {
+    quotient = a / b
+    remainder = a % b
+    return // naked return; fills in named values
+}
+```
+
+I find this readable for short functions; for longer ones a plain `return quotient, remainder` is clearer.
+
+### Variadic parameters
+
+```go
+func sum(numbers ...int) int {
+    total := 0
+    for _, n := range numbers {
+        total += n
+    }
+    return total
+}
+```
+
+**JavaScript equivalent:** rest parameters: `function sum(...numbers)`.
+
+The variadic parameter must be last. Callers can pass zero or more values.
+
+### Ignoring return values with `_`
+
+```go
+value, _ := divide(10, 3) // discard remainder
+```
+
+**JavaScript equivalent:** there is no built-in ignore; you just do not use the variable.
+
+### Anonymous and higher-order functions
+
+Same mental model as JavaScript:
+
+```go
+double := func(n int) int { return n * 2 }
+
+apply := func(nums []int, fn func(int) int) []int {
+    result := make([]int, len(nums))
+    for i, n := range nums {
+        result[i] = fn(n)
+    }
+    return result
+}
+```
+
+### `defer`: no JavaScript equivalent
+
+`defer` schedules a function call to run when the surrounding function returns. Deferred calls run in **LIFO** order (last deferred, first executed).
+
+```go
+func main() {
+    fmt.Println("start")
+    defer fmt.Println("deferred")
+    fmt.Println("end")
+}
+// start
+// end
+// deferred
+```
+
+I have seen this used for closing files, unlocking mutexes, and similar cleanup, like a `finally` block, but tied to function exit rather than try/catch.
+
+## Pointers
+
+JavaScript hides memory management: objects are passed by reference, primitives by value, but you never work with addresses directly. Go exposes pointers explicitly.
+
+A pointer holds the **memory address** of a value:
+
+```go
+x := 10
+ptr := &x  // address of x
+fmt.Println(*ptr) // 10, dereference
+
+*ptr = 100
+fmt.Println(x) // 100, x changed through the pointer
+```
+
+| Operator | Meaning |
+| --- | --- |
+| `&x` | Address of `x` |
+| `*ptr` | Value at address `ptr` |
+
+### Passing to functions
+
+Go passes **by value** by default: the function gets a copy:
+
+```go
+func modify(s string) {
+    s = "world"
+}
+// original unchanged
+```
+
+Pass a pointer to mutate the original:
+
+```go
+func modify(s *string) {
+    *s = "world"
+}
+
+a := "hello"
+modify(&a) // a is now "world"
+```
+
+**JavaScript equivalent:** primitives are copied; objects are passed by reference (shared identity). Go makes the choice explicit with `*` and `&`.
+
+**Slices and maps** behave like reference types: passing a slice to a function lets the callee mutate the underlying array:
+
+```go
+func modify(s []int) {
+    s[0] = 100
+}
+```
+
+## Structs, methods, and interfaces
+
+### Structs: objects without classes
+
+A struct groups fields. There are no classes, `extends`, or `new` in the JavaScript sense:
+
+```go
+type Student struct {
+    name   string
+    rollNo int
+    grades []int
+}
+```
+
+Initialize with a struct literal:
+
+```go
+s := Student{name: "Joe", rollNo: 12}
+```
+
+**JavaScript equivalent:** a plain object `{ name: "Joe", rollNo: 12 }` or a TypeScript `interface` shape. Uninitialized fields get zero values.
+
+`new(Student)` returns a **pointer** to a zero-valued struct (`*Student`), not a constructor.
+
+Structs are compared with `==` when all fields are comparable; same type required.
+
+### Methods: functions with a receiver
+
+Methods attach to a type via a **receiver** before the function name:
+
+```go
+type Circle struct {
+    radius float64
+    area   float64
+}
+
+func (c *Circle) calcArea() {
+    c.area = 3.14 * c.radius * c.radius
+}
+```
+
+Call with dot notation: `c.calcArea()`.
+
+**JavaScript equivalent:** class methods: `class Circle { calcArea() { ... } }`. Go has no `class` keyword; the receiver is the binding.
+
+**Pointer vs value receiver** matters:
+
+| Receiver | Can modify original? | Use when |
+| --- | --- | --- |
+| `(c Circle)` | No, operates on a copy | Read-only methods |
+| `(c *Circle)` | Yes | Methods that mutate state |
+
+```go
+func (c Circle) readOnly() { /* ... */ }   // copy
+func (c *Circle) mutate()  { /* ... */ }   // original
+```
+
+### Interfaces: implicit implementation
+
+An interface is a set of method signatures. Types **satisfy** an interface by implementing those methods: no `implements` keyword, no explicit declaration:
+
+```go
+type Shape interface {
+    area() float64
+    perimeter() float64
+}
+
+type Square struct {
+    side float64
+}
+
+func (s Square) area() float64 {
+    return s.side * s.side
+}
+
+func (s Square) perimeter() float64 {
+    return 4 * s.side
+}
+```
+
+Any function accepting `Shape` works with `Square` automatically.
+
+**JavaScript / TypeScript equivalent:** TypeScript interfaces are checked at compile time but erased at run time. Go interfaces are satisfied at compile time based on method sets, and the check is structural (duck typing): if it has the methods, it implements the interface.
+
+### Method sets and interfaces
+
+This tripped me up: a type's **method set** determines which interfaces it satisfies.
+
+- Value `T` has methods with receivers `(T)` and `(T)` only.
+- Pointer `*T` has methods with receivers `(T)` and `(*T)`.
+
+So if an interface requires a pointer-receiver method, only `*T` satisfies it, not `T`. When in doubt, I use pointer receivers for consistency.
+
+## What I deliberately skipped
+
+Coming from JavaScript, I did not take notes on:
+
+- Comparison, arithmetic, and logical operators (same symbols, mostly same rules)
+- `if` / `else if` / `else` basics
+- `switch` basics (beyond no fallthrough and tagless switch)
+- `for` loop basics, `break`, `continue`
+- `fmt.Scanf` for CLI input
+- `reflect.TypeOf` (I use `%T` in `Printf` when debugging)
+- Bitwise operators (same as JS `&`, `|`, `^`, `<<`, `>>`)
+
+I may return to error handling (`error` as a return value), goroutines, and channels once I move past these fundamentals.
+
+## Quick reference: Go vs JavaScript
+
+| Concept | Go | JavaScript |
+| --- | --- | --- |
+| Variable declaration | `x := 10` or `var x int` | `let x = 10` |
+| Type safety | Compile-time | Run-time (TS adds compile-time optionally) |
+| Uninitialized variable | Zero value | `undefined` |
+| Dynamic array | Slice `[]int` | `Array` |
+| Fixed array | `[5]int` | No real equivalent |
+| Dictionary | `map[string]int` | `Object` / `Map` |
+| Nil map write | Panic | Works fine on `{}` |
+| Multiple returns | Built-in | Return array/object |
+| Cleanup on exit | `defer` | `try/finally` or manual |
+| Memory address | `&x`, `*ptr` | Not exposed |
+| Polymorphism | Interfaces (implicit) | Prototypes / TS interfaces |
+| Methods | Receiver functions | Class methods |
+
+---
+
+These are my working notes from a first pass through Go basics. The language feels small and explicit, with less magic than JavaScript and more ceremony around types and memory, but the standard library and tooling (`go fmt`, `go test`, `go mod`) make the day-to-day experience smooth.
