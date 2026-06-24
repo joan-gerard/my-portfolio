@@ -1,7 +1,8 @@
 import { LearnArticleCard } from "@/components/learn/LearnArticleCard";
+import { LearnCheatsheetCard } from "@/components/learn/LearnCheatsheetCard";
 import { LearnCourseCard } from "@/components/learn/LearnCourseCard";
 import { SectionHeader } from "@/components/utils";
-import { getAllArticles, getAllCourses } from "@/lib/learn";
+import { getAllArticles, getAllCheatsheets, getAllCourses } from "@/lib/learn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default function LearnPage() {
   const courses = getAllCourses();
   const articles = getAllArticles();
+  const cheatsheets = getAllCheatsheets();
 
   return (
     <div
@@ -45,7 +47,7 @@ export default function LearnPage() {
               <LearnCourseCard
                 key={course.slug}
                 course={course}
-                isLast={i === courses.length - 1 && articles.length === 0}
+                isLast={i === courses.length - 1 && articles.length === 0 && cheatsheets.length === 0}
               />
             ))}
           </ul>
@@ -65,6 +67,28 @@ export default function LearnPage() {
             <ul className="grid gap-3 sm:grid-cols-2">
               {articles.map((article) => (
                 <LearnArticleCard key={article.slug} article={article} />
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {/* Cheatsheets */}
+        {cheatsheets.length > 0 ? (
+          <section className="mt-20">
+            <div className="mb-8 border-t border-[var(--hairline-dark)] pt-12">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--ink-dark-muted)]">
+                Quick reference
+              </p>
+              <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-white md:text-3xl">
+                Cheatsheets
+              </h2>
+            </div>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {cheatsheets.map((cheatsheet) => (
+                <LearnCheatsheetCard
+                  key={cheatsheet.slug}
+                  cheatsheet={cheatsheet}
+                />
               ))}
             </ul>
           </section>

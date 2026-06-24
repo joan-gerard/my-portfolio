@@ -1,6 +1,6 @@
 ---
 title: "Learning Go as a JavaScript Developer"
-date: "2026-06-11"
+date: "2026-06-22"
 description: "Notes from my first pass through Go basics: what felt familiar from JavaScript, what surprised me, and the syntax and concepts that are genuinely new."
 tags:
   - Golang
@@ -33,12 +33,12 @@ func main() {
 
 A few things jumped out immediately compared to JavaScript:
 
-| Go | JavaScript equivalent |
-| --- | --- |
-| `package main` | No direct equivalent: every Go file belongs to a package |
+| Go             | JavaScript equivalent                                                            |
+| -------------- | -------------------------------------------------------------------------------- |
+| `package main` | No direct equivalent: every Go file belongs to a package                         |
 | `import "fmt"` | `import` from a module, but paths are URL-like (`"fmt"` is the standard library) |
-| `func main()` | The entry point, like top-level code in a script, but explicit |
-| No semicolons | Same freedom as JS (the formatter `gofmt` handles layout) |
+| `func main()`  | The entry point, like top-level code in a script, but explicit                   |
+| No semicolons  | Same freedom as JS (the formatter `gofmt` handles layout)                        |
 
 Run a single file with `go run main.go`.
 
@@ -78,13 +78,13 @@ You cannot use `:=` at package level; there you need `var`. Reassigning with `=`
 
 In JavaScript, an uninitialized `let` binding is `undefined`. In Go, every variable gets a **zero value** when declared without an initializer:
 
-| Type | Zero value |
-| --- | --- |
-| `bool` | `false` |
-| `int` | `0` |
-| `float64` | `0.0` |
-| `string` | `""` |
-| pointers, slices, maps, interfaces | `nil` |
+| Type                               | Zero value |
+| ---------------------------------- | ---------- |
+| `bool`                             | `false`    |
+| `int`                              | `0`        |
+| `float64`                          | `0.0`      |
+| `string`                           | `""`       |
+| pointers, slices, maps, interfaces | `nil`      |
 
 ```go
 var count int
@@ -105,13 +105,13 @@ fmt.Printf("Hey, %s! You scored %d/100", name, score)
 
 Useful format verbs I keep looking up:
 
-| Verb | Meaning |
-| --- | --- |
-| `%v` | Default format |
+| Verb | Meaning           |
+| ---- | ----------------- |
+| `%v` | Default format    |
 | `%T` | Type of the value |
-| `%d` | Integer |
-| `%t` | Boolean |
-| `%f` | Float |
+| `%d` | Integer           |
+| `%t` | Boolean           |
+| `%f` | Float             |
 
 ### Type conversion
 
@@ -395,10 +395,10 @@ fmt.Println(*ptr) // 10, dereference
 fmt.Println(x) // 100, x changed through the pointer
 ```
 
-| Operator | Meaning |
-| --- | --- |
-| `&x` | Address of `x` |
-| `*ptr` | Value at address `ptr` |
+| Operator | Meaning                |
+| -------- | ---------------------- |
+| `&x`     | Address of `x`         |
+| `*ptr`   | Value at address `ptr` |
 
 ### Passing to functions
 
@@ -479,10 +479,10 @@ Call with dot notation: `c.calcArea()`.
 
 **Pointer vs value receiver** matters:
 
-| Receiver | Can modify original? | Use when |
-| --- | --- | --- |
-| `(c Circle)` | No, operates on a copy | Read-only methods |
-| `(c *Circle)` | Yes | Methods that mutate state |
+| Receiver      | Can modify original?   | Use when                  |
+| ------------- | ---------------------- | ------------------------- |
+| `(c Circle)`  | No, operates on a copy | Read-only methods         |
+| `(c *Circle)` | Yes                    | Methods that mutate state |
 
 ```go
 func (c Circle) readOnly() { /* ... */ }   // copy
@@ -541,20 +541,20 @@ I may return to error handling (`error` as a return value), goroutines, and chan
 
 ## Quick reference: Go vs JavaScript
 
-| Concept | Go | JavaScript |
-| --- | --- | --- |
-| Variable declaration | `x := 10` or `var x int` | `let x = 10` |
-| Type safety | Compile-time | Run-time (TS adds compile-time optionally) |
-| Uninitialized variable | Zero value | `undefined` |
-| Dynamic array | Slice `[]int` | `Array` |
-| Fixed array | `[5]int` | No real equivalent |
-| Dictionary | `map[string]int` | `Object` / `Map` |
-| Nil map write | Panic | Works fine on `{}` |
-| Multiple returns | Built-in | Return array/object |
-| Cleanup on exit | `defer` | `try/finally` or manual |
-| Memory address | `&x`, `*ptr` | Not exposed |
-| Polymorphism | Interfaces (implicit) | Prototypes / TS interfaces |
-| Methods | Receiver functions | Class methods |
+| Concept                | Go                       | JavaScript                                 |
+| ---------------------- | ------------------------ | ------------------------------------------ |
+| Variable declaration   | `x := 10` or `var x int` | `let x = 10`                               |
+| Type safety            | Compile-time             | Run-time (TS adds compile-time optionally) |
+| Uninitialized variable | Zero value               | `undefined`                                |
+| Dynamic array          | Slice `[]int`            | `Array`                                    |
+| Fixed array            | `[5]int`                 | No real equivalent                         |
+| Dictionary             | `map[string]int`         | `Object` / `Map`                           |
+| Nil map write          | Panic                    | Works fine on `{}`                         |
+| Multiple returns       | Built-in                 | Return array/object                        |
+| Cleanup on exit        | `defer`                  | `try/finally` or manual                    |
+| Memory address         | `&x`, `*ptr`             | Not exposed                                |
+| Polymorphism           | Interfaces (implicit)    | Prototypes / TS interfaces                 |
+| Methods                | Receiver functions       | Class methods                              |
 
 ---
 

@@ -1,0 +1,366 @@
+---
+title: "Go Basics: Cheatsheet"
+date: "2026-06-22"
+description: A dense, scannable reference for Go fundamentals — types, slices, maps, functions, pointers, structs, and interfaces — distilled from Learning Go as a JavaScript Developer.
+tags:
+  - Golang
+  - Cheatsheet
+draft: true
+---
+
+Companion cheatsheet for [Learning Go as a JavaScript Developer](/learn/articles/learning-go-for-javascript-developers). Use it when you need syntax, zero values, or the Go-vs-JS mental model without rereading the full article.
+
+---
+
+<h2 id="getting-started">Getting started</h2>
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello World!")
+}
+```
+
+| Command | Purpose |
+| ------- | ------- |
+| `go version` | Confirm install |
+| `go run main.go` | Run a single file |
+| `gofmt` | Format code (semicolons optional) |
+
+| Go | JavaScript |
+| -- | ---------- |
+| `package main` | Every file belongs to a package |
+| `import "fmt"` | URL-like import paths; `"fmt"` is stdlib |
+| `func main()` | Explicit entry point |
+
+---
+
+<h2 id="types-and-variables">Types and variables</h2>
+
+Go is **statically typed**. Types are required at compile time; `:=` infers them inside functions.
+
+```go
+var greeting string = "Hello world" // explicit
+name := "Harry"                      // inferred
+score := 78
+```
+
+| Rule | Detail |
+| ---- | ------ |
+| `:=` | Declare + assign inside functions only |
+| `var` | Required at package level |
+| `=` | Reassign; type must stay the same |
+
+### Basic types
+
+`int`, `float64`, `string`, `bool`
+
+### Zero values
+
+| Type | Zero value |
+| ---- | ---------- |
+| `bool` | `false` |
+| `int` | `0` |
+| `float64` | `0.0` |
+| `string` | `""` |
+| pointers, slices, maps, interfaces | `nil` |
+
+```go
+var count int
+fmt.Println(count) // 0
+```
+
+### Printing
+
+| Function | Behaviour |
+| -------- | --------- |
+| `fmt.Println` | Adds newline |
+| `fmt.Print` | No newline |
+| `fmt.Printf` | Formatted output (`%s`, `%d`, `%v`) |
+
+| Verb | Meaning |
+| ---- | ------- |
+| `%v` | Default format |
+| `%T` | Type of value |
+| `%d` | Integer |
+| `%t` | Boolean |
+| `%f` | Float |
+
+### Type conversion
+
+No implicit coercion — always explicit:
+
+```go
+var f float64 = float64(i)
+var i2 int = int(f2) // truncates, does not round
+```
+
+| Task | Go |
+| ---- | -- |
+| int → string | `strconv.Itoa(42)` |
+| string → int | `n, err := strconv.Atoi("200")` — check `err` |
+
+---
+
+<h2 id="control-flow">Control flow</h2>
+
+| Quirk | Go |
+| ----- | -- |
+| `else` placement | Must be on same line as closing `}` of `if` |
+| `switch` | No fallthrough by default; use `fallthrough` explicitly |
+| Loops | Only `for` — `for condition { }` is a while-loop |
+| Integer division | `5 / 2` → `2` (truncates) |
+| `++` / `--` | Statements only — not expressions |
+
+```go
+if fruit == "apple" {
+    fmt.Println("apple")
+} else {
+    fmt.Println("not apple")
+}
+
+i := 1
+for i <= 5 {
+    fmt.Println(i * i)
+    i++
+}
+```
+
+---
+
+<h2 id="arrays-and-slices">Arrays and slices</h2>
+
+### Fixed-size arrays
+
+Length is part of the type — `[3]int` and `[5]int` are different types.
+
+```go
+var grades [5]int           // [0 0 0 0 0]
+marks := [3]int{10, 20, 30}
+names := [...]string{"Rachel", "Phoebe", "Monica"}
+```
+
+### Slices (dynamic collections)
+
+```go
+grades := []int{10, 20, 30}
+slice := make([]int, 5, 10) // len 5, cap 10
+```
+
+A slice has: pointer to backing array, **length** (`len`), **capacity** (`cap`).
+
+```go
+arr := [10]int{10, 20, 30, 40, 50, 60, 70, 80, 90, 100}
+slice := arr[1:8] // [20 30 40 50 60 70 80] — high index exclusive
+```
+
+**Shared backing array** — mutating a slice can mutate the source:
+
+```go
+arr := [5]int{10, 20, 30, 40, 50}
+slice := arr[:3]
+slice[1] = 9000
+fmt.Println(arr) // [10 9000 30 40 50]
+```
+
+| Operation | Syntax |
+| --------- | ------ |
+| Append values | `slice = append(slice, 10, 20)` |
+| Append slice | `slice = append(slice, other...)` |
+| Delete index `i` | `append(arr[:i], arr[i+1:]...)` |
+| Range loop | `for i, v := range slice` |
+| Ignore index | `for _, v := range slice` |
+
+Always reassign `append` result — it may return a new slice header.
+
+---
+
+<h2 id="maps">Maps</h2>
+
+```go
+codes := map[string]string{"en": "English", "fr": "French"}
+codes := make(map[string]string)
+```
+
+| Trap | Detail |
+| ---- | ------ |
+| Nil map | `var m map[string]string` — writes **panic** |
+| Init | Use literal `{}` or `make()` before writing |
+| Lookup | `value, found := codes["en"]` — two-value form |
+| Delete | `delete(codes, "en")` |
+| Iteration | `for k, v := range codes` — key order randomized |
+
+---
+
+<h2 id="functions">Functions</h2>
+
+```go
+func divide(a, b int) (int, int) {
+    return a / b, a % b
+}
+
+quotient, remainder := divide(10, 3)
+value, _ := divide(10, 3) // discard with _
+```
+
+### Named return values
+
+```go
+func divide(a, b int) (quotient, remainder int) {
+    quotient = a / b
+    remainder = a % b
+    return // naked return
+}
+```
+
+### Variadic parameters
+
+```go
+func sum(numbers ...int) int { /* ... */ }
+```
+
+Must be last parameter. Spread at call site: `sum(others...)`.
+
+### Anonymous functions
+
+```go
+double := func(n int) int { return n * 2 }
+```
+
+### `defer`
+
+Schedules a call when the surrounding function returns. Runs in **LIFO** order.
+
+```go
+defer fmt.Println("deferred") // runs after function body, before return
+```
+
+---
+
+<h2 id="pointers">Pointers</h2>
+
+| Operator | Meaning |
+| -------- | ------- |
+| `&x` | Address of `x` |
+| `*ptr` | Value at address |
+
+```go
+x := 10
+ptr := &x
+*ptr = 100 // x is now 100
+```
+
+Go always passes arguments **by value** — the callee gets a copy. For some types that copy is a small header pointing at shared data, which feels like "pass by reference" in JavaScript.
+
+### Pass by value vs reference-like types
+
+| Type | What gets copied | Caller sees mutations? |
+| ---- | ---------------- | ---------------------- |
+| `int`, `bool`, `float64`, etc. | The value itself | No — pass `*T` to mutate |
+| `string` | String header (bytes are immutable) | No — strings cannot be changed in place |
+| `[N]T` (array) | Every element | No — full independent copy |
+| `[]T` (slice) | Header: ptr, len, cap | Yes — same backing array |
+| `map[K]V` | Map header | Yes — same underlying map |
+| `chan T` | Channel descriptor | Yes — same channel |
+| `struct` | Every field | No — pass `*Struct` to mutate fields |
+| `func` | Function value | N/A — same callable |
+
+```go
+func bump(n int)       { n++ }           // original unchanged
+func touch(s []int)    { s[0] = 100 }    // caller's slice element changes
+func rename(p *string) { *p = "world" }  // original string changes
+
+x := 1
+nums := []int{1, 2, 3}
+name := "hello"
+bump(x)        // x still 1
+touch(nums)    // nums is now [100 2 3]
+rename(&name)  // name is now "world"
+```
+
+**Structs are copied too** — but a struct field that is a slice or map still shares that collection:
+
+```go
+type Box struct { items []int }
+func add(b Box) { b.items = append(b.items, 99) } // may not update caller's slice header
+func set(b Box) { b.items[0] = 99 }               // mutates shared backing array
+```
+
+Use `*T` when you need to change the original value, reassign a slice header, or grow a collection in a function.
+
+---
+
+<h2 id="structs-methods-interfaces">Structs, methods, and interfaces</h2>
+
+### Structs
+
+```go
+type Student struct {
+    name   string
+    rollNo int
+    grades []int
+}
+
+s := Student{name: "Joe", rollNo: 12}
+```
+
+| Detail | Note |
+| ------ | ---- |
+| `new(Student)` | Returns `*Student` (pointer to zero-valued struct) |
+| Unset fields | Zero values |
+| Comparison | `==` when all fields are comparable |
+
+### Methods
+
+```go
+func (c *Circle) calcArea() {
+    c.area = 3.14 * c.radius * c.radius
+}
+```
+
+| Receiver | Can modify? | Use when |
+| -------- | ----------- | -------- |
+| `(c Circle)` | No (copy) | Read-only |
+| `(c *Circle)` | Yes | Mutating state |
+
+### Interfaces (implicit)
+
+```go
+type Shape interface {
+    area() float64
+    perimeter() float64
+}
+```
+
+Types satisfy interfaces by implementing methods — no `implements` keyword.
+
+### Method sets
+
+| Type | Method set includes |
+| ---- | ------------------- |
+| Value `T` | `(T)` receivers only |
+| Pointer `*T` | `(T)` and `(*T)` receivers |
+
+If an interface needs a pointer-receiver method, only `*T` satisfies it.
+
+---
+
+<h2 id="go-vs-javascript">Go vs JavaScript</h2>
+
+| Concept | Go | JavaScript |
+| ------- | -- | ---------- |
+| Variable declaration | `x := 10` or `var x int` | `let x = 10` |
+| Type safety | Compile-time | Run-time (TS optional) |
+| Uninitialized variable | Zero value | `undefined` |
+| Dynamic array | Slice `[]int` | `Array` |
+| Fixed array | `[5]int` | No real equivalent |
+| Dictionary | `map[string]int` | `Object` / `Map` |
+| Nil map write | Panic | Works on `{}` |
+| Multiple returns | Built-in | Return array/object |
+| Cleanup on exit | `defer` | `try/finally` |
+| Memory address | `&x`, `*ptr` | Not exposed |
+| Polymorphism | Interfaces (implicit) | Prototypes / TS interfaces |
+| Methods | Receiver functions | Class methods |
