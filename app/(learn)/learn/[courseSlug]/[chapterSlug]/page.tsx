@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return { title: "Chapter not found" };
   return {
     title: `${data.frontmatter.title} — ${data.course.title} | Learn`,
-    description: data.frontmatter.description,
+    description: data.chapter.description,
   };
 }
 

@@ -15,7 +15,6 @@ const LEARN_CHEATSHEET_DIR = path.join(LEARN_DIR, "cheatsheet");
 
 export type LearnChapterFrontmatter = {
   title: string;
-  description: string;
   draft?: boolean;
 };
 
@@ -38,7 +37,8 @@ function isLearnChapterFrontmatter(
 ): data is LearnChapterFrontmatter {
   if (!data || typeof data !== "object") return false;
   const o = data as Record<string, unknown>;
-  return typeof o.title === "string" && typeof o.description === "string";
+  if (o.draft !== undefined && typeof o.draft !== "boolean") return false;
+  return typeof o.title === "string";
 }
 
 function chapterFilePath(courseSlug: string, chapterSlug: string): string {
