@@ -1,19 +1,12 @@
 ---
-title: "Advanced Golang"
-date: "add end completion date"
+title: "Concurrency"
 description: "FILL LATER"
-tags:
-  - Golang
 draft: true
 ---
 
-ADD INTRODUCTION
-
-## Concurrency
-
 Notes from working through Go concurrency: theory (sequential vs parallel), goroutines and the runtime scheduler, synchronization with WaitGroups and channels, `select`, and practical patterns for avoiding leaks and deadlocks.
 
-**In this module:** [Sequential vs concurrent](#sequential-vs-concurrent-processing) · [Goroutines](#goroutines) · [Main goroutine](#the-main-goroutine) · [Runtime scheduler](#go-runtime-scheduler) · [WaitGroups](#waitgroups) · [Channels](#channels) · [Select](#select-statement) · [Concurrency practices](#concurrency-practices)
+**In this module:** [Sequential vs concurrent](#sequential-vs-concurrent-processing) · [Goroutines](#goroutines) · [Main goroutine](#the-main-goroutine) · [Runtime scheduler](#go-runtime-scheduler) · [WaitGroups](#waitgroups) · [Channels](#channels) · [Select](#select-statement) · [Concurrency practices](#concurrency-practices) · [Goroutine katas](#goroutine-katas)
 
 ### Sequential vs Concurrent Processing
 
@@ -366,12 +359,12 @@ This blocking handshake is the synchronization mechanism — no mutex required f
 
 Buffered channels add a finite queue (`make(chan T, n)`). A sender can push values without an immediate receiver **as long as the buffer is not full**; a receiver blocks only when the buffer is **empty**.
 
-| | Unbuffered | Buffered |
-| - | ---------- | -------- |
-| Capacity | 0 — cannot store data | Set at creation (`make(chan T, n)`) |
-| Send blocks when | No receiver ready | Buffer is full |
-| Receive blocks when | No sender ready | Buffer is empty |
-| `len(ch)` | Always 0 | Queued values (0 to `cap`) |
+|                     | Unbuffered            | Buffered                            |
+| ------------------- | --------------------- | ----------------------------------- |
+| Capacity            | 0 — cannot store data | Set at creation (`make(chan T, n)`) |
+| Send blocks when    | No receiver ready     | Buffer is full                      |
+| Receive blocks when | No sender ready       | Buffer is empty                     |
+| `len(ch)`           | Always 0              | Queued values (0 to `cap`)          |
 
 **Example — buffer capacity 3, three sends, one receive.** The goal is to show that `sell` does not block while filling the buffer. `buy` contains only one `<-ch`, so it reads `10` and stops — `11` and `12` remain in the buffer until the program exits:
 
@@ -447,11 +440,11 @@ func sell(ch chan int, wg *sync.WaitGroup) {
 }
 ```
 
-| Pitfall | Cause | Mitigation |
-| ------- | ----- | ---------- |
-| Send deadlock | Buffer full, no receiver draining | Start receiver first, or increase buffer size |
-| Receive deadlock | Buffer empty, no sender | Ensure a goroutine sends before receive, or use `close` + `for range` |
-| Orphaned values | Fewer receives than sends | Drain explicitly, or close and range |
+| Pitfall          | Cause                             | Mitigation                                                            |
+| ---------------- | --------------------------------- | --------------------------------------------------------------------- |
+| Send deadlock    | Buffer full, no receiver draining | Start receiver first, or increase buffer size                         |
+| Receive deadlock | Buffer empty, no sender           | Ensure a goroutine sends before receive, or use `close` + `for range` |
+| Orphaned values  | Fewer receives than sends         | Drain explicitly, or close and range                                  |
 
 Buffered channels decouple sender and receiver timing — useful when producers briefly outpace consumers — but capacity is not a substitute for correct coordination.
 
@@ -465,10 +458,10 @@ Use the two-value receive form to detect a closed, empty channel:
 v, ok := <-ch
 ```
 
-| `ok` | Meaning |
-| ---- | ------- |
-| `true` | Value received (channel open, or closed with buffered data left) |
-| `false` | Channel closed and empty — `v` is the zero value for the type |
+| `ok`    | Meaning                                                          |
+| ------- | ---------------------------------------------------------------- |
+| `true`  | Value received (channel open, or closed with buffered data left) |
+| `false` | Channel closed and empty — `v` is the zero value for the type    |
 
 **Example:**
 
@@ -497,10 +490,10 @@ func main() {
 
 Only the **sender** should call `close`. Two operations **panic** at runtime:
 
-| Panic | Cause | Message |
-| ----- | ----- | ------- |
-| Send on closed channel | `ch <- v` after `close(ch)` | `panic: send on closed channel` |
-| Close twice | `close(ch)` when already closed | `panic: close of closed channel` |
+| Panic                  | Cause                           | Message                          |
+| ---------------------- | ------------------------------- | -------------------------------- |
+| Send on closed channel | `ch <- v` after `close(ch)`     | `panic: send on closed channel`  |
+| Close twice            | `close(ch)` when already closed | `panic: close of closed channel` |
 
 Receiving from a closed, empty channel does **not** panic — it returns the zero value and `ok == false`. Finish all sends before closing, and close each channel exactly once. With multiple producers, use `sync.Once` or designate one goroutine to close.
 
@@ -555,11 +548,11 @@ for val := range ch {
 }
 ```
 
-| Pattern | Close required? | Loop exits when |
-| ------- | --------------- | --------------- |
-| `for val := range ch` | Yes | Channel closed and all values received |
-| `val, ok := <-ch` in a loop | No (check `ok`) | You break when `ok == false` |
-| `for range` without `close` | — | Deadlock after last value |
+| Pattern                     | Close required? | Loop exits when                        |
+| --------------------------- | --------------- | -------------------------------------- |
+| `for val := range ch`       | Yes             | Channel closed and all values received |
+| `val, ok := <-ch` in a loop | No (check `ok`) | You break when `ok == false`           |
+| `for range` without `close` | —               | Deadlock after last value              |
 
 Use `for range` when a producer sends a known stream and closes when done. Use `val, ok := <-ch` when you need explicit control over when to stop.
 
@@ -642,12 +635,12 @@ case val1 := <-ch1:
 
 **Select vs switch:**
 
-| | `switch` | `select` |
-| - | -------- | -------- |
-| Evaluates | Values, expressions | Channel send/receive readiness |
-| Blocking | Never blocks | Blocks until a case is ready (unless `default`) |
+|                     | `switch`                                 | `select`                                            |
+| ------------------- | ---------------------------------------- | --------------------------------------------------- |
+| Evaluates           | Values, expressions                      | Channel send/receive readiness                      |
+| Blocking            | Never blocks                             | Blocks until a case is ready (unless `default`)     |
 | When multiple match | First matching case wins (deterministic) | One ready case chosen at random (non-deterministic) |
-| Typical use | Control flow, pattern matching | Multiplexing channels, timeouts, cancellation |
+| Typical use         | Control flow, pattern matching           | Multiplexing channels, timeouts, cancellation       |
 
 `select` is the standard tool for coordinating multiple channel operations — waiting on the first available response, combining with `time.After` for timeouts, or listening for shutdown signals alongside work channels.
 
@@ -706,12 +699,12 @@ fatal error: all goroutines are asleep - deadlock!
 
 The channel is local to `leak`, so nothing outside can send to it. The anonymous goroutine has no way out.
 
-| Cause of leak | What happens |
-| ------------- | ------------ |
-| Receive with no sender | Goroutine blocks on `<-ch` indefinitely |
+| Cause of leak                      | What happens                               |
+| ---------------------------------- | ------------------------------------------ |
+| Receive with no sender             | Goroutine blocks on `<-ch` indefinitely    |
 | Send with no receiver (unbuffered) | Goroutine blocks on `ch <- v` indefinitely |
-| `WaitGroup` mismatch | `Add(n)` without `n` calls to `Done()` |
-| Infinite loop | Goroutine never returns |
+| `WaitGroup` mismatch               | `Add(n)` without `n` calls to `Done()`     |
+| Infinite loop                      | Goroutine never returns                    |
 
 **Prevention:**
 
@@ -797,10 +790,10 @@ Done.
 
 Order varies; values are correct.
 
-| Approach | Each goroutine sees |
-| -------- | ------------------- |
-| `go func() { use(i) }()` | Outer `i` — shared on Go ≤1.21; per-iteration on Go 1.22+ |
-| `go func(i int) { use(i) }(i)` | Own copy — correct on all versions, intent is explicit |
+| Approach                       | Each goroutine sees                                       |
+| ------------------------------ | --------------------------------------------------------- |
+| `go func() { use(i) }()`       | Outer `i` — shared on Go ≤1.21; per-iteration on Go 1.22+ |
+| `go func(i int) { use(i) }(i)` | Own copy — correct on all versions, intent is explicit    |
 
 Passing `i` as a parameter remains idiomatic even on Go 1.22+. The same capture rule applies outside loops — e.g. closing over a slice index or a variable declared before the loop without copying.
 
@@ -819,14 +812,14 @@ The mechanics of buffered and unbuffered channels are covered above. Here the qu
 **When buffered hurts.** A buffer can hide coordination bugs:
 
 - Sends succeed while the buffer has space, even if no consumer is running — values sit orphaned until something drains them.
-- A full buffer blocks the sender the same way an unbuffered channel blocks — the difference is just *when*, not *whether*.
+- A full buffer blocks the sender the same way an unbuffered channel blocks — the difference is just _when_, not _whether_.
 - Picking a capacity without reasoning (`make(chan T, 1000)`) gives a false sense of safety; deadlocks and leaks still happen if send/receive counts or `close` timing are wrong.
 
-| Choose unbuffered when | Choose buffered when |
-| -------------------- | -------------------- |
+| Choose unbuffered when                             | Choose buffered when                          |
+| -------------------------------------------------- | --------------------------------------------- |
 | You want strict sync between producer and consumer | Producer and consumer run at different speeds |
-| Simplicity and obvious blocking matter | You need a bounded queue between stages |
-| Each handoff should mean "receiver is ready now" | You want to cap queued work (known `n`) |
+| Simplicity and obvious blocking matter             | You need a bounded queue between stages       |
+| Each handoff should mean "receiver is ready now"   | You want to cap queued work (known `n`)       |
 
 **Practical rule:** start unbuffered. Add a buffer only when you can name the capacity — e.g. "at most 8 jobs ahead of the workers" — and you have a plan for what happens when the buffer fills (block, drop, or scale consumers). The control buffered channels offer is worth the complexity only when you actually need that bound.
 
@@ -878,11 +871,337 @@ func sendValue(ch1 chan int) {
 
 Output: `select timeout` — after one second, `main` moves on without waiting the full three seconds.
 
-| Scenario | Winning case | Result |
-| -------- | ------------ | ------ |
-| Send completes within timeout | `case msg := <-ch1` | Value printed |
-| Send slower than timeout | `case <-time.After(...)` | Timeout message, no value |
+| Scenario                      | Winning case             | Result                    |
+| ----------------------------- | ------------------------ | ------------------------- |
+| Send completes within timeout | `case msg := <-ch1`      | Value printed             |
+| Send slower than timeout      | `case <-time.After(...)` | Timeout message, no value |
 
 This pattern fits any operation you expose as a channel: HTTP calls wrapped in a goroutine, database queries, or waiting on worker results. The caller stays responsive instead of blocking indefinitely.
 
 **Caveat:** when the timeout case wins, the sender goroutine may still be running — blocked on send or still doing work. For production code, combine timeouts with `context.Context` cancellation so background work can abort cleanly, not just be abandoned by the caller.
+
+### Goroutine katas
+
+Solved exercises for practicing goroutines, WaitGroups, channels, and related patterns. Each kata includes the task, a working solution, and — where it helps — a refined version with notes on what changed and why.
+
+#### 1. WaitGroup: numbers and letters
+
+**Task:**
+
+Complete the code below to create two goroutines that will run concurrently using a `WaitGroup`. The first goroutine should print the numbers 1 to 5, and the second goroutine should print the letters a to e. The main function should wait for both goroutines to finish before exiting.
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	// Create first goroutine here
+	// Create second goroutine here
+
+	// Wait for both goroutines to finish here
+}
+```
+
+**My solution:**
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go printNumbers(&wg)
+	go printLetters(&wg)
+
+	wg.Wait()
+}
+
+func printNumbers(wg *sync.WaitGroup) {
+	defer wg.Done()
+	i := 1
+	for i <= 5 {
+		fmt.Println(i)
+		i++
+	}
+}
+
+func printLetters(wg *sync.WaitGroup) {
+	defer wg.Done()
+	letters := [5]string{"a", "b", "c", "d", "e"}
+	for _, letter := range letters {
+		fmt.Println(letter)
+	}
+}
+```
+
+This works: both goroutines run, `main` blocks on `wg.Wait()`, and the program exits only after both finish. Output order is non-deterministic — you might see interleaved numbers and letters.
+
+**Improved version:**
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		printNumbers()
+	}()
+
+	go func() {
+		defer wg.Done()
+		printLetters()
+	}()
+
+	wg.Wait()
+}
+
+func printNumbers() {
+	for i := 1; i <= 5; i++ {
+		fmt.Println(i)
+	}
+}
+
+func printLetters() {
+	for ch := 'a'; ch <= 'e'; ch++ {
+		fmt.Printf("%c\n", ch)
+	}
+}
+```
+
+**Why this is nicer:**
+
+- `printNumbers` and `printLetters` no longer need to know about `sync.WaitGroup`. Their job is only to print — the goroutine wrapper in `main` owns synchronization. That separates concerns better.
+- `for i := 1; i <= 5; i++` is more idiomatic than declaring `i` outside the loop and incrementing manually.
+- Iterating `for ch := 'a'; ch <= 'e'; ch++` avoids a hard-coded string slice when the sequence is a simple rune range.
+
+#### 2. Closing a jobs channel
+
+**Task:**
+
+Complete the code so the program runs successfully and prints the following output with no error:
+
+```text
+sent job 1
+sent job 2
+sent job 3
+sent all jobs
+received job 1
+received job 2
+received job 3
+received all jobs
+```
+
+The main idea is to test whether you can start and close a job channel correctly. As long as the channel is closed successfully, validation should pass for any number of sent and received jobs.
+
+**Starting code:**
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	jobs := make(chan int, 5)
+	done := make(chan bool)
+
+	go func() {
+		for {
+			j, more := <-jobs
+			if more {
+				fmt.Println("received job", j)
+			} else {
+				fmt.Println("received all jobs")
+				done <- true
+				return
+			}
+		}
+	}()
+
+	for j := 1; j <= 3; j++ {
+		jobs <- j
+		fmt.Println("sent job", j)
+	}
+
+	// your code goes here
+
+	fmt.Println("sent all jobs")
+
+	<-done
+}
+```
+
+**Answer:**
+
+Add `close(jobs)` after the send loop and before printing "sent all jobs":
+
+```go
+	for j := 1; j <= 3; j++ {
+		jobs <- j
+		fmt.Println("sent job", j)
+	}
+
+	close(jobs)
+
+	fmt.Println("sent all jobs")
+
+	<-done
+```
+
+Without `close(jobs)`, the worker goroutine blocks forever on `<-jobs` after draining the three values. The second return value `more` stays `true` while the channel is open, so the `else` branch — and the `done` signal — never run. `main` then hangs on `<-done`.
+
+Closing the channel tells receivers there will be no more values. The next receive returns the zero value for `int` with `more == false`, which triggers "received all jobs" and unblocks `main`.
+
+| Step                          | What happens                                                    |
+| ----------------------------- | --------------------------------------------------------------- |
+| Send 1, 2, 3                  | Worker receives and prints each job                             |
+| `close(jobs)`                 | Signals no more sends; buffered values can still be read        |
+| Print "sent all jobs"         | `main` continues immediately — close does not block             |
+| Worker reads after last value | `more` is `false` → prints "received all jobs", sends on `done` |
+| `<-done`                      | `main` exits cleanly                                            |
+
+Only the sender should call `close` — here, `main` owns the channel. Closing twice or closing after a send on the same goroutine that already closed panics; the worker only receives, which is correct.
+
+#### 3. Jobs pipeline with WaitGroup
+
+**Task:**
+
+You are processing a large amount of data in parallel using goroutines. Channels carry work between stages, and a `WaitGroup` ensures all goroutines finish before `main` exits.
+
+Complete the code so the program runs successfully without errors.
+
+**Starting code:**
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+
+	var wg sync.WaitGroup
+	wg.Add(3)
+	jobs := make(chan int)
+	results := make(chan int)
+
+	go func() {
+		for j := range jobs {
+			fmt.Println("received job", j)
+			result := j * 2
+			results <- result
+		}
+		// your code goes here
+	}()
+
+	go func() {
+		for j := 1; j <= 3; j++ {
+			jobs <- j
+			fmt.Println("sent job", j)
+		}
+		// your code goes here
+	}()
+
+	go func() {
+		for r := range results {
+			fmt.Println("received result", r)
+		}
+		// your code goes here
+	}()
+
+	wg.Wait()
+}
+```
+
+Three goroutines form a small pipeline:
+
+| Goroutine | Role                                         | Must do when finished                                |
+| --------- | -------------------------------------------- | ---------------------------------------------------- |
+| Sender    | Pushes jobs 1–3 onto `jobs`                  | `close(jobs)` so the worker's `for range` exits      |
+| Worker    | Reads jobs, doubles each, sends to `results` | `close(results)` so the consumer's `for range` exits |
+| Consumer  | Prints each result                           | `wg.Done()` — it only receives                       |
+
+Each goroutine also calls `wg.Done()` once. If any step is missing, something blocks: an unclosed channel keeps a `for range` waiting, and a missing `Done()` keeps `wg.Wait()` waiting forever.
+
+**My solution:**
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+
+	var wg sync.WaitGroup
+	wg.Add(3)
+	jobs := make(chan int)
+	results := make(chan int)
+
+	go func() {
+		defer wg.Done()
+
+		for j := range jobs {
+			fmt.Println("received job", j)
+			result := j * 2
+			results <- result
+		}
+
+		close(results)
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		for j := 1; j <= 3; j++ {
+			jobs <- j
+			fmt.Println("sent job", j)
+		}
+
+		close(jobs)
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		for r := range results {
+			fmt.Println("received result", r)
+		}
+	}()
+
+	wg.Wait()
+}
+```
+
+**What each addition does:**
+
+- **`close(jobs)`** (sender) — after the last send, closes the jobs channel. The worker's `for j := range jobs` drains remaining values then exits.
+- **`close(results)`** (worker) — after all jobs are processed, closes the results channel. The consumer's `for r := range results` exits.
+- **`wg.Done()`** (all three) — decrements the WaitGroup counter so `main` can proceed once every stage is done.
+
+**Shutdown order:** sender finishes and closes `jobs` → worker processes the last job, exits its loop, closes `results` → consumer drains the last results, exits, calls `wg.Done()` → worker and sender have already called `wg.Done()` → `wg.Wait()` returns.
+
+**Note on `defer`:** placing `defer wg.Done()` at the top of each goroutine is more idiomatic — it runs on return even if the loop panics. Here `defer` sits after the loop, which still works because the goroutine only returns once the loop finishes.

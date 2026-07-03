@@ -124,9 +124,26 @@ export const linuxForBeginnersCourse: LearnCourse = {
   ],
 };
 
+export const advancedGolangCourse: LearnCourse = {
+  slug: "advanced-golang",
+  title: "Advanced Golang",
+  description:
+    "Deep dives into Go beyond the basics — starting with concurrency: goroutines, the runtime scheduler, channels, select, and patterns for safe parallel code.",
+  tags: ["Golang"],
+  chapters: [
+    {
+      slug: "concurrency",
+      title: "Concurrency",
+      description:
+        "Sequential vs parallel execution, goroutines and the runtime scheduler, WaitGroups and channels, select, and practical patterns for avoiding leaks and deadlocks.",
+    },
+  ],
+};
+
 export const learnCourses: LearnCourse[] = [
-  linuxForBeginnersCourse,
   fundamentalsOfDevopsCourse,
+  linuxForBeginnersCourse,
+  advancedGolangCourse,
 ];
 
 export function getCourseBySlug(slug: string): LearnCourse | null {
