@@ -137,6 +137,12 @@ export const advancedGolangCourse: LearnCourse = {
       description:
         "Sequential vs parallel execution, goroutines and the runtime scheduler, WaitGroups and channels, select, and practical patterns for avoiding leaks and deadlocks.",
     },
+    {
+      slug: "modules-packages-imports",
+      title: "Modules, packages and imports",
+      description:
+        "Modules, packages and imports, and how to use them to organize and structure code.",
+    },
   ],
 };
 

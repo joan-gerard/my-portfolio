@@ -2,3 +2,648 @@
 title: "Modules, packages and imports"
 draft: true
 ---
+
+### Introduction
+
+This section will explore library management in Golang by understanding how the language organizes code into repositories, modules, and packages.
+
+A **repository** is a designated location in a version control system where a project’s source code is stored.
+
+Within a repository, a **module** represents the root of a Go library or application. A module not only organizes code but also specifies the dependencies needed to run the code.
+
+> Although it is technically possible to store multiple modules in a single repository, this practice is discouraged.
+
+Modules can contain one or more **packages**, which serve as the building blocks used to organize and structure code.
+
+Before incorporating code from packages outside the standard library, you must declare your project as a module. Each module is assigned a globally unique identifier (often a GitHub repository URL, a private domain, or another URL) that Go tools use as the download path.
+
+Once you are in the project directory, initialize the Go Module:
+
+Declare the directory as a Go module by running go mod init with a globally unique module path. While paths like `github.com/yourusername/yourrepository` are common, this command uses the domain `example.com/learn`.
+
+```bash
+go mod init example.com/learn
+```
+
+The output should confirm the creation of the go.mod file:
+
+```bash
+go: creating new go.mod: module example.com/learn
+```
+
+### The `go.mod` file
+
+A `go.mod` consists mainly of the module declaration, the minimum compatible version for Go and the dependencies for the imported third-party packages.
+
+```text
+module ://github.com
+
+go 1.23.0
+
+require (
+    ://github.com v1.6.0
+    golang.org/x/crypto v0.21.0 // indirect
+)
+```
+
+### Creating and accessing a package
+
+Let's create a Go module with packages for encryption and decryption, implementing a simple ASCII shifting (Shift the ASCII code by three) encryption function.
+
+1. Creating the Go Module
+
+```bash
+mkdir crypt8
+cd crypt8
+
+go mod init github.com/username/cryptit
+```
+
+This command generates a `go.mod` file with content similar to:
+
+```text
+module github.com/username/cryptit
+go 1.19
+```
+
+2. Building the Encrypt Package
+
+```bash
+mkdir encrypt
+cd encrypt
+touch algorithm.go
+```
+
+In `algorithm.go`, begin by declaring the package:
+
+```go
+package encrypt
+```
+
+> Since this function will be used in another package, it must be exported. In Go, exported functions should have names that start with a capital letter.
+
+```go
+package encrypt
+
+func Nimbus(str string) string {
+	encryptedStr := ""
+	for _, c := range str {
+		asciiCode := int(c)
+		character := string(asciiCode + 3)
+		encryptedStr += character
+	}
+	return encryptedStr
+}
+```
+
+3. Setting Up the Main Application
+
+Return to the root directory of your module to create the primary application file, `main.go`. This file will test the encryption function from the encrypt package.
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/username/cryptit/encrypt"
+)
+
+func main() {
+	fmt.Println(encrypt.Nimbus("Golang"))
+}
+```
+
+> In the code above, we import the encrypt package using its module path.
+
+4. Running Your Go Application
+
+With everything set up, compile and run the application from the module’s root directory:
+
+```bash
+go run main.go
+```
+
+When you run the command, you should see the following output:
+
+```bash
+Jrodqj
+```
+
+### Importing Packages from a Different Module Locally
+
+At times, you might need to import a package from another module that hasn’t yet been published to a version control system.
+
+Consider a scenario where you have another module called “learn” that uses the encryption algorithm from your cryptit module. In the main file of the learn module, you might include:
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/pborman/uuid"
+	"github.com/username/cryptit/encrypt"
+)
+
+func main() {
+	id := uuid.NewRandom()
+	fmt.Println(id)
+
+	encryptedStr := encrypt.Nimbus("Golang")
+	fmt.Println(encryptedStr)
+}
+```
+
+Running `go mod tidy` may produce an error like this:
+
+```bash
+go: finding module for package github.com/username/cryptit/encrypt
+go: downloading github.com/username/cryptit v0.0.0-20221114082254-ee77ba24d5d5
+example.com/learn imports
+    github.com/username/cryptit/encrypt: module github.com/username/cryptit@latest found (v0.0.0-20221114082254-ee77ba24d5d5), but does not contain package github.com/username/cryptit/encrypt
+```
+
+This error occurs because the module being imported is not published with the correct package structure. To resolve this when working locally, use the `replace` directive in your `go.mod file`.
+
+Execute the following command:
+
+```bash
+go mod edit -replace github.com/username/cryptit=../cryptit
+```
+
+After executing this command, your go.mod might look like:
+
+```text
+module example.com/learn
+
+go 1.19
+
+require (
+	github.com/pborman/uuid v1.2.1
+)
+
+replace github.com/username/cryptit => ../cryptit
+```
+
+With the replace directive in place, running `go mod tidy` and then executing your main file should result in the expected output.
+
+### Go Commands
+
+Beyond module setup, a handful of `go` commands cover most day-to-day development. Each command below fits into a typical workflow: initialize a module, manage dependencies, run code quickly, or produce binaries.
+
+#### `go mod init`
+
+Creates a new `go.mod` file in the current directory, establishing the module root. You can pass a module path as an argument (for example, `go mod init github.com/username/myproject`); if omitted, Go infers one from the directory.
+
+```bash
+go mod init
+```
+
+#### `go mod tidy`
+
+Keeps `go.mod` in sync with your source code. It adds missing module requirements and removes dependencies that are no longer imported.
+
+```bash
+go mod tidy
+```
+
+Run this after adding or updating dependencies so your module file stays accurate.
+
+#### `go run`
+
+Compiles and runs a program in one step. Go builds a temporary binary, executes it, then deletes it — useful for quick iteration without leaving artifacts in your project directory.
+
+```bash
+go run main.go
+```
+
+#### `go build` and `go install`
+
+Both commands compile your code into an executable, but they differ in where the binary ends up:
+
+| Command      | Output location            | Typical use                       |
+| ------------ | -------------------------- | --------------------------------- |
+| `go build`   | Current directory          | Local builds, CI artifacts        |
+| `go install` | `$GOPATH/bin` (or `GOBIN`) | CLI tools you want on your `PATH` |
+
+```bash
+go build
+go install
+```
+
+To see where install places binaries, check your Go environment:
+
+```bash
+go env GOPATH
+```
+
+#### `go get`
+
+Adds, upgrades, or downgrades dependencies. It resolves the package to a module version, updates `go.mod`, and downloads the source into the module cache.
+
+```bash
+go get example.com/pkg
+go get example.com/pkg@v1.2.3
+```
+
+> After changing dependencies with `go get`, run `go mod tidy` to keep `go.mod` clean and remove unused requirements.
+
+### Compiling and installing the application
+
+This section will show how to compile, install, and run your Go application seamlessly.
+
+Follow these steps to build your code, create an executable, and configure your environment so the application can be run from anywhere.
+
+1. Compiling the Application
+
+Compile your Go code into an executable by executing the following command:
+
+```bash
+go build
+```
+
+After running the command, an executable file will be generated in your current working directory. On Linux or macOS, run the executable using:
+
+```bash
+./cryptit
+```
+
+When you run the executable, you should see output similar to:
+
+```bash
+> go build
+> ./cryptit
+Jrodqj
+Golang
+```
+
+> If your current shell prompt is not within the directory that contains the executable, you will need to provide the full path to run it.
+
+2. Installing the Application with Go Install
+
+To run your application from any directory, install the binary into a folder that is already on your system's `PATH`.
+
+**Determine your Go installation path (GOPATH)**
+
+Locate where Go stores installed binaries. The default location is the `bin` directory under your `GOPATH`:
+
+```bash
+go env GOPATH
+```
+
+On most setups, that means binaries land in `~/go/bin`.
+
+**Update your PATH environment variable**
+
+Add your `GOPATH`'s `bin` directory to `PATH` so your shell can find installed commands.
+
+On Linux or macOS:
+
+```bash
+export PATH=$PATH:$GOPATH/bin
+```
+
+Or with an explicit path:
+
+```bash
+export PATH=$PATH:~/go/bin
+```
+
+On Windows, update `PATH` using the `set` command or by editing your system environment variables.
+
+**Install the application**
+
+Return to your module directory and install the application:
+
+```bash
+go install
+```
+
+This compiles the package and places the binary in the `bin` directory under your `GOPATH`.
+
+**Verify the installation**
+
+Navigate to your `GOPATH`'s `bin` directory and list its contents:
+
+```bash
+cd ~/go/bin
+ls
+```
+
+You should see the binary (for example, `cryptit`). You can now run your application from any location:
+
+```bash
+cryptit
+```
+
+This displays the same output as before:
+
+```bash
+Jrodqj
+Golang
+```
+
+### Developing and Publishing modules workflow
+
+Creating and publishing a Go module involves four essential steps: design and implement the packages, commit code to a version-controlled repository, publish the module so Go tools can fetch it, and version releases consistently to signal stability and compatibility.
+
+#### Workflow overview
+
+1. **Design and implementation** — Develop the packages that make up your module.
+2. **Version control** — Commit your code to a repository using conventions that Go tools can access.
+3. **Module publishing** — Tag your code so other developers can discover and download the module.
+4. **Versioning** — Apply a consistent version numbering scheme that reflects stability and backward compatibility.
+
+#### Module design and development
+
+When designing a module, aim for a cohesive set of functions and packages. A clear, focused public API makes the module easier to use and discover. Plan for backward compatibility from the start so users can upgrade without breaking their existing code.
+
+#### Publishing your module
+
+In Go, publishing a module is as simple as tagging your code in the repository. There is no central registry to push to — Go tools download modules directly from your repository or via a proxy. Once a developer imports your package, commands like `go get` retrieve the correct version automatically. The module path and version tag together guide Go tools during retrieval.
+
+#### Package discovery
+
+After you publish and someone fetches your module with Go tools, it becomes visible on [pkg.go.dev](https://pkg.go.dev), Go's package discovery site. Developers can search for your module there and read its documentation.
+
+#### Semantic versioning
+
+As you refine your module, adopt semantic versioning (for example, `v1.2.3`) to indicate the stability and backward compatibility of each release. Tagging your source with the appropriate version number tells developers whether an upgrade might introduce breaking changes.
+
+### Publishing a module
+
+This section walks through publishing the `cryptit` module on GitHub: initialize a repository, commit your changes, tag a release, push it, and update a consuming module to use the published version instead of a local `replace` directive.
+
+#### 1. Initialize your Git repository
+
+Start in your module's root directory (containing `encrypt/`, `decrypt/`, `go.mod`, and `main.go`). Log into GitHub and create a new empty repository, then copy its URL.
+
+Initialize version control:
+
+```bash
+git init
+```
+
+This sets up the metadata needed to track changes in your project directory.
+
+#### 2. Add the remote and verify configuration
+
+Point a remote named `origin` at your GitHub repository:
+
+```bash
+git remote add origin https://github.com/username/cryptit.git
+```
+
+Verify the configuration:
+
+```bash
+git remote -v
+```
+
+Expected output:
+
+```text
+origin  https://github.com/username/cryptit.git (fetch)
+origin  https://github.com/username/cryptit.git (push)
+```
+
+#### 3. Stage and commit your files
+
+Stage all project files and commit them:
+
+```bash
+git add .
+git commit -m "cryptit"
+```
+
+#### 4. Tag your commit
+
+Tag the release with a semantic version. For a first minor release:
+
+```bash
+git tag v0.1.0
+```
+
+List tags to confirm:
+
+```bash
+git tag
+```
+
+#### 5. Push the tag to GitHub
+
+Push the tag so Go tools can resolve the version:
+
+```bash
+git push origin v0.1.0
+```
+
+After a successful push, your repository on GitHub should show the tagged release along with your module files.
+
+#### 6. Remove the local `replace` directive
+
+If you previously used a `replace` directive to point at a local copy of the module, remove it now that the module is published. Your `go.mod` in the consuming `learn` project should change from:
+
+```text
+module example.com/learn
+
+go 1.19
+
+require (
+    github.com/username/cryptit v0.0.0-000101010000-0000000000
+    github.com/pborman/uuid v1.2.1
+)
+
+require github.com/google/uuid v1.0.0 // indirect
+
+replace github.com/username/cryptit => ../cryptit
+```
+
+To:
+
+```text
+module example.com/learn
+
+go 1.19
+
+require (
+    github.com/username/cryptit v0.0.0-000101010000-0000000000
+    github.com/pborman/uuid v1.2.1
+)
+
+require github.com/google/uuid v1.0.0 // indirect
+```
+
+#### 7. Fetch the published module
+
+Use `go get` with the full module path and version tag:
+
+```bash
+go get github.com/username/cryptit@v0.1.0
+```
+
+This updates `go.mod` to reference the published version:
+
+```text
+go 1.19
+
+require github.com/pborman/uuid v1.2.1
+
+require (
+    github.com/username/cryptit v0.1.0 // indirect
+    github.com/google/uuid v1.0.0 // indirect
+)
+```
+
+Console output should confirm the addition:
+
+```bash
+go: added github.com/username/cryptit v0.1.0
+```
+
+#### 8. Update and run your application
+
+Update `main.go` in the consuming project to import from the published module:
+
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/google/uuid"
+    "github.com/username/cryptit/encrypt"
+)
+
+func main() {
+    id := uuid.NewRandom()
+    fmt.Println(id)
+
+    encryptedStr := encrypt.Nimbus("Golang")
+    fmt.Println(encryptedStr)
+}
+```
+
+Run the application:
+
+```bash
+go run main.go
+```
+
+Example output:
+
+```bash
+8e599e4e-3fb5-46ea-b6a8-bd7098a554c0
+Jrodqj
+```
+
+This confirms the application is using the published module from GitHub rather than a local reference. Verify that `go.mod` lists `github.com/username/cryptit v0.1.0`, then run `go run main.go` once more to confirm everything works.
+
+> With your module published on GitHub, you can share and reuse your code across projects. Tagging releases supports semantic versioning and simplifies dependency management for consumers.
+
+### Package comments and godoc
+
+Proper documentation keeps Go code accessible and maintainable. Go ships with **godoc**, which generates documentation directly from source code comments so docs stay in sync with the codebase as it evolves.
+
+Godoc parses Go source files and extracts comments to produce HTML or plain text documentation. To document a type, variable, function, or package, place a regular comment immediately before the declaration with no blank line in between. For longer comments, use blank comment lines to separate paragraphs.
+
+For package-level documentation, it is common to put extensive comments in a dedicated `doc.go` file within the package.
+
+#### Using the `go doc` command
+
+Go provides the `go doc` command to view generated documentation from the terminal:
+
+```bash
+go doc PACKAGE_NAME
+go doc PACKAGE_NAME.IDENTIFIER_NAME
+```
+
+The first form shows package-level documentation and its identifiers; the second focuses on a specific exported name.
+
+> Every exported identifier should have a comment. This improves readability and ensures godoc produces complete documentation.
+
+#### Example: documenting the `decrypt` package
+
+The following example documents a `decrypt` package and its `Nimbus` function:
+
+```go
+// Package decrypt consists of all the decryption algorithms.
+package decrypt
+
+// Nimbus decrypts the input string by reducing the ASCII code of each character by 3.
+func Nimbus(str string) string {
+	decryptedStr := ""
+
+	for _, c := range str {
+		asciiCode := int(c)
+		decryptedChar := string(asciiCode - 3)
+		decryptedStr += decryptedChar
+	}
+
+	return decryptedStr
+}
+```
+
+View the package documentation:
+
+```bash
+go doc decrypt
+```
+
+Example output:
+
+```bash
+package decrypt // import "github.com/username/cryptit/decrypt"
+
+Package decrypt consists of all the decryption algorithms.
+
+func Nimbus(str string) string
+```
+
+To inspect documentation for a single identifier:
+
+```bash
+go doc decrypt.Nimbus
+```
+
+Example output:
+
+```bash
+package decrypt // import "github.com/username/cryptit/decrypt"
+
+func Nimbus(str string) string
+    Nimbus decrypts the input string by reducing the ASCII code of each
+    character by 3.
+```
+
+> Always document exported identifiers with descriptive comments. Skipping documentation makes code harder to understand and maintain over time.
+
+### Package name collision
+
+When importing packages in Go, you may encounter a scenario where two packages share the same name. This is common when you need to use both the cryptographic random package and the mathematical random package, which are both named “rand”.
+
+- `crypto/rand`: Provides cryptographically secure random number generation.
+- `math/rand`: Offers pseudo-random number generation.
+
+Because both packages are named “rand,” importing them directly would cause a naming collision. To prevent this conflict, you can assign an alias to one of the packages.
+
+```go
+import (
+    crand "crypto/rand"
+    "encoding/binary"
+    "math/rand"
+)
+
+func seedRand() *rand.Rand {
+    var b [8]byte
+    _, err := crand.Read(b[:])
+    if err != nil {
+        panic("cannot seed with cryptographic random number generator")
+    }
+    r := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
+    return r
+}
+```
+
+- The `crypto/rand` package is aliased as `crand`. This prevents confusion with the `math/rand` package.
+- The `seedRand` function utilizes `crand.Read` to generate 8 bytes of secure random data.
+
+### Naming packages
