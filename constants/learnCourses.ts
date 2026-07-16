@@ -143,6 +143,12 @@ export const advancedGolangCourse: LearnCourse = {
       description:
         "Modules, packages and imports, and how to use them to organize and structure code.",
     },
+    {
+      slug: "core-packages",
+      title: "Core Packages",
+      description:
+        "Core packages in Go, explaining their organization, functionality, and the difference between built-in and third-party packages",
+    },
   ],
 };
 

@@ -1,0 +1,1057 @@
+---
+title: "Core Packages"
+draft: true
+---
+
+### The Go Standard library
+
+The Standard Library is a comprehensive collection of core packages that cover a wide range of functionalities, from networking and string manipulation to file system operations and input/output handling.
+
+The Standard Library includes numerous packages designed to address common programming needs. Here are a few key areas:
+
+- **Networking**: Build robust network-based applications.
+- **String Manipulation**: Efficiently handle and transform text.
+- **File System Operations**: Simplify file and directory interactions.
+- **Input/Output**: Streamline reading from and writing to various sources.
+- **Cryptography**: Implement secure data handling and encryption.
+- **Testing**: Facilitate the development of reliable, maintainable code.
+
+### Strings
+
+Go represents text with **strings** — immutable sequences of bytes. Once created, a string's content cannot be changed in place. Attempting to assign to an index produces a compile error:
+
+```go
+text := "Go is fun"
+text[1] = 'l' // compile error: cannot assign to text[1]
+```
+
+To search, count, and transform text, use the [`strings`](https://pkg.go.dev/strings) package from the standard library:
+
+```go
+import (
+	"fmt"
+	"strings"
+)
+```
+
+This section covers three of the most common functions: `Contains`, `Count`, and `ReplaceAll`. All comparisons are **case sensitive** and work character by character.
+
+#### `Contains`
+
+Checks whether a string contains a given substring.
+
+```go
+func Contains(str, substr string) bool
+```
+
+Returns `true` when `substr` appears anywhere in `str`, otherwise `false`. The match must be exact — including case.
+
+```go
+learning := "learning standard library in Go"
+
+strings.Contains(learning, "library in Go") // true
+strings.Contains(learning, "learning in Go")  // false — not a contiguous substring
+```
+
+> `Contains` looks for an exact, case-sensitive match. Adjust the substring if your check keeps returning `false`.
+
+#### `Count`
+
+Counts the number of **non-overlapping** occurrences of a substring.
+
+```go
+func Count(s, substr string) int
+```
+
+Returns `0` when no matches are found.
+
+```go
+text := "learning standard library in Python learning"
+
+strings.Count(text, "learning") // 2
+```
+
+Case matters — only one occurrence matches when the capitalisation differs:
+
+```go
+text := "Learning standard library in Python learning"
+
+strings.Count(text, "learning") // 1
+```
+
+Counting a substring that does not appear in an empty string also returns `0`:
+
+```go
+strings.Count("", "!") // 0
+```
+
+#### `ReplaceAll`
+
+Replaces every occurrence of one substring with another and returns a new string. The original is left unchanged.
+
+```go
+func ReplaceAll(str, old, new string) string
+```
+
+```go
+text := "Learning standard library in Python"
+
+strings.ReplaceAll(text, "library in Python", "library in Go")
+// "Learning standard library in Go"
+```
+
+When a substring appears multiple times, all instances are replaced:
+
+```go
+text := "learning standard library in Python learning"
+
+strings.ReplaceAll(text, "learning", "executing")
+// "executing standard library in Python executing"
+```
+
+> Replacement is case sensitive. Ensure the search string matches the casing in the source text.
+
+### Input/Output
+
+The [`io`](https://pkg.go.dev/io) package abstracts reading and writing data behind two core interfaces. File handles, HTTP bodies, database connections, and in-memory buffers all implement the same interfaces — so you can swap sources and destinations without rewriting your logic.
+
+Go uses **implicit interface implementation**: a type satisfies an interface when it implements all required methods. There is no `implements` keyword.
+
+> If a type defines every method an interface requires, it automatically satisfies that interface — no explicit declaration needed.
+
+#### `io.Reader`
+
+Provides input from any data source. The interface has a single method:
+
+```go
+type Reader interface {
+	Read(p []byte) (n int, err error)
+}
+```
+
+`Read` copies up to `len(p)` bytes into `p` and returns how many bytes were read. When there is no more data, it returns `io.EOF`.
+
+#### `io.Writer`
+
+Provides output to any destination. Again, one method:
+
+```go
+type Writer interface {
+	Write(p []byte) (n int, err error)
+}
+```
+
+`Write` sends `len(p)` bytes from `p` to the destination and returns how many were written.
+
+#### Interfaces in practice
+
+A custom interface works the same way. Here, `Rectangle` satisfies `Shape` simply by defining `Area` and `Perimeter`:
+
+```go
+type Shape interface {
+	Area() float64
+	Perimeter() float64
+}
+
+type Rectangle struct {
+	Length, Width float64
+}
+
+func (r Rectangle) Area() float64 {
+	return r.Length * r.Width
+}
+
+func (r Rectangle) Perimeter() float64 {
+	return 2 * (r.Length + r.Width)
+}
+
+var s Shape = Rectangle{Length: 4.0, Width: 6.0}
+// s.Area() → 24, s.Perimeter() → 20
+```
+
+`io.Reader` and `io.Writer` follow the same pattern — many types across the standard library implement them.
+
+#### `strings.Reader`
+
+The [`strings`](https://pkg.go.dev/strings) package provides a concrete `Reader` backed by a string. Internally it tracks a read index and copies bytes into your buffer:
+
+```go
+type Reader struct {
+	s string
+	i int64 // current reading index
+}
+
+func (r *Reader) Read(b []byte) (n int, err error) {
+	if r.i >= int64(len(r.s)) {
+		return 0, io.EOF
+	}
+	n = copy(b, r.s[r.i:])
+	r.i += int64(n)
+	return
+}
+```
+
+Create one with `strings.NewReader` and read into a byte buffer:
+
+```go
+r := strings.NewReader("Learning is fun")
+buf := make([]byte, 4)
+
+n, err := r.Read(buf)
+fmt.Println(string(buf[:n]), err) // Lear <nil>
+```
+
+The buffer holds raw bytes (ASCII values). Convert with `string(buf[:n])` to display characters. Use only the `n` bytes actually read — the rest of the buffer may contain stale data from a previous read.
+
+#### Reading in a loop
+
+To consume all data, read in a loop until `Read` returns an error (typically `io.EOF`):
+
+```go
+r := strings.NewReader("Learning is fun")
+buf := make([]byte, 4)
+
+for {
+	n, err := r.Read(buf)
+	fmt.Println(string(buf[:n]), err)
+	if err != nil {
+		break
+	}
+}
+```
+
+```
+Lear <nil>
+ning <nil>
+ is <nil>
+fun <nil>
+ EOF
+```
+
+Each iteration returns up to 4 bytes. The final read returns `io.EOF` to signal the end of input.
+
+#### `io.Copy`
+
+`io.Copy` streams data from any `Reader` to any `Writer` without loading everything into memory:
+
+```go
+func Copy(dst Writer, src Reader) (written int64, err error)
+```
+
+A common pattern — copy a string reader to standard output:
+
+```go
+r := strings.NewReader("some io.Reader stream to be read\n")
+if _, err := io.Copy(os.Stdout, r); err != nil {
+	log.Fatal(err)
+}
+```
+
+`os.Stdout` is a `*os.File`, and `*os.File` implements `Write` — so it satisfies `io.Writer`. The same applies to files, network connections, and HTTP response bodies. Any function that accepts `io.Reader` or `io.Writer` works with all of them.
+
+### File Handling
+
+File handling covers retrieving metadata, creating files, and reading from or writing to them. Go's standard library integrates these capabilities so behaviour stays consistent across operating systems.
+
+#### Key packages
+
+| Package                                        | Role                                                          |
+| ---------------------------------------------- | ------------------------------------------------------------- |
+| [`os`](https://pkg.go.dev/os)                  | Create, open, delete files; modify permissions; read metadata |
+| [`io`](https://pkg.go.dev/io)                  | Core I/O primitives behind `Reader` and `Writer` interfaces   |
+| [`filepath`](https://pkg.go.dev/path/filepath) | Parse and build file paths portably                           |
+| [`fmt`](https://pkg.go.dev/fmt)                | Format and print I/O output                                   |
+
+#### Path construction with `filepath`
+
+The [`filepath`](https://pkg.go.dev/path/filepath) package builds and manipulates paths using the correct separator for the current OS.
+
+| Method  | Purpose                                          |
+| ------- | ------------------------------------------------ |
+| `Join`  | Build a path from multiple elements              |
+| `Dir`   | Return the directory portion of a path           |
+| `Base`  | Return the last element (typically the filename) |
+| `IsAbs` | Report whether a path is absolute                |
+| `Ext`   | Return the file extension (including the dot)    |
+
+`Join` concatenates elements with the OS-specific separator and normalises redundant separators or relative segments such as `../`:
+
+```go
+import (
+	"fmt"
+	"path/filepath"
+)
+
+path := filepath.Join("dir1", "dir2", "text.txt")
+fmt.Println(path)              // dir1/dir2/text.txt (on Unix)
+fmt.Println(filepath.Dir(path))  // dir1/dir2
+fmt.Println(filepath.Base(path)) // text.txt
+fmt.Println(filepath.Ext(path))  // .txt
+
+// Normalises extra separators
+fmt.Println(filepath.Join("dir1", "dir2//", "text.txt")) // dir1/dir2/text.txt
+
+fmt.Println(filepath.IsAbs(path))    // false
+fmt.Println(filepath.IsAbs("/dir/file")) // true
+```
+
+#### File metadata with `os.Stat`
+
+[`os.Stat`](https://pkg.go.dev/os#Stat) returns a [`FileInfo`](https://pkg.go.dev/io/fs#FileInfo) value with name, size, permission bits, and whether the path is a directory.
+
+> Use `os.Stat` to verify file attributes before processing them in your application.
+
+```go
+import (
+	"fmt"
+	"os"
+)
+
+fileInfo, err := os.Stat("temp.txt")
+if err != nil {
+	fmt.Println(err)
+	return
+}
+
+fmt.Println("Name:", fileInfo.Name())   // temp.txt
+fmt.Println("Size:", fileInfo.Size())   // size in bytes
+fmt.Println("Mode:", fileInfo.Mode())   // permission bits, e.g. -rw-r--r--
+fmt.Println("IsDir:", fileInfo.IsDir()) // false for a regular file
+```
+
+#### Reading files
+
+For small files, [`os.ReadFile`](https://pkg.go.dev/os#ReadFile) reads the entire contents into a byte slice:
+
+```go
+data, err := os.ReadFile("text.txt")
+if err != nil {
+	fmt.Println(err)
+	return
+}
+
+fmt.Println(data)         // raw bytes, e.g. [72 101 108 108 111 ...]
+fmt.Println(string(data)) // Hello World
+```
+
+For large files or chunked reads, open the file with [`os.Open`](https://pkg.go.dev/os#Open) and read into a buffer in a loop:
+
+```go
+file, err := os.Open("text.txt")
+if err != nil {
+	fmt.Println(err)
+	return
+}
+defer file.Close()
+
+b := make([]byte, 4)
+for {
+	n, err := file.Read(b)
+	if err != nil {
+		break // io.EOF when all data is consumed
+	}
+	fmt.Print(string(b[:n]))
+}
+```
+
+#### Writing and appending
+
+[`os.OpenFile`](https://pkg.go.dev/os#OpenFile) opens or creates a file with explicit flags and permissions. Common flags:
+
+| Flag          | Description                                      |
+| ------------- | ------------------------------------------------ |
+| `os.O_RDONLY` | Open read-only                                   |
+| `os.O_WRONLY` | Open write-only                                  |
+| `os.O_RDWR`   | Open for reading and writing                     |
+| `os.O_APPEND` | Append on each write                             |
+| `os.O_CREATE` | Create the file if it does not exist             |
+| `os.O_EXCL`   | With `O_CREATE`, fail if the file already exists |
+| `os.O_SYNC`   | Synchronous I/O for data consistency             |
+| `os.O_TRUNC`  | Truncate existing content on open                |
+
+To append a string to a file (creating it if needed):
+
+```go
+file, err := os.OpenFile("temp.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+if err != nil {
+	fmt.Println(err)
+	return
+}
+defer file.Close()
+
+if _, err := file.WriteString("Hope you had a good day!"); err != nil {
+	fmt.Println(err)
+}
+```
+
+> With `os.O_CREATE`, a missing file is created with the specified permissions. If the file already exists, new content is appended rather than overwriting.
+
+### Errors
+
+Go has no try-catch mechanism. Functions return an `error` value as their last result, and callers check whether it is `nil` before continuing. This explicit style keeps error paths visible and is central to writing resilient Go programs.
+
+#### Creating errors with `errors.New`
+
+The [`errors`](https://pkg.go.dev/errors) package provides [`New`](https://pkg.go.dev/errors#New), which returns a simple error with a fixed message:
+
+```go
+func New(text string) error
+```
+
+Each call to `New` returns a **distinct** error value, even when the text is identical:
+
+```go
+import (
+	"errors"
+	"fmt"
+)
+
+err := errors.New("custom error occurred")
+fmt.Println(err) // custom error occurred
+```
+
+> Always check whether an error is `nil` before proceeding. A `nil` error means the operation succeeded.
+
+#### Checking errors with `if`
+
+The standard pattern is to test the returned error immediately:
+
+```go
+func process(i int) error {
+	if i%2 == 0 {
+		return errors.New("only odd numbers allowed")
+	}
+	return nil
+}
+
+err := process(3)
+if err != nil {
+	fmt.Println(err)
+} else {
+	fmt.Println("operation successful")
+}
+
+err = process(2)
+if err != nil {
+	fmt.Println(err) // only odd numbers allowed
+}
+```
+
+A `nil` return signals success; a non-`nil` value signals failure and should be handled or propagated.
+
+#### Formatted errors with `fmt.Errorf`
+
+When an error message needs dynamic values, use [`fmt.Errorf`](https://pkg.go.dev/fmt#Errorf):
+
+```go
+func Errorf(format string, a ...any) error
+```
+
+It formats a string (like `fmt.Sprintf`) and returns it as an `error`:
+
+```go
+import "fmt"
+
+func process(i int) error {
+	if i%2 == 0 {
+		return fmt.Errorf("only odd numbers allowed, got: %d", i)
+	}
+	return nil
+}
+
+err := process(2)
+fmt.Println(err) // only odd numbers allowed, got: 2
+```
+
+| Function     | Use when                               |
+| ------------ | -------------------------------------- |
+| `errors.New` | A static, fixed error message          |
+| `fmt.Errorf` | A message that includes runtime values |
+
+Both return values that satisfy the built-in `error` interface — a type with a single `Error() string` method.
+
+### Logging
+
+Logging helps identify bugs, spot performance bottlenecks, and investigate outages or security incidents after the fact. Go ships with a built-in [`log`](https://pkg.go.dev/log) package for simple use cases, and third-party frameworks such as [Logrus](https://github.com/sirupsen/logrus) for structured, level-based logging in production.
+
+#### What to log
+
+Every log entry should include at minimum:
+
+- A **timestamp** — when the event occurred
+- A **log level** — severity (e.g. debug, info, error)
+- **Context** — details that help diagnose the issue
+
+#### The built-in `log` package
+
+The standard [`log`](https://pkg.go.dev/log) package covers basic logging needs. It does not support multiple log levels (no debug, warn, or error tiers), but automatically prefixes each line with a date and time — ideal for local development and small applications:
+
+```go
+import "log"
+
+log.Println("Hello world")
+// 2022/11/27 21:54:11 Hello world
+```
+
+> For quick local testing, the built-in package is often enough. Complex or production applications benefit from a framework that standardises log format and levels.
+
+#### Logging to a file
+
+Redirect output with [`log.SetOutput`](https://pkg.go.dev/log#SetOutput). Any value that implements [`io.Writer`](https://pkg.go.dev/io#Writer) works — including a file opened with `os.OpenFile`:
+
+```go
+import (
+	"log"
+	"os"
+)
+
+file, err := os.OpenFile("app.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+if err != nil {
+	log.Fatal(err)
+}
+defer file.Close()
+
+log.SetOutput(file)
+log.Println("Hello world")
+```
+
+Each entry is appended to the file with a timestamp prefix.
+
+#### Logrus
+
+[Logrus](https://github.com/sirupsen/logrus) is a popular third-party logger (used in projects like Docker) that adds log levels, structured fields, and flexible output. Install it with:
+
+```bash
+go get github.com/sirupsen/logrus
+```
+
+Basic usage mirrors the built-in package, with level-specific methods:
+
+```go
+import (
+	"os"
+
+	"github.com/sirupsen/logrus"
+)
+
+file, err := os.OpenFile("app.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+if err != nil {
+	logrus.Fatal(err)
+}
+logrus.SetOutput(file)
+
+logrus.Info("Hello world")
+```
+
+Logrus supports these levels, from least to most severe:
+
+| Level | Method         | Behaviour                             |
+| ----- | -------------- | ------------------------------------- |
+| Trace | `logrus.Trace` | Verbose diagnostic output             |
+| Debug | `logrus.Debug` | Development-time detail               |
+| Info  | `logrus.Info`  | General operational messages          |
+| Warn  | `logrus.Warn`  | Potentially harmful situations        |
+| Error | `logrus.Error` | Failures that do not stop the program |
+| Fatal | `logrus.Fatal` | Logs and calls `os.Exit(1)`           |
+| Panic | `logrus.Panic` | Logs and then panics                  |
+
+Set the minimum level with `logrus.SetLevel`. Messages below that threshold are ignored:
+
+```go
+logrus.SetLevel(logrus.DebugLevel)
+logrus.Debug("This is a debug message") // captured
+logrus.Trace("This is a trace message") // ignored at DebugLevel
+```
+
+> In production, prefer a structured logging framework over the built-in package. Consistent levels and formats make it easier to aggregate and search logs across services.
+
+### Sort
+
+The [`sort`](https://pkg.go.dev/sort) package sorts built-in types and custom container types. It provides dedicated helpers for common slice types and a generic [`Interface`](https://pkg.go.dev/sort#Interface) for user-defined collections.
+
+#### Sorting integers
+
+[`sort.Ints`](https://pkg.go.dev/sort#Ints) sorts a `[]int` **in place** in ascending order:
+
+```go
+import (
+	"fmt"
+	"sort"
+)
+
+nums := []int{5, 2, 0, 3, 4, 9, 6}
+sort.Ints(nums)
+fmt.Println(nums) // [0 2 3 4 5 6 9]
+```
+
+> `sort.Ints` mutates the original slice. It does not return a new slice.
+
+#### Sorting strings
+
+[`sort.Strings`](https://pkg.go.dev/sort#Strings) works the same way for `[]string`, using lexicographic (dictionary) order:
+
+```go
+words := []string{"Learning", "Golang", "on", "Kodekloud"}
+sort.Strings(words)
+fmt.Println(words) // [Golang Kodekloud Learning on]
+```
+
+| Function        | Slice type  | Order             |
+| --------------- | ----------- | ----------------- |
+| `sort.Ints`     | `[]int`     | Ascending numeric |
+| `sort.Float64s` | `[]float64` | Ascending numeric |
+| `sort.Strings`  | `[]string`  | Lexicographic     |
+
+Use the function that matches the element type for best performance.
+
+#### Package internals
+
+Under the hood, the package defines slice types such as `IntSlice` and `StringSlice` that implement `sort.Interface`:
+
+```go
+type Interface interface {
+	Len() int
+	Less(i, j int) bool
+	Swap(i, j int)
+}
+```
+
+Any type that implements these three methods can be sorted with [`sort.Sort`](https://pkg.go.dev/sort#Sort). [`sort.Reverse`](https://pkg.go.dev/sort#Reverse) wraps an `Interface` to sort in descending order.
+
+### Hashes and cryptography
+
+Cryptography protects digital data from unauthorised access through encryption, decryption, and hashing. Go's [`crypto`](https://pkg.go.dev/crypto) package and its subpackages provide implementations of many standard algorithms behind simple APIs.
+
+#### Hashing with MD5
+
+A common pattern is hashing a password before storing it in a database. [`crypto/md5`](https://pkg.go.dev/crypto/md5) computes a fixed-length checksum from an input string:
+
+```go
+import (
+	"crypto/md5"
+	"encoding/hex"
+	"fmt"
+)
+
+func encodeWithMD5(str string) string {
+	hash := md5.Sum([]byte(str))
+	return hex.EncodeToString(hash[:])
+}
+
+password := "my-secret"
+fmt.Println(encodeWithMD5(password))
+// 482c811da5d5b4bc6d497ffa98491e38
+```
+
+- `md5.Sum` accepts a byte slice and returns a 16-byte `[16]byte` array
+- [`hex.EncodeToString`](https://pkg.go.dev/encoding/hex#EncodeToString) converts the raw bytes into a readable hexadecimal string
+
+> **MD5 is cryptographically broken** and must not be used for password storage in production. Prefer purpose-built algorithms such as [bcrypt](https://pkg.go.dev/golang.org/x/crypto/bcrypt) or Argon2.
+
+#### Beyond MD5
+
+The `crypto` tree covers a wide range of algorithms — symmetric ciphers (`crypto/aes`), public-key cryptography (`crypto/rsa`), secure random numbers (`crypto/rand`), and more. Browse the full package index at [pkg.go.dev/crypto](https://pkg.go.dev/crypto) when choosing an algorithm for your use case.
+
+### Testing
+
+Go includes a built-in test runner via the [`testing`](https://pkg.go.dev/testing) package. Run tests with:
+
+```bash
+go test ./
+```
+
+This discovers and runs every test in the current directory and its subdirectories. Test files live alongside source code but use the `_test.go` suffix — for example, `process_test.go`.
+
+#### A function to test
+
+Consider a helper that reports whether an integer is even:
+
+```go
+package main
+
+func checkEven(i int) string {
+	if i%2 == 0 {
+		return "YES"
+	}
+	return "NO"
+}
+```
+
+#### Writing a test in the same package
+
+Test functions must be named `TestXxx` — the name starts with a capital **`Test`** followed by a descriptive suffix. Place the test in the same package to access unexported (internal) functions:
+
+```go
+package main
+
+import "testing"
+
+func TestCheckEven(t *testing.T) {
+	res := checkEven(10)
+	expected := "YES"
+	if res != expected {
+		t.Errorf("expected: %v, got: %v", expected, res)
+	}
+}
+```
+
+Run `go test .` and the runner reports pass or fail. On failure, `t.Errorf` prints a message without stopping other tests:
+
+```text
+--- FAIL: TestCheckEven (0.00s)
+    process_test.go:10: expected: YESs, got: YES
+FAIL
+```
+
+> Test function names must start with `Test` (capital T). A lowercase name like `testCheckEven` is ignored — `go test` will report `ok (cached) [no tests to run]`.
+
+#### Testing exported functions from another package
+
+Move the logic into its own package and export the function (capitalised name):
+
+```go
+// process/process.go
+package process
+
+func CheckEven(i int) string {
+	if i%2 == 0 {
+		return "YES"
+	}
+	return "NO"
+}
+```
+
+Import the package in your test file and call it the way a consumer would:
+
+```go
+package main
+
+import (
+	"example.com/learn/process"
+	"testing"
+)
+
+func TestCheckEven(t *testing.T) {
+	res := process.CheckEven(10)
+	if res != "YES" {
+		t.Errorf("expected YES, got %s", res)
+	}
+}
+```
+
+This pattern verifies the public API. You can place test files in the module root or in a dedicated `tests/` directory — `go test .` works from whichever directory contains the `_test.go` files.
+
+> Unexported functions can only be tested from within the same package. To test internals, keep `_test.go` files in that package; to test the public surface, import the package as an external consumer would.
+
+#### Best practices
+
+- Use `_test.go` filenames, separate from production code
+- Name test functions `TestXxx` (capital `T` required)
+- Test internal functions in the same package; test exported functions by importing the package
+- Write tests that reflect how real callers use the code
+- Use `t.Errorf` for assertion failures and `t.Fatal` when the test cannot continue
+
+### Core package katas
+
+Solved exercises for practicing file I/O, error handling, and other standard library patterns covered in this module. Each kata includes the task, a working solution, and notes on the key ideas.
+
+#### 1. Read lines from a text file
+
+**Task:**
+
+Write a function `ReadLines` that reads a text file and returns a slice of strings — one entry per line. The file `data.txt` in `/root/code/data/` contains:
+
+```text
+Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
+when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+```
+
+Complete the function in the starter code below:
+
+```go
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
+
+func ReadLines(filename string) ([]string, error) {
+	// your code goes here
+}
+
+func main() {
+	lines, err := ReadLines("data.txt")
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		for _, line := range lines {
+			fmt.Println(line)
+		}
+	}
+}
+```
+
+**Expected output:**
+
+```text
+Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
+when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+```
+
+**My solution:**
+
+```go
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
+
+func ReadLines(filename string) ([]string, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var lines []string
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return lines, nil
+}
+
+func main() {
+	lines, err := ReadLines("data.txt")
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		for _, line := range lines {
+			fmt.Println(line)
+		}
+	}
+}
+```
+
+**Key ideas:**
+
+- [`os.Open`](https://pkg.go.dev/os#Open) returns an `*os.File` that implements [`io.Reader`](https://pkg.go.dev/io#Reader) — the same interface introduced in the I/O section above
+- [`bufio.NewScanner`](https://pkg.go.dev/bufio#NewScanner) reads the file line by line without loading the entire contents into memory
+- `defer file.Close()` ensures the file handle is released even if reading fails partway through
+- Check `scanner.Err()` after the loop — `Scan()` returns `false` on both EOF and read errors, so the final error must be inspected separately
+- Return `nil, err` on failure so the caller can distinguish a successful empty file from an error
+
+**If with short statement:**
+
+Go lets you declare a temporary variable and test a condition in a single `if` line:
+
+```go
+if err := scanner.Err(); err != nil {
+	return nil, err
+}
+```
+
+| Part                   | Role                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------ |
+| `err := scanner.Err()` | **Initialisation** — runs first; fetches the scanner's error status into a new `err` |
+| `;`                    | Separates the short statement from the condition                                     |
+| `err != nil`           | **Condition** — runs second; enters the block only when an error occurred            |
+
+> The `err` declared in the short statement exists **only inside that `if` block**. Once the closing `}` is reached, it goes out of scope. That keeps the rest of the function clean and avoids accidentally reusing an outdated error later.
+
+#### 2. Sum integers from a file
+
+**Task:**
+
+`input.txt` contains a list of integers, one per line. Read the file, sum the integers, and write the result to `output.txt` in the same directory.
+
+Complete the starter code below (located in `/root/code/xerox`):
+
+```go
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+)
+
+func main() {
+	// your code goes here
+}
+```
+
+**Expected output:**
+
+A file `output.txt` is created containing the sum:
+
+```text
+160
+```
+
+**My solution:**
+
+```go
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+)
+
+func CalculateSum(filename string) (int, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return 0, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	sum := 0
+
+	for scanner.Scan() {
+		num, err := strconv.Atoi(scanner.Text())
+		if err != nil {
+			continue
+		}
+		sum += num
+	}
+
+	if err := scanner.Err(); err != nil {
+		return 0, err
+	}
+
+	return sum, nil
+}
+
+func WriteToFile(filename string, sum int) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = fmt.Fprintln(file, sum)
+	return err
+}
+
+func main() {
+	sum, err := CalculateSum("input.txt")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error reading input:", err)
+		return
+	}
+
+	err = WriteToFile("output.txt", sum)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error writing output:", err)
+		return
+	}
+
+	fmt.Printf("Successfully calculated sum: %d\n", sum)
+}
+```
+
+**Key ideas:**
+
+- Split the work into two focused helpers: `CalculateSum` for reading/parsing, `WriteToFile` for output — `main` only orchestrates and reports errors
+- [`strconv.Atoi`](https://pkg.go.dev/strconv#Atoi) converts each line from string to `int`; skipping parse failures with `continue` keeps a bad line from aborting the whole sum
+- [`os.Create`](https://pkg.go.dev/os#Create) opens (or truncates) `output.txt` for writing — the returned `*os.File` is an [`io.Writer`](https://pkg.go.dev/io#Writer)
+- [`fmt.Fprintln`](https://pkg.go.dev/fmt#Fprintln) writes the sum plus a trailing newline to the file
+- Errors go to [`os.Stderr`](https://pkg.go.dev/os#Stderr) so they stay separate from program output that might be redirected
+
+#### 3. Log messages with Logrus
+
+**Task:**
+
+Use the [Logrus](https://github.com/sirupsen/logrus) package to log messages at different levels. Implement a `logMessage` function that takes a `level` string and a `message` string:
+
+| Level | Action |
+| --- | --- |
+| `"debug"` | `log.Debug(message)` |
+| `"info"` | `log.Info(message)` |
+| `"warning"` | `log.Warning(message)` |
+| `"error"` | `log.Error(message)` |
+| anything else | `log.Error("Invalid log level: " + level)` |
+
+Complete the starter code below (located in `/root/code/logrus`):
+
+```go
+package main
+
+import log "github.com/sirupsen/logrus"
+
+// your code goes here
+
+func main() {
+	log.SetLevel(log.DebugLevel)
+	logMessage("debug", "This is a debug message")
+	logMessage("info", "This is an info message")
+	logMessage("warning", "This is a warning message")
+	logMessage("error", "This is an error message")
+	logMessage("invalid", "This is an invalid message")
+}
+```
+
+**Expected output:**
+
+```text
+DEBU[0000] This is a debug message
+INFO[0000] This is an info message
+WARN[0000] This is a warning message
+ERRO[0000] This is an error message
+ERRO[0000] Invalid log level: invalid
+```
+
+**My solution:**
+
+```go
+package main
+
+import log "github.com/sirupsen/logrus"
+
+func logMessage(level string, message string) {
+	switch level {
+	case "debug":
+		log.Debug(message)
+	case "info":
+		log.Info(message)
+	case "warning":
+		log.Warning(message)
+	case "error":
+		log.Error(message)
+	default:
+		log.Error("Invalid log level: " + level)
+	}
+}
+
+func main() {
+	log.SetLevel(log.DebugLevel)
+	logMessage("debug", "This is a debug message")
+	logMessage("info", "This is an info message")
+	logMessage("warning", "This is a warning message")
+	logMessage("error", "This is an error message")
+	logMessage("invalid", "This is an invalid message")
+}
+```
+
+**Key ideas:**
+
+- Import Logrus with an alias (`import log "github.com/sirupsen/logrus"`) so calls read like the built-in `log` package
+- [`log.SetLevel(log.DebugLevel)`](https://pkg.go.dev/github.com/sirupsen/logrus#SetLevel) lowers the threshold so debug messages are actually emitted — without it, the default (Info) would hide them
+- A `switch` on the level string maps each known value to the matching Logrus method; `default` handles unknown levels
+- Invalid levels still use `log.Error`, so they show up at error severity rather than being silently dropped
